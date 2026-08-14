@@ -2,17 +2,46 @@ import { useState } from 'react';
 import { uploadService } from '../services/uploadService';
 import { resolveImageUrl } from '../utils/imageUrl';
 
-const UNIT_OPTIONS = ['Kg', 'Quintal', 'Piece', 'Liter', 'Crate', 'Sack'];
+const UNIT_OPTIONS = ['Quintal', 'Kg', 'Crate', 'Piece', 'Liter', 'Sack'];
+const REGION_OPTIONS = [
+  'South Ethiopia',
+  'Oromia',
+  'Amhara',
+  'Sidama',
+  'Central Ethiopia',
+  'Tigray',
+  'Somali',
+  'Afar',
+  'Benishangul-Gumuz',
+  'Gambela',
+  'Harari',
+  'Addis Ababa',
+  'Dire Dawa',
+];
+const GRADE_OPTIONS = [
+  'Grade 1 (Export/Premium)',
+  'Grade 2 (Standard Market)',
+  'Grade 3 (Commercial)',
+  'Organic Certified',
+  'Standard',
+];
 
 const emptyForm = {
   title: '',
   category: '',
   price: '',
   quantity: '',
-  unit: 'Kg',
+  unit: 'Quintal',
+  minOrderQuantity: 1,
+  grade: 'Grade 2 (Standard Market)',
+  region: 'South Ethiopia',
+  zone: 'Wolaita',
+  woreda: '',
   location: '',
   description: '',
   imageUrl: '',
+  isCooperativePooled: false,
+  cooperativeName: '',
   isAvailable: true,
 };
 
@@ -22,6 +51,10 @@ export default function ProductForm({ initialValues, onSubmit, submitLabel }) {
     ...initialValues,
     imageUrl: initialValues?.images?.[0] || '',
     isAvailable: initialValues?.isAvailable ?? true,
+    minOrderQuantity: initialValues?.minOrderQuantity || 1,
+    grade: initialValues?.grade || 'Grade 2 (Standard Market)',
+    region: initialValues?.region || 'South Ethiopia',
+    zone: initialValues?.zone || 'Wolaita',
   });
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -61,6 +94,7 @@ export default function ProductForm({ initialValues, onSubmit, submitLabel }) {
         ...formData,
         price: Number(formData.price),
         quantity: Number(formData.quantity),
+        minOrderQuantity: Number(formData.minOrderQuantity || 1),
         images: formData.imageUrl ? [formData.imageUrl.trim()] : [],
       });
     } catch (err) {
@@ -76,25 +110,39 @@ export default function ProductForm({ initialValues, onSubmit, submitLabel }) {
     <form onSubmit={handleSubmit} className="auth-form product-form">
       {error && <p className="form-error">{error}</p>}
 
-      <label htmlFor="title">Product Name</label>
+      <label htmlFor="title">Produce Title (የምርት ስም)</label>
       <input
         id="title"
         name="title"
-        placeholder="e.g. Fresh Red Teff"
+        placeholder="e.g. Premium White Teff, Washed Coffee, Red Ginger"
         value={formData.title}
         onChange={handleChange}
         required
       />
 
-      <label htmlFor="category">Category</label>
-      <input
-        id="category"
-        name="category"
-        placeholder="e.g. Grain, Vegetable, Spice"
-        value={formData.category}
-        onChange={handleChange}
-        required
-      />
+      <div className="form-row">
+        <div className="form-col">
+          <label htmlFor="category">Crop Category</label>
+          <input
+            id="category"
+            name="category"
+            placeholder="e.g. Grain, Coffee, Spice, Fruit"
+            value={formData.category}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="form-col">
+          <label htmlFor="grade">Quality Grade (የጥራት ደረጃ)</label>
+          <select id="grade" name="grade" value={formData.grade} onChange={handleChange}>
+            {GRADE_OPTIONS.map((g) => (
+              <option key={g} value={g}>
+                {g}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
 
       <div className="form-row">
         <div className="form-col">
@@ -112,7 +160,7 @@ export default function ProductForm({ initialValues, onSubmit, submitLabel }) {
         </div>
 
         <div className="form-col">
-          <label htmlFor="quantity">Quantity available</label>
+          <label htmlFor="quantity">Quantity Available</label>
           <input
             id="quantity"
             name="quantity"
@@ -136,17 +184,44 @@ export default function ProductForm({ initialValues, onSubmit, submitLabel }) {
         </div>
       </div>
 
-      <label htmlFor="location">Location</label>
-      <input
-        id="location"
-        name="location"
-        placeholder="e.g. Wolaita Sodo, Boditi"
-        value={formData.location}
-        onChange={handleChange}
-        required
-      />
+      <div className="form-row">
+        <div className="form-col">
+          <label htmlFor="region">Region (ክልል)</label>
+          <select id="region" name="region" value={formData.region} onChange={handleChange}>
+            {REGION_OPTIONS.map((r) => (
+              <option key={r} value={r}>
+                {r}
+              </option>
+            ))}
+          </select>
+        </div>
 
-      <label htmlFor="photo">Product Photo</label>
+        <div className="form-col">
+          <label htmlFor="zone">Zone (ዞን)</label>
+          <input
+            id="zone"
+            name="zone"
+            placeholder="e.g. Wolaita, Jimma, East Gojjam"
+            value={formData.zone}
+            onChange={handleChange}
+            required
+          />
+        </div>
+
+        <div className="form-col">
+          <label htmlFor="location">Specific Location / Warehouse</label>
+          <input
+            id="location"
+            name="location"
+            placeholder="e.g. Sodo Central Depot, Mana Station"
+            value={formData.location}
+            onChange={handleChange}
+            required
+          />
+        </div>
+      </div>
+
+      <label htmlFor="photo">Produce Photo</label>
       <div className="photo-upload">
         {previewSrc && (
           <div className="photo-upload-preview">
@@ -182,26 +257,52 @@ export default function ProductForm({ initialValues, onSubmit, submitLabel }) {
         }}
       />
 
-      <label htmlFor="description">Description</label>
+      <label htmlFor="description">Description & Harvest Notes</label>
       <textarea
         id="description"
         name="description"
-        rows={4}
-        placeholder="Tell buyers about freshness, harvest date, grading..."
+        rows={3}
+        placeholder="Tell buyers about moisture content, harvest date, grading, packaging (e.g. PICS bags)..."
         value={formData.description}
         onChange={handleChange}
       />
 
-      <label className="checkbox-row" htmlFor="isAvailable">
-        <input
-          id="isAvailable"
-          name="isAvailable"
-          type="checkbox"
-          checked={formData.isAvailable}
-          onChange={handleChange}
-        />
-        This listing is currently available for sale
-      </label>
+      <div className="form-row">
+        <label className="checkbox-row" htmlFor="isCooperativePooled">
+          <input
+            id="isCooperativePooled"
+            name="isCooperativePooled"
+            type="checkbox"
+            checked={formData.isCooperativePooled}
+            onChange={handleChange}
+          />
+          This is a Cooperative Pooled Lot (የህብረት ስራ ማህበር የጋራ ምርት)
+        </label>
+
+        <label className="checkbox-row" htmlFor="isAvailable">
+          <input
+            id="isAvailable"
+            name="isAvailable"
+            type="checkbox"
+            checked={formData.isAvailable}
+            onChange={handleChange}
+          />
+          Currently available for sale
+        </label>
+      </div>
+
+      {formData.isCooperativePooled && (
+        <div className="field-group">
+          <label htmlFor="cooperativeName">Primary Cooperative / Union Name</label>
+          <input
+            id="cooperativeName"
+            name="cooperativeName"
+            placeholder="e.g. Wolaita Smallholders Union, Lume Adama Union"
+            value={formData.cooperativeName}
+            onChange={handleChange}
+          />
+        </div>
+      )}
 
       <button type="submit" className="btn btn-primary" disabled={submitting || uploading}>
         {submitting ? 'Saving...' : submitLabel}

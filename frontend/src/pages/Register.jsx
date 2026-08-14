@@ -1,15 +1,37 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
+
+const REGION_OPTIONS = [
+  'South Ethiopia',
+  'Oromia',
+  'Amhara',
+  'Sidama',
+  'Central Ethiopia',
+  'Tigray',
+  'Somali',
+  'Afar',
+  'Benishangul-Gumuz',
+  'Gambela',
+  'Harari',
+  'Addis Ababa',
+  'Dire Dawa',
+];
 
 export default function Register() {
   const { register } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    phone: '',
     password: '',
     role: 'buyer',
+    region: 'South Ethiopia',
+    zone: 'Wolaita',
+    cooperativeName: '',
   });
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -34,22 +56,51 @@ export default function Register() {
 
   return (
     <div className="auth-page">
-      <h1>Register</h1>
+      <div className="page-intro">
+        <span className="eyebrow">🌱 AgroConnect Ethiopia</span>
+        <h1>{t('register')}</h1>
+        <p>Join the national digital agriculture network & escrow marketplace.</p>
+      </div>
+
       <form onSubmit={handleSubmit} className="auth-form">
         {error && <p className="form-error">{error}</p>}
 
-        <label htmlFor="name">Name</label>
-        <input id="name" name="name" value={formData.name} onChange={handleChange} required />
-
-        <label htmlFor="email">Email</label>
+        <label htmlFor="name">Full Name / Contact Person</label>
         <input
-          id="email"
-          name="email"
-          type="email"
-          value={formData.email}
+          id="name"
+          name="name"
+          placeholder="e.g. Abebe Balcha"
+          value={formData.name}
           onChange={handleChange}
           required
         />
+
+        <div className="form-row">
+          <div className="form-col">
+            <label htmlFor="email">Email Address</label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              placeholder="user@agroconnect.et"
+              value={formData.email}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          <div className="form-col">
+            <label htmlFor="phone">Phone Number (Telebirr/CBE linked)</label>
+            <input
+              id="phone"
+              name="phone"
+              type="tel"
+              placeholder="+251911..."
+              value={formData.phone}
+              onChange={handleChange}
+              required
+            />
+          </div>
+        </div>
 
         <label htmlFor="password">Password</label>
         <input
@@ -57,25 +108,69 @@ export default function Register() {
           name="password"
           type="password"
           minLength={6}
+          placeholder="At least 6 characters"
           value={formData.password}
           onChange={handleChange}
           required
         />
 
-        <label htmlFor="role">I am a...</label>
-        <select id="role" name="role" value={formData.role} onChange={handleChange}>
-          <option value="buyer">Buyer</option>
-          <option value="farmer">Farmer</option>
-        </select>
+        <div className="form-row">
+          <div className="form-col">
+            <label htmlFor="role">I am joining as a...</label>
+            <select id="role" name="role" value={formData.role} onChange={handleChange}>
+              <option value="buyer">Commercial / Wholesale Buyer (ነጋዴ / ሸማች)</option>
+              <option value="farmer">Smallholder Farmer (አምራች አርሶ አደር)</option>
+              <option value="cooperative">Cooperative Union (የገበሬዎች ህብረት ስራ ማህበር)</option>
+              <option value="transporter">Logistics & Truck Driver (የጭነት አሽከርካሪ)</option>
+            </select>
+          </div>
 
-        <button type="submit" disabled={submitting}>
-          {submitting ? 'Creating account...' : 'Register'}
+          <div className="form-col">
+            <label htmlFor="region">Primary Region</label>
+            <select id="region" name="region" value={formData.region} onChange={handleChange}>
+              {REGION_OPTIONS.map((r) => (
+                <option key={r} value={r}>
+                  {r}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <div className="form-row">
+          <div className="form-col">
+            <label htmlFor="zone">Zone (ዞን)</label>
+            <input
+              id="zone"
+              name="zone"
+              placeholder="e.g. Wolaita, Jimma, Shewa"
+              value={formData.zone}
+              onChange={handleChange}
+            />
+          </div>
+          {formData.role === 'cooperative' && (
+            <div className="form-col">
+              <label htmlFor="cooperativeName">Union / Cooperative Name</label>
+              <input
+                id="cooperativeName"
+                name="cooperativeName"
+                placeholder="e.g. Damot Union"
+                value={formData.cooperativeName}
+                onChange={handleChange}
+              />
+            </div>
+          )}
+        </div>
+
+        <button type="submit" className="btn btn-primary btn-block" disabled={submitting}>
+          {submitting ? 'Creating account...' : t('register')}
         </button>
       </form>
 
-      <p>
-        Already have an account? <Link to="/login">Login here</Link>
+      <p className="auth-switch">
+        Already have an account? <Link to="/login">{t('login')} here</Link>
       </p>
     </div>
   );
 }
+
