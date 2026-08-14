@@ -4,6 +4,14 @@ import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import NotificationBell from './NotificationBell';
 
+const ROLE_INFO = {
+  admin: { label: '🛡️ Admin', class: 'role-admin' },
+  farmer: { label: '👨‍🌾 Farmer', class: 'role-farmer' },
+  cooperative: { label: '🏢 Union Coop', class: 'role-coop' },
+  transporter: { label: '🚚 Logistics', class: 'role-transporter' },
+  buyer: { label: '🛒 Buyer', class: 'role-buyer' },
+};
+
 export default function Navbar() {
   const { user, logout } = useAuth();
   const { lang, setLang, t, languages } = useLanguage();
@@ -18,9 +26,11 @@ export default function Navbar() {
   };
 
   const isActive = (path) => location.pathname === path;
+  const currentRole = user?.role || 'public';
+  const roleMeta = ROLE_INFO[currentRole] || { label: 'User', class: 'role-buyer' };
 
   return (
-    <header className="navbar-wrapper">
+    <header className={`navbar-wrapper nav-theme-${currentRole}`}>
       <nav className="navbar-container">
         {/* Brand Logo */}
         <Link to="/" className="nav-brand" onClick={() => setOpen(false)}>
@@ -143,7 +153,10 @@ export default function Navbar() {
 
                 <div className="nav-user-pill">
                   <span className="user-avatar-initial">{user.name.charAt(0).toUpperCase()}</span>
-                  <span className="user-name-short">{user.name.split(' ')[0]}</span>
+                  <div className="user-info-stack">
+                    <span className="user-name-short">{user.name.split(' ')[0]}</span>
+                    <span className={`user-role-badge ${roleMeta.class}`}>{roleMeta.label}</span>
+                  </div>
                 </div>
 
                 <button onClick={handleLogout} className="nav-logout-btn" title="Logout">
@@ -157,5 +170,6 @@ export default function Navbar() {
     </header>
   );
 }
+
 
 
