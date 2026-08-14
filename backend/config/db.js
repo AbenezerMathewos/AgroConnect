@@ -1,13 +1,22 @@
 const mongoose = require('mongoose');
 
 const connectDB = async () => {
+  const primaryUri = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/agroconnect_ethiopia';
   try {
-    const conn = await mongoose.connect(process.env.MONGO_URI);
+    const conn = await mongoose.connect(primaryUri, { serverSelectionTimeoutMS: 4000 });
     console.log(`MongoDB connected: ${conn.connection.host}`);
   } catch (error) {
-    console.error(`MongoDB connection error: ${error.message}`);
-    process.exit(1);
+    console.warn(`Primary MongoDB connection failed (${error.message}). Trying local fallback...`);
+    try {
+      const localUri = 'mongodb://127.0.0.1:27017/agroconnect_ethiopia';
+      const conn = await mongoose.connect(localUri, { serverSelectionTimeoutMS: 4000 });
+      console.log(`Local MongoDB connected: ${conn.connection.host}`);
+    } catch (fallbackErr) {
+      console.error(`MongoDB connection error: ${fallbackErr.message}`);
+      process.exit(1);
+    }
   }
 };
 
 module.exports = connectDB;
+

@@ -6,14 +6,14 @@ const generateToken = require('../utils/generateToken');
 // @access  Public
 exports.register = async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password, role, phone, region, zone, woreda, cooperativeName, preferredLanguage } = req.body;
 
     if (!name || !email || !password) {
       return res.status(400).json({ message: 'Name, email, and password are required' });
     }
 
-    if (role && !['farmer', 'buyer'].includes(role)) {
-      return res.status(400).json({ message: 'Role must be either farmer or buyer' });
+    if (role && !['farmer', 'buyer', 'transporter', 'cooperative'].includes(role)) {
+      return res.status(400).json({ message: 'Role must be farmer, buyer, transporter, or cooperative' });
     }
 
     const existingUser = await User.findOne({ email: email.toLowerCase() });
@@ -29,6 +29,12 @@ exports.register = async (req, res) => {
       email,
       password: hashedPassword,
       role: role || 'buyer',
+      phone: phone || '',
+      region: region || 'South Ethiopia',
+      zone: zone || 'Wolaita',
+      woreda: woreda || '',
+      cooperativeName: cooperativeName || '',
+      preferredLanguage: preferredLanguage || 'en',
     });
 
     const token = generateToken(user._id, user.role);
@@ -37,9 +43,16 @@ exports.register = async (req, res) => {
       token,
       user: {
         id: user._id,
+        _id: user._id,
         name: user.name,
         email: user.email,
         role: user.role,
+        phone: user.phone,
+        region: user.region,
+        zone: user.zone,
+        woreda: user.woreda,
+        cooperativeName: user.cooperativeName,
+        preferredLanguage: user.preferredLanguage,
       },
     });
   } catch (error) {
@@ -73,12 +86,20 @@ exports.login = async (req, res) => {
       token,
       user: {
         id: user._id,
+        _id: user._id,
         name: user.name,
         email: user.email,
         role: user.role,
+        phone: user.phone,
+        region: user.region,
+        zone: user.zone,
+        woreda: user.woreda,
+        cooperativeName: user.cooperativeName,
+        preferredLanguage: user.preferredLanguage,
       },
     });
   } catch (error) {
     res.status(500).json({ message: 'Server error during login', error: error.message });
   }
 };
+

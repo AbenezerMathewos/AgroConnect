@@ -22,6 +22,38 @@ const productSchema = new mongoose.Schema(
       required: [true, 'Quantity is required'],
       min: [0, 'Quantity cannot be negative'],
     },
+    unit: {
+      type: String,
+      trim: true,
+      default: 'Kg',
+    },
+    minOrderQuantity: {
+      type: Number,
+      default: 1,
+      min: 0.1,
+    },
+    grade: {
+      type: String,
+      enum: ['Grade 1 (Export/Premium)', 'Grade 2 (Standard Market)', 'Grade 3 (Commercial)', 'Organic Certified', 'Standard'],
+      default: 'Grade 2 (Standard Market)',
+    },
+    region: {
+      type: String,
+      required: true,
+      default: 'South Ethiopia',
+      trim: true,
+    },
+    zone: {
+      type: String,
+      required: true,
+      default: 'Wolaita',
+      trim: true,
+    },
+    woreda: {
+      type: String,
+      trim: true,
+      default: '',
+    },
     location: {
       type: String,
       required: [true, 'Location is required'],
@@ -36,15 +68,23 @@ const productSchema = new mongoose.Schema(
       type: [String],
       default: [],
     },
-    unit: {
-      type: String,
-      trim: true,
-      default: 'Kg',
+    harvestDate: {
+      type: Date,
+      default: Date.now,
     },
     availableUntil: Date,
     isAvailable: {
       type: Boolean,
       default: true,
+    },
+    isCooperativePooled: {
+      type: Boolean,
+      default: false,
+    },
+    cooperativeName: {
+      type: String,
+      trim: true,
+      default: '',
     },
     owner: {
       type: mongoose.Schema.Types.ObjectId,
@@ -55,7 +95,9 @@ const productSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Supports "search products" (title/category) from the buyer side
-productSchema.index({ title: 'text', category: 'text' });
+// Supports "search products" across title, category, location, region, and zone
+productSchema.index({ title: 'text', category: 'text', description: 'text', location: 'text' });
+productSchema.index({ region: 1, category: 1, isAvailable: 1 });
 
 module.exports = mongoose.model('Product', productSchema);
+

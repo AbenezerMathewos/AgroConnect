@@ -21,13 +21,44 @@ const userSchema = new mongoose.Schema(
       minlength: 6,
       select: false, // never return password by default
     },
+    phone: {
+      type: String,
+      trim: true,
+      default: '',
+    },
     role: {
       type: String,
-      enum: ['farmer', 'buyer', 'admin'],
+      enum: ['farmer', 'buyer', 'admin', 'transporter', 'cooperative'],
       default: 'buyer',
     },
+    region: {
+      type: String,
+      trim: true,
+      default: 'South Ethiopia',
+    },
+    zone: {
+      type: String,
+      trim: true,
+      default: 'Wolaita',
+    },
+    woreda: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+    cooperativeName: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+    preferredLanguage: {
+      type: String,
+      enum: ['en', 'am', 'om', 'ti', 'wot'],
+      default: 'en',
+    },
   },
-  { timestamps: true } // adds createdAt and updatedAt
+  { timestamps: true }
 );
 
 module.exports = mongoose.model('User', userSchema);
+
