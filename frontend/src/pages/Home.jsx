@@ -14,6 +14,41 @@ const CROP_CHIPS = [
   { label: '🌾 Enset / Kocho', query: 'Enset' },
 ];
 
+const REGIONAL_HUBS = [
+  {
+    id: 'south',
+    name: 'South Ethiopia & Wolaita',
+    specialties: ['Red Ginger', 'Enset (Kocho)', 'Avocado', 'Boloso-1 Taro'],
+    hub: 'Sodo Terminal Hub',
+    status: 'Active Harvest Season',
+    icon: '🌱',
+  },
+  {
+    id: 'oromia',
+    name: 'Oromia & Jimma',
+    specialties: ['Grade 1 Washed Coffee', 'Yellow Maize', 'Wheat'],
+    hub: 'Jimma / Adama Hub',
+    status: 'Export Aggregation',
+    icon: '☕',
+  },
+  {
+    id: 'amhara',
+    name: 'Amhara & Gojjam',
+    specialties: ['Magna White Teff', 'Red Kidney Beans', 'Sesame'],
+    hub: 'Bahir Dar / Gondar Hub',
+    status: 'Wholesale Pooling',
+    icon: '🌾',
+  },
+  {
+    id: 'sidama',
+    name: 'Sidama & Yirgacheffe',
+    specialties: ['Yirgacheffe Specialty Coffee', 'Organic Honey', 'Fruits'],
+    hub: 'Hawassa Terminal Hub',
+    status: 'ECX Certified Lot',
+    icon: '🍯',
+  },
+];
+
 export default function Home() {
   const { t } = useLanguage();
   const navigate = useNavigate();
@@ -21,6 +56,7 @@ export default function Home() {
   const [arbitrage, setArbitrage] = useState([]);
   const [loading, setLoading] = useState(true);
   const [heroSearch, setHeroSearch] = useState('');
+  const [activeRegion, setActiveRegion] = useState(REGIONAL_HUBS[0]);
 
   // Interactive Arbitrage Simulator state
   const [simCrop, setSimCrop] = useState('Teff (White Magna)');
@@ -79,8 +115,16 @@ export default function Home() {
 
   return (
     <div className="home-page">
-      {/* Premium Hero Section with Live Search & Interactive Quick Chips */}
+      {/* Floating Animated Particle Canopy in Hero */}
       <section className="hero-premium">
+        <div className="hero-particles">
+          <span className="particle particle-1">🌱</span>
+          <span className="particle particle-2">✨</span>
+          <span className="particle particle-3">🌾</span>
+          <span className="particle particle-4">💫</span>
+          <span className="particle particle-5">☕</span>
+        </div>
+
         <div className="hero-grid">
           <div className="hero-content">
             <div className="hero-pill-badge">
@@ -138,7 +182,9 @@ export default function Home() {
             <div className="hero-simulator-card">
               <div className="simulator-header">
                 <span className="badge badge-discount">⚡ Arbitrage Profit Calculator</span>
-                <span className="sim-live-tag">● Live Rates</span>
+                <span className="sim-live-tag">
+                  <span className="pulse-dot-small"></span> Live Rates
+                </span>
               </div>
 
               <div className="sim-field">
@@ -197,22 +243,22 @@ export default function Home() {
         {/* Live Metrics Trust Bar */}
         <div className="hero-metrics-bar">
           <div className="metric-item">
-            <strong>50,000+</strong>
+            <strong className="metric-glow">50,000+</strong>
             <span>Quintals Facilitated</span>
           </div>
           <div className="metric-divider"></div>
           <div className="metric-item">
-            <strong>8+</strong>
+            <strong className="metric-glow">8+</strong>
             <span>National Market Hubs</span>
           </div>
           <div className="metric-divider"></div>
           <div className="metric-item">
-            <strong>100%</strong>
+            <strong className="metric-glow">100%</strong>
             <span>Telebirr Escrow Protected</span>
           </div>
           <div className="metric-divider"></div>
           <div className="metric-item">
-            <strong>5</strong>
+            <strong className="metric-glow">5</strong>
             <span>Languages Supported</span>
           </div>
         </div>
@@ -254,6 +300,64 @@ export default function Home() {
           </div>
         </section>
       )}
+
+      {/* Interactive Regional Harvest Hub Explorer */}
+      <section className="regional-hub-section">
+        <div className="section-header-flex">
+          <div>
+            <span className="eyebrow">Interactive Nationwide Network</span>
+            <h2>Regional Agricultural Production Hubs</h2>
+          </div>
+          <span className="hub-status-badge">🇪🇹 Connected to ECX & Regional Cooperatives</span>
+        </div>
+
+        <div className="hub-tabs-row">
+          {REGIONAL_HUBS.map((hub) => (
+            <button
+              key={hub.id}
+              className={`hub-tab-btn ${activeRegion.id === hub.id ? 'active' : ''}`}
+              onClick={() => setActiveRegion(hub)}
+            >
+              <span>{hub.icon}</span>
+              <strong>{hub.name}</strong>
+            </button>
+          ))}
+        </div>
+
+        <div className="hub-spotlight-card">
+          <div className="hub-spotlight-left">
+            <div className="hub-badge-row">
+              <span className="badge badge-coop">{activeRegion.hub}</span>
+              <span className="badge badge-discount">● {activeRegion.status}</span>
+            </div>
+            <h3>{activeRegion.name} Supply Corridor</h3>
+            <p>
+              Directly connected with smallholder farmer unions and primary cooperatives for quality-certified bulk lots.
+            </p>
+            <div className="hub-specialties">
+              <span className="specialties-title">Key Hub Crops:</span>
+              <div className="specialties-pills">
+                {activeRegion.specialties.map((crop) => (
+                  <span key={crop} className="specialty-pill">
+                    ✓ {crop}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+          <div className="hub-spotlight-right">
+            <Link
+              to={`/products?region=${encodeURIComponent(activeRegion.id === 'south' ? 'South Ethiopia' : activeRegion.name.split(' ')[0])}`}
+              className="btn btn-primary btn-block"
+            >
+              Browse {activeRegion.name} Harvests &rarr;
+            </Link>
+            <Link to="/freight" className="btn btn-secondary btn-block">
+              Find Freight in {activeRegion.hub.split(' ')[0]}
+            </Link>
+          </div>
+        </div>
+      </section>
 
       {/* Featured Harvests */}
       <section className="featured-section">
