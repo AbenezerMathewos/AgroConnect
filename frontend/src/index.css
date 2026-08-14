@@ -681,19 +681,247 @@ p {
 }
 
 /* ==========================================================================
-   Home Hero & Live Metrics Bar
+   Home Hero & Interactive Spread Simulator
    ========================================================================== */
 
 .hero-premium {
   background: linear-gradient(135deg, var(--forest-950) 0%, var(--forest-900) 55%, var(--forest-850) 100%);
   border-radius: var(--radius-xl);
-  padding: 3.25rem 2.5rem 2.25rem;
+  padding: 3rem 2.25rem 2rem;
   color: var(--white);
   position: relative;
   overflow: hidden;
   box-shadow: var(--shadow-lg);
   margin-bottom: 2rem;
 }
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1.25fr 1fr;
+  gap: 2.5rem;
+  align-items: center;
+  margin-bottom: 2.5rem;
+}
+
+.hero-pill-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.09);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-pill);
+  padding: 0.25rem 0.85rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--forest-300);
+  margin-bottom: 1rem;
+}
+
+.pill-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--forest-400);
+  box-shadow: 0 0 8px var(--forest-400);
+}
+
+.hero-premium h1 {
+  color: var(--white);
+  font-size: clamp(1.9rem, 3.2vw, 2.75rem);
+  margin-bottom: 0.85rem;
+}
+
+.hero-lead {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 1.05rem;
+  line-height: 1.55;
+  margin-bottom: 1.5rem;
+}
+
+/* Hero Search Box */
+.hero-search-box {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: var(--radius-pill);
+  padding: 0.35rem 0.5rem 0.35rem 1rem;
+  backdrop-filter: blur(12px);
+  margin-bottom: 1rem;
+  max-width: 540px;
+}
+
+.hero-search-icon {
+  font-size: 0.95rem;
+  opacity: 0.8;
+}
+
+.hero-search-box input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--white);
+  font-size: 0.88rem;
+  outline: none;
+}
+
+.hero-search-box input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* Popular Crop Quick Chips */
+.hero-chips-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 1.75rem;
+  flex-wrap: wrap;
+}
+
+.chips-label {
+  font-size: 0.76rem;
+  color: rgba(255, 255, 255, 0.65);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.chips-container {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.crop-chip {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.9);
+  padding: 0.2rem 0.65rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.crop-chip:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: var(--white);
+  border-color: var(--forest-300);
+}
+
+.hero-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+/* Hero Simulator Card */
+.hero-simulator-card {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  backdrop-filter: blur(12px);
+  display: flex;
+  flex-direction: column;
+  gap: 0.95rem;
+  box-shadow: var(--shadow-md);
+}
+
+.simulator-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sim-live-tag {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--forest-400);
+}
+
+.sim-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.sim-field label {
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.8);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.sim-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sim-label-row strong {
+  font-size: 0.88rem;
+  color: var(--forest-300);
+}
+
+.sim-select {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--white);
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.84rem;
+  outline: none;
+}
+
+.sim-select option {
+  background: var(--slate-900);
+  color: var(--white);
+}
+
+.sim-slider {
+  accent-color: var(--forest-400);
+  cursor: pointer;
+  width: 100%;
+}
+
+.sim-breakdown-box {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-sm);
+  padding: 0.85rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+}
+
+.sim-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.sim-row strong {
+  color: var(--white);
+}
+
+.sim-row.sim-gain-row {
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  padding-top: 0.45rem;
+  margin-top: 0.2rem;
+}
+
+.text-gain {
+  color: #34d399 !important;
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
 
 .hero-pill-badge {
   display: inline-flex;
@@ -2346,6 +2574,11 @@ p {
   .product-details-grid {
     grid-template-columns: 1fr;
   }
+
+  .hero-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
 }
 
 @media (max-width: 768px) {
@@ -2391,6 +2624,7 @@ p {
     flex-direction: column;
     gap: 1rem;
     align-items: flex-start;
+    padding: 1.25rem;
   }
 
   .metric-divider {
@@ -2405,4 +2639,13 @@ p {
     flex-direction: column;
     align-items: flex-start;
   }
+
+  .hero-premium {
+    padding: 2rem 1.25rem 1.5rem;
+  }
+
+  .hero-search-box {
+    width: 100%;
+  }
 }
+
