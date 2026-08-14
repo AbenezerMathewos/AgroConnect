@@ -1,12 +1,12 @@
 const Product = require('../models/Product');
 
 // @route   GET /api/products
-// @desc    Browse/search/filter products (buyer-facing, public)
-// @query   search=maize&category=grain&location=Wolaita Sodo&minPrice=100&maxPrice=5000&page=1&limit=12
+// @desc    Browse/search/filter products across all Ethiopian regions
+// @query   search=teff&category=grain&region=Oromia&zone=Jimma&grade=Grade 1&minPrice=100&maxPrice=5000&page=1&limit=12
 // @access  Public
 exports.getProducts = async (req, res) => {
   try {
-    const { search, category, location, minPrice, maxPrice, page = 1, limit = 12 } = req.query;
+    const { search, category, location, region, zone, grade, isCooperativePooled, minPrice, maxPrice, page = 1, limit = 12 } = req.query;
 
     const filter = {};
 
@@ -16,8 +16,20 @@ exports.getProducts = async (req, res) => {
     if (category) {
       filter.category = { $regex: category, $options: 'i' };
     }
+    if (region) {
+      filter.region = { $regex: region, $options: 'i' };
+    }
+    if (zone) {
+      filter.zone = { $regex: zone, $options: 'i' };
+    }
     if (location) {
       filter.location = { $regex: location, $options: 'i' };
+    }
+    if (grade) {
+      filter.grade = grade;
+    }
+    if (isCooperativePooled !== undefined) {
+      filter.isCooperativePooled = isCooperativePooled === 'true';
     }
     if (minPrice || maxPrice) {
       filter.price = {};
@@ -30,7 +42,7 @@ exports.getProducts = async (req, res) => {
 
     const [products, total] = await Promise.all([
       Product.find(filter)
-        .populate('owner', 'name email')
+        .populate('owner', 'name email phone region zone cooperativeName')
         .sort({ createdAt: -1 })
         .skip((pageNum - 1) * limitNum)
         .limit(limitNum),
@@ -51,8 +63,8 @@ exports.getProducts = async (req, res) => {
 };
 
 // @route   GET /api/products/my
-// @desc    Get the logged-in farmer's own products
-// @access  Private (farmer)
+// @desc    Get the logged-in farmer/cooperative's own products
+// @access  Private (farmer, cooperative)
 exports.getMyProducts = async (req, res) => {
   try {
     const products = await Product.find({ owner: req.user._id }).sort({ createdAt: -1 });
@@ -67,7 +79,7 @@ exports.getMyProducts = async (req, res) => {
 // @access  Public
 exports.getProductById = async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id).populate('owner', 'name email');
+    const product = await Product.findById(req.params.id).populate('owner', 'name email phone region zone cooperativeName');
     if (!product) {
       return res.status(404).json({ message: 'Product not found' });
     }
@@ -82,10 +94,29 @@ exports.getProductById = async (req, res) => {
 
 // @route   POST /api/products
 // @desc    Create a product listing
-// @access  Private (farmer)
+// @access  Private (farmer, cooperative)
 exports.createProduct = async (req, res) => {
   try {
-    const { title, category, price, quantity, location, description, images, unit, availableUntil, isAvailable } = req.body;
+    const {
+      title,
+      category,
+      price,
+      quantity,
+      unit,
+      minOrderQuantity,
+      grade,
+      region,
+      zone,
+      woreda,
+      location,
+      description,
+      images,
+      harvestDate,
+      availableUntil,
+      isAvailable,
+      isCooperativePooled,
+      cooperativeName,
+    } = req.body;
 
     if (!title || !category || price === undefined || quantity === undefined || !location) {
       return res.status(400).json({
@@ -98,12 +129,20 @@ exports.createProduct = async (req, res) => {
       category,
       price,
       quantity,
+      unit: unit || 'Kg',
+      minOrderQuantity: minOrderQuantity || 1,
+      grade: grade || 'Grade 2 (Standard Market)',
+      region: region || req.user.region || 'South Ethiopia',
+      zone: zone || req.user.zone || 'Wolaita',
+      woreda: woreda || req.user.woreda || '',
       location,
       description,
       images: Array.isArray(images) ? images.filter(Boolean).slice(0, 4) : [],
-      unit: unit || 'Kg',
+      harvestDate: harvestDate || Date.now(),
       availableUntil: availableUntil || undefined,
       isAvailable: isAvailable !== false,
+      isCooperativePooled: isCooperativePooled || Boolean(req.user.cooperativeName),
+      cooperativeName: cooperativeName || req.user.cooperativeName || '',
       owner: req.user._id,
     });
 
@@ -115,7 +154,7 @@ exports.createProduct = async (req, res) => {
 
 // @route   PUT /api/products/:id
 // @desc    Update a product (owner only)
-// @access  Private (farmer, must own the product)
+// @access  Private (farmer, cooperative, owner)
 exports.updateProduct = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
@@ -128,7 +167,27 @@ exports.updateProduct = async (req, res) => {
       return res.status(403).json({ message: 'You can only edit your own products' });
     }
 
-    const allowedFields = ['title', 'category', 'price', 'quantity', 'location', 'description', 'images', 'unit', 'availableUntil', 'isAvailable'];
+    const allowedFields = [
+      'title',
+      'category',
+      'price',
+      'quantity',
+      'unit',
+      'minOrderQuantity',
+      'grade',
+      'region',
+      'zone',
+      'woreda',
+      'location',
+      'description',
+      'images',
+      'harvestDate',
+      'availableUntil',
+      'isAvailable',
+      'isCooperativePooled',
+      'cooperativeName',
+    ];
+
     allowedFields.forEach((field) => {
       if (req.body[field] !== undefined) {
         product[field] = req.body[field];
@@ -174,3 +233,4 @@ exports.deleteProduct = async (req, res) => {
     res.status(500).json({ message: 'Server error deleting product', error: error.message });
   }
 };
+
