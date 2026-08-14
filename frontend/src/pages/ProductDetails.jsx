@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { productService } from '../services/productService';
 import { chatService } from '../services/chatService';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import OrderPanel from '../components/OrderPanel';
 import ReviewList from '../components/ReviewList';
 import { resolveImageUrl } from '../utils/imageUrl';
@@ -10,6 +11,7 @@ import { resolveImageUrl } from '../utils/imageUrl';
 export default function ProductDetails() {
   const { id } = useParams();
   const { user } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [product, setProduct] = useState(null);
   const [error, setError] = useState('');
@@ -41,16 +43,18 @@ export default function ProductDetails() {
       .finally(() => setLoading(false));
   }, [id]);
 
-  if (loading) return <div className="page-loading">Loading...</div>;
+  if (loading) return <div className="page-loading">Loading produce details...</div>;
   if (error) return <p className="form-error">{error}</p>;
   if (!product) return null;
 
   const image = product.images?.[0] ? resolveImageUrl(product.images[0]) : '';
+  const currentUserId = user?._id || user?.id;
+  const isOwner = currentUserId && product.owner && currentUserId.toString() === (product.owner._id || product.owner).toString();
 
   return (
     <div className="product-details-page">
       <Link to="/products" className="back-link">
-        &larr; Back to products
+        &larr; Back to marketplace
       </Link>
 
       <div className="product-details-grid">
@@ -62,42 +66,67 @@ export default function ProductDetails() {
               <span>🌾</span>
             </div>
           )}
+          {product.isCooperativePooled && (
+            <div className="coop-badge-banner">
+              🏢 Pooled by {product.cooperativeName || 'Primary Farmers Union'}
+            </div>
+          )}
         </div>
 
         <div className="product-details-main">
           <div className="product-details-heading">
-            <span className="eyebrow">{product.category}</span>
+            <div className="badge-row">
+              <span className="eyebrow">{product.category}</span>
+              <span className="badge badge-grade">{product.grade}</span>
+            </div>
             {!product.isAvailable && <span className="badge badge-muted">Sold out</span>}
           </div>
+
           <h1>{product.title}</h1>
+
           <p className="product-details-price">
             {product.price.toLocaleString()} ETB <span>/ {product.unit || 'Kg'}</span>
           </p>
 
           <dl className="product-detail-list">
-            <dt>Quantity available</dt>
+            <dt>Available Volume</dt>
             <dd>
-              {product.quantity} {product.unit || 'Kg'}
+              <strong>{product.quantity} {product.unit || 'Kg'}</strong>
+              {product.minOrderQuantity > 1 && (
+                <span className="min-order-note"> (Min order: {product.minOrderQuantity} {product.unit})</span>
+              )}
             </dd>
 
-            <dt>Location</dt>
-            <dd>📍 {product.location}</dd>
+            <dt>Origin Region</dt>
+            <dd>📍 {product.location}, {product.zone} ({product.region})</dd>
 
-            <dt>Seller</dt>
-            <dd>{product.owner?.name}</dd>
+            <dt>Producer / Union</dt>
+            <dd>
+              {product.cooperativeName ? `🏢 ${product.cooperativeName}` : `👨‍🌾 ${product.owner?.name}`}
+              {product.owner?.phone && <span className="seller-phone"> (📞 {product.owner.phone})</span>}
+            </dd>
+
+            {product.harvestDate && (
+              <>
+                <dt>Harvest Date</dt>
+                <dd>🗓️ {new Date(product.harvestDate).toLocaleDateString()}</dd>
+              </>
+            )}
 
             {product.description && (
               <>
                 <dt>Description</dt>
-                <dd>{product.description}</dd>
+                <dd className="product-desc-text">{product.description}</dd>
               </>
             )}
           </dl>
 
-          {(!user || user.role === 'buyer') && user?._id !== product.owner?._id && (
-            <button className="btn btn-secondary btn-sm" onClick={messageSeller} disabled={messaging}>
-              💬 {messaging ? 'Starting chat...' : 'Message seller'}
-            </button>
+          {!isOwner && (
+            <div className="product-actions-box">
+              <button className="btn btn-secondary btn-sm" onClick={messageSeller} disabled={messaging}>
+                💬 {messaging ? 'Starting chat...' : t('messageSeller')}
+              </button>
+            </div>
           )}
           {chatError && <p className="form-error">{chatError}</p>}
         </div>

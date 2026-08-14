@@ -1,17 +1,40 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { productService } from '../services/productService';
+import { useLanguage } from '../context/LanguageContext';
 import { resolveImageUrl } from '../utils/imageUrl';
+
+const REGIONS = [
+  'All Regions (Nationwide)',
+  'South Ethiopia (Wolaita/Gamo)',
+  'Oromia (Jimma/East Shewa)',
+  'Amhara (Gojjam/Gondar)',
+  'Sidama (Hawassa)',
+  'Central Ethiopia',
+  'Tigray',
+  'Somali',
+  'Addis Ababa',
+];
+
+const GRADES = [
+  'All Grades',
+  'Grade 1 (Export/Premium)',
+  'Grade 2 (Standard Market)',
+  'Grade 3 (Commercial)',
+  'Organic Certified',
+];
 
 const initialFilters = {
   search: '',
   category: '',
-  location: '',
+  region: '',
+  grade: '',
   minPrice: '',
   maxPrice: '',
 };
 
 export default function Products() {
+  const { t } = useLanguage();
   const [filters, setFilters] = useState(initialFilters);
   const [appliedFilters, setAppliedFilters] = useState(initialFilters);
   const [products, setProducts] = useState([]);
@@ -23,7 +46,6 @@ export default function Products() {
     setLoading(true);
     setError('');
 
-    // Strip empty fields so we don't send blank query params
     const params = Object.fromEntries(
       Object.entries(appliedFilters).filter(([, value]) => value !== '')
     );
@@ -32,12 +54,11 @@ export default function Products() {
     productService
       .getAll(params)
       .then((data) => {
-        setProducts(data.products);
-        setPagination(data.pagination);
+        setProducts(data.products || []);
+        setPagination(data.pagination || { page: 1, pages: 1, total: 0 });
       })
       .catch(() => setError('Could not load products. Please try again.'))
       .finally(() => setLoading(false));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [appliedFilters]);
 
   useEffect(() => {
@@ -45,7 +66,9 @@ export default function Products() {
   }, [loadProducts]);
 
   const handleFilterChange = (e) => {
-    setFilters({ ...filters, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    const cleanValue = value.startsWith('All') ? '' : value;
+    setFilters({ ...filters, [name]: cleanValue });
   };
 
   const handleSearchSubmit = (e) => {
@@ -61,46 +84,60 @@ export default function Products() {
   return (
     <div className="products-page">
       <div className="page-intro">
-        <span className="eyebrow">Marketplace</span>
-        <h1>Browse Products</h1>
-        <p>Search fresh harvests listed directly by Wolaita farmers.</p>
+        <span className="eyebrow">🇪🇹 National Agricultural Marketplace</span>
+        <h1>{t('browseProducts')}</h1>
+        <p>Direct harvests from smallholders and cooperative unions across Ethiopia.</p>
       </div>
 
-      <form onSubmit={handleSearchSubmit} className="filters-form">
+      <form onSubmit={handleSearchSubmit} className="filters-form national-filters">
         <input
           name="search"
-          placeholder="Search by name or category"
+          placeholder={t('searchPlaceholder')}
           value={filters.search}
           onChange={handleFilterChange}
         />
+
+        <select name="region" value={filters.region ? filters.region : 'All'} onChange={handleFilterChange}>
+          {REGIONS.map((r) => (
+            <option key={r} value={r.split(' ')[0] === 'All' ? '' : r.split(' ')[0]}>
+              {r}
+            </option>
+          ))}
+        </select>
+
+        <select name="grade" value={filters.grade} onChange={handleFilterChange}>
+          {GRADES.map((g) => (
+            <option key={g} value={g.startsWith('All') ? '' : g}>
+              {g}
+            </option>
+          ))}
+        </select>
+
         <input
           name="category"
-          placeholder="Category"
+          placeholder="Crop Category (e.g. Grain, Coffee)"
           value={filters.category}
           onChange={handleFilterChange}
         />
-        <input
-          name="location"
-          placeholder="Location"
-          value={filters.location}
-          onChange={handleFilterChange}
-        />
+
         <input
           name="minPrice"
           type="number"
-          placeholder="Min price"
+          placeholder="Min price (ETB)"
           value={filters.minPrice}
           onChange={handleFilterChange}
         />
+
         <input
           name="maxPrice"
           type="number"
-          placeholder="Max price"
+          placeholder="Max price (ETB)"
           value={filters.maxPrice}
           onChange={handleFilterChange}
         />
-        <button type="submit">Search</button>
-        <button type="button" onClick={handleClear}>
+
+        <button type="submit" className="btn btn-primary">Search</button>
+        <button type="button" className="btn btn-secondary" onClick={handleClear}>
           Clear
         </button>
       </form>
@@ -108,9 +145,9 @@ export default function Products() {
       {error && <p className="form-error">{error}</p>}
 
       {loading ? (
-        <div className="page-loading">Loading products...</div>
+        <div className="page-loading">Loading marketplace listings...</div>
       ) : products.length === 0 ? (
-        <div className="empty-card">No products match your search. Try widening your filters.</div>
+        <div className="empty-card">No harvests match your search criteria. Try widening your filters.</div>
       ) : (
         <>
           <div className="product-grid">
@@ -126,17 +163,25 @@ export default function Products() {
                   ) : (
                     <span className="product-card-media-fallback">🌾</span>
                   )}
+                  {product.isCooperativePooled && (
+                    <span className="badge badge-coop card-badge">Cooperative Lot</span>
+                  )}
                   {!product.isAvailable && <span className="badge badge-muted card-badge">Sold out</span>}
                 </div>
                 <div className="product-card-body">
-                  <span className="eyebrow">{product.category}</span>
+                  <div className="product-card-tags">
+                    <span className="eyebrow">{product.category}</span>
+                    <span className="badge badge-grade">{product.grade}</span>
+                  </div>
                   <h3>{product.title}</h3>
                   <p className="product-card-price">
                     {product.price.toLocaleString()} ETB
-                    <span> / {product.unit || 'Kg'} &middot; {product.quantity} available</span>
+                    <span> / {product.unit || 'Kg'} &middot; {product.quantity} avail</span>
                   </p>
-                  <p className="product-card-location">📍 {product.location}</p>
-                  <p className="product-seller">Seller: {product.owner?.name}</p>
+                  <p className="product-card-location">📍 {product.location} ({product.region})</p>
+                  <p className="product-seller">
+                    {product.cooperativeName ? `🏢 ${product.cooperativeName}` : `👨‍🌾 ${product.owner?.name}`}
+                  </p>
                 </div>
               </Link>
             ))}
@@ -151,7 +196,7 @@ export default function Products() {
                 Previous
               </button>
               <span>
-                Page {pagination.page} of {pagination.pages}
+                Page {pagination.page} of {pagination.pages} ({pagination.total} total items)
               </span>
               <button
                 disabled={pagination.page >= pagination.pages}

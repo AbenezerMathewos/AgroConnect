@@ -1,24 +1,34 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { orderService } from '../services/orderService';
 import ProductThumb from '../components/ProductThumb';
 import ReviewForm from '../components/ReviewForm';
 
 const STATUS_LABEL = {
-  pending: 'Pending',
-  accepted: 'Accepted',
+  pending: 'Pending Acceptance',
+  accepted: 'Accepted (Escrow Held)',
+  in_transit: 'In Transit / Dispatched',
   declined: 'Declined',
-  completed: 'Completed',
+  completed: 'Delivered & Funds Released',
+  cancelled: 'Cancelled',
 };
 
-function StatusBadge({ status }) {
+function StatusBadge({ status, paymentStatus }) {
+  if (paymentStatus === 'escrow_held' && status === 'accepted') {
+    return <span className="badge badge-escrow">🔒 Telebirr Escrow Held</span>;
+  }
+  if (paymentStatus === 'released_to_farmer') {
+    return <span className="badge badge-accepted">💰 Funds Released to Farmer</span>;
+  }
   return <span className={`badge badge-${status}`}>{STATUS_LABEL[status] || status}</span>;
 }
 
 export default function MyOrders() {
   const { user } = useAuth();
-  const isFarmer = user?.role === 'farmer';
+  const { t } = useLanguage();
+  const isFarmer = user?.role === 'farmer' || user?.role === 'cooperative';
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -29,8 +39,8 @@ export default function MyOrders() {
     setLoading(true);
     orderService
       .getMine()
-      .then((data) => setOrders(data.orders))
-      .catch(() => setError('Could not load your requests.'))
+      .then((data) => setOrders(data.orders || []))
+      .catch(() => setError('Could not load your orders.'))
       .finally(() => setLoading(false));
   };
 
@@ -38,7 +48,7 @@ export default function MyOrders() {
     loadOrders();
   }, []);
 
-  const handleStatusChange = async (id, status) => {
+  const handleStatusChange = async (id, status, paymentStatus) => {
     setBusyId(id);
     try {
       const { order } = await orderService.updateStatus(id, status);
@@ -55,19 +65,19 @@ export default function MyOrders() {
   return (
     <div className="orders-page">
       <div className="page-intro">
-        <span className="eyebrow">{isFarmer ? 'Incoming requests' : 'My requests'}</span>
-        <h1>{isFarmer ? 'Manage buyer requests' : 'Track your buy requests'}</h1>
+        <span className="eyebrow">{isFarmer ? 'Incoming Produce Requests' : 'My Purchase Requests'}</span>
+        <h1>{isFarmer ? 'Manage Buyer Orders & Dispatches' : 'Track Orders & Escrow Payments'}</h1>
         <p>
           {isFarmer
-            ? 'Buyers who want your harvest will show up here. Accept, decline, or mark a deal completed.'
-            : 'Every request you send to a farmer is tracked here, along with its status.'}
+            ? 'Buyers who requested your harvest. Accept orders, ship via freight, and receive guaranteed Telebirr payment.'
+            : 'Track the real-time status of your crop orders with 100% Telebirr escrow protection.'}
         </p>
       </div>
 
       <div className="admin-tabs">
-        {['all', 'pending', 'accepted', 'declined', 'completed'].map((tab) => (
+        {['all', 'pending', 'accepted', 'in_transit', 'completed'].map((tab) => (
           <button key={tab} onClick={() => setFilter(tab)} disabled={filter === tab}>
-            {tab === 'all' ? 'All' : STATUS_LABEL[tab]}
+            {tab === 'all' ? 'All Orders' : STATUS_LABEL[tab] || tab}
           </button>
         ))}
       </div>
@@ -75,35 +85,68 @@ export default function MyOrders() {
       {error && <p className="form-error">{error}</p>}
 
       {loading ? (
-        <p>Loading...</p>
+        <p className="page-loading">Loading order requests...</p>
       ) : visibleOrders.length === 0 ? (
         <div className="empty-card">
           {isFarmer
-            ? "No requests here yet. Once buyers request your harvest, they'll appear in this list."
-            : "You haven't sent any requests yet. Browse products to find something you like."}
+            ? "No incoming requests yet. Once buyers order your produce, they'll appear here."
+            : "You haven't placed any crop requests yet. Browse the marketplace to find fresh produce."}
         </div>
       ) : (
         <div className="orders-list">
           {visibleOrders.map((order) => (
             <div className="order-card" key={order._id}>
-              <ProductThumb product={order.product} size={56} />
+              <ProductThumb product={order.product} size={64} />
               <div className="order-card-main">
                 <div className="order-card-heading">
                   <Link to={`/products/${order.product?._id}`}>
-                    {order.product?.title || 'Product removed'}
+                    {order.product?.title || 'Produce Listing'}
                   </Link>
-                  <StatusBadge status={order.status} />
+                  <StatusBadge status={order.status} paymentStatus={order.paymentStatus} />
                 </div>
-                <p className="order-card-meta">
-                  {isFarmer ? `Buyer: ${order.buyer?.name}` : `Farmer: ${order.farmer?.name}`} &middot;{' '}
-                  {order.quantity} {order.unit} &middot; {order.fulfillment}
-                </p>
-                <p className="order-card-meta">
-                  📞 {order.contactPhone} &middot; requested {new Date(order.createdAt).toLocaleDateString()}
-                </p>
-                {order.note && <p className="order-card-note">"{order.note}"</p>}
+
+                {/* Visual Escrow & Order Progress Stepper */}
+                <div className="escrow-stepper">
+                  <div className={`step-node ${order.status !== 'declined' ? 'active' : ''}`}>
+                    <span className="step-num">1</span>
+                    <span className="step-lbl">Requested</span>
+                  </div>
+                  <div className={`step-line ${['accepted', 'in_transit', 'completed'].includes(order.status) ? 'active' : ''}`} />
+                  <div className={`step-node ${['accepted', 'in_transit', 'completed'].includes(order.status) ? 'active' : ''}`}>
+                    <span className="step-num">2</span>
+                    <span className="step-lbl">Escrow Held</span>
+                  </div>
+                  <div className={`step-line ${['in_transit', 'completed'].includes(order.status) ? 'active' : ''}`} />
+                  <div className={`step-node ${['in_transit', 'completed'].includes(order.status) ? 'active' : ''}`}>
+                    <span className="step-num">3</span>
+                    <span className="step-lbl">In Transit</span>
+                  </div>
+                  <div className={`step-line ${order.status === 'completed' ? 'active' : ''}`} />
+                  <div className={`step-node ${order.status === 'completed' ? 'active' : ''}`}>
+                    <span className="step-num">4</span>
+                    <span className="step-lbl">Delivered</span>
+                  </div>
+                </div>
+
+                <div className="order-details-meta">
+                  <p>
+                    {isFarmer ? `👤 Buyer: ${order.buyer?.name}` : `👨‍🌾 Producer: ${order.farmer?.name}`} &middot;{' '}
+                    <strong>{order.quantity} {order.unit}</strong> &middot;{' '}
+                    <span className="text-highlight">Total: {order.totalPrice ? order.totalPrice.toLocaleString() : (order.quantity * (order.product?.price || 0)).toLocaleString()} ETB</span>
+                  </p>
+                  <p>
+                    💳 Method: <strong>{order.paymentMethod?.toUpperCase()}</strong> &middot;{' '}
+                    {order.escrowTransactionId && <span className="text-code">Tx: {order.escrowTransactionId} &middot; </span>}
+                    📞 Contact: {order.contactPhone}
+                  </p>
+                  {order.deliveryAddress?.city && (
+                    <p>📍 Delivery Destination: {order.deliveryAddress.city} {order.deliveryAddress.specificAddress ? `(${order.deliveryAddress.specificAddress})` : ''}</p>
+                  )}
+                  {order.note && <p className="order-card-note">"{order.note}"</p>}
+                </div>
               </div>
 
+              {/* Farmer Actions */}
               {isFarmer && order.status === 'pending' && (
                 <div className="order-card-actions">
                   <button
@@ -111,7 +154,7 @@ export default function MyOrders() {
                     disabled={busyId === order._id}
                     onClick={() => handleStatusChange(order._id, 'accepted')}
                   >
-                    Accept
+                    Accept Order
                   </button>
                   <button
                     className="btn btn-ghost btn-sm"
@@ -128,9 +171,28 @@ export default function MyOrders() {
                   <button
                     className="btn btn-primary btn-sm"
                     disabled={busyId === order._id}
+                    onClick={() => handleStatusChange(order._id, 'in_transit')}
+                  >
+                    Dispatch & Ship 🚚
+                  </button>
+                </div>
+              )}
+
+              {isFarmer && order.status === 'in_transit' && (
+                <div className="order-card-actions">
+                  <span className="badge badge-escrow">Waiting for buyer receipt...</span>
+                </div>
+              )}
+
+              {/* Buyer Actions: Confirm delivery & Release escrow funds */}
+              {!isFarmer && (order.status === 'in_transit' || order.status === 'accepted') && (
+                <div className="order-card-actions">
+                  <button
+                    className="btn btn-primary btn-sm"
+                    disabled={busyId === order._id}
                     onClick={() => handleStatusChange(order._id, 'completed')}
                   >
-                    Mark completed
+                    ✅ {t('confirmReceipt')}
                   </button>
                 </div>
               )}
@@ -138,7 +200,7 @@ export default function MyOrders() {
               {!isFarmer && order.status === 'completed' && (
                 <div className="order-card-actions">
                   {order.reviewed ? (
-                    <span className="badge badge-accepted">Reviewed</span>
+                    <span className="badge badge-accepted">Reviewed ⭐</span>
                   ) : (
                     <ReviewForm
                       order={order}

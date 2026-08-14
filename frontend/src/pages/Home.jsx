@@ -1,61 +1,101 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { productService } from '../services/productService';
+import { marketPriceService } from '../services/marketPriceService';
+import { useLanguage } from '../context/LanguageContext';
 import { resolveImageUrl } from '../utils/imageUrl';
 
-const STEPS = [
-  {
-    icon: '🌱',
-    title: 'Farmers list their harvest',
-    text: 'Add a crop, set a fair price, and share where it can be picked up.',
-  },
-  {
-    icon: '🔎',
-    title: 'Buyers browse & search',
-    text: 'Filter by crop, location, and price to find exactly what they need.',
-  },
-  {
-    icon: '🤝',
-    title: 'Connect directly',
-    text: 'Buyers send a request; farmers accept and arrange pickup or delivery.',
-  },
-];
-
 export default function Home() {
+  const { t } = useLanguage();
   const [featured, setFeatured] = useState([]);
+  const [arbitrage, setArbitrage] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    productService
-      .getAll({ limit: 3 })
-      .then((data) => setFeatured(data.products))
-      .catch(() => setFeatured([]))
+    Promise.all([
+      productService.getAll({ limit: 4 }),
+      marketPriceService.getArbitrage(),
+    ])
+      .then(([prodData, arbData]) => {
+        setFeatured(prodData.products || []);
+        setArbitrage((arbData.arbitrage || []).slice(0, 4));
+      })
+      .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
 
+  const STEPS = [
+    {
+      icon: '🌱',
+      title: t('step1Title'),
+      text: t('step1Text'),
+    },
+    {
+      icon: '📈',
+      title: t('step2Title'),
+      text: t('step2Text'),
+    },
+    {
+      icon: '🔒',
+      title: t('step3Title'),
+      text: t('step3Text'),
+    },
+  ];
+
   return (
     <div className="home-page">
+      {/* Hero Section */}
       <section className="hero">
-        <span className="eyebrow">Wolaita Zone &middot; Farmer to buyer</span>
-        <h1>Connecting Farmers and Buyers Across Wolaita</h1>
-        <p>
-          A digital marketplace where farmers advertise their harvest directly to buyers —
-          no middlemen, better prices, wider reach.
-        </p>
+        <span className="eyebrow">🇪🇹 AgroConnect Ethiopia &middot; Farmgate to Terminal Markets</span>
+        <h1>{t('heroTitle')}</h1>
+        <p>{t('heroSubtitle')}</p>
         <div className="hero-actions">
           <Link to="/register" className="btn btn-primary">
-            Get Started
+            {t('getStarted')}
           </Link>
           <Link to="/products" className="btn btn-secondary">
-            Browse Products
+            {t('browseProducts')}
+          </Link>
+          <Link to="/market-prices" className="btn btn-ghost">
+            📊 {t('marketPrices')}
           </Link>
         </div>
       </section>
 
+      {/* Live Arbitrage & Price Spread Ticker */}
+      {arbitrage.length > 0 && (
+        <section className="arbitrage-ticker-section">
+          <div className="ticker-header">
+            <span className="ticker-badge">🔴 LIVE ARBITRAGE RADAR</span>
+            <span>Real-time price spreads across Ethiopia:</span>
+          </div>
+          <div className="arbitrage-ticker-cards">
+            {arbitrage.map((item) => (
+              <div className="ticker-card" key={item.crop}>
+                <strong>{item.crop}</strong>
+                <div className="ticker-spread-row">
+                  <span className="ticker-low">
+                    {item.lowestMarket.market}: {item.lowestMarket.price} ETB
+                  </span>
+                  <span className="ticker-arrow">➔</span>
+                  <span className="ticker-high">
+                    {item.highestMarket.market}: {item.highestMarket.price} ETB
+                  </span>
+                </div>
+                <span className="ticker-gain">
+                  +{item.spreadPercentage}% Gross Spread ({item.spread} ETB/{item.lowestMarket.unit})
+                </span>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* How it Works Section */}
       <section className="how-it-works">
         <div className="page-intro">
-          <span className="eyebrow">How it works</span>
-          <h2>Three simple steps</h2>
+          <span className="eyebrow">Modernizing Ethiopian Agriculture</span>
+          <h2>{t('threeStepsTitle')}</h2>
         </div>
         <div className="steps-grid">
           {STEPS.map((step) => (
@@ -68,23 +108,40 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="about">
-        <h2>About the Platform</h2>
-        <p>
-          Wolaita AgroConnect helps farmers list their crops and helps buyers discover
-          fresh, local produce — making agricultural trade in Wolaita simpler and fairer.
-        </p>
+      {/* 4 Pillars Highlight */}
+      <section className="pillars-grid">
+        <div className="pillar-item">
+          <span className="pillar-icon">🤝</span>
+          <h3>Direct & Fair Trade</h3>
+          <p>Bypassing unfair local brokers so smallholder producers earn full market worth.</p>
+        </div>
+        <div className="pillar-item">
+          <span className="pillar-icon">🌾</span>
+          <h3>Cooperative Pooling</h3>
+          <p>Smallholders aggregate into standard bulk lots (50-200 Quintals) for wholesale buyers.</p>
+        </div>
+        <div className="pillar-item">
+          <span className="pillar-icon">🔒</span>
+          <h3>Telebirr Escrow</h3>
+          <p>Funds remain secured in mobile escrow until produce is inspected at destination.</p>
+        </div>
+        <div className="pillar-item">
+          <span className="pillar-icon">🚚</span>
+          <h3>Isuzu Freight Sharing</h3>
+          <p>Matching return-trip empty trucks cuts rural transport expenses by up to 40%.</p>
+        </div>
       </section>
 
+      {/* Featured Products */}
       <section className="featured-products">
         <div className="page-intro">
-          <span className="eyebrow">Fresh off the farm</span>
-          <h2>Featured Products</h2>
+          <span className="eyebrow">Verified Quality Harvests</span>
+          <h2>{t('featuredHarvests')}</h2>
         </div>
         {loading ? (
-          <div className="page-loading">Loading...</div>
+          <div className="page-loading">Loading harvests...</div>
         ) : featured.length === 0 ? (
-          <div className="empty-card">No products listed yet — check back soon.</div>
+          <div className="empty-card">No products listed yet.</div>
         ) : (
           <div className="product-grid">
             {featured.map((product) => (
@@ -99,25 +156,45 @@ export default function Home() {
                   ) : (
                     <span className="product-card-media-fallback">🌾</span>
                   )}
+                  {product.isCooperativePooled && (
+                    <span className="badge badge-coop card-badge">Cooperative Lot</span>
+                  )}
                 </div>
                 <div className="product-card-body">
-                  <span className="eyebrow">{product.category}</span>
+                  <div className="product-card-tags">
+                    <span className="eyebrow">{product.category}</span>
+                    <span className="badge badge-grade">{product.grade}</span>
+                  </div>
                   <h3>{product.title}</h3>
-                  <p className="product-card-price">{product.price.toLocaleString()} ETB</p>
-                  <p className="product-card-location">📍 {product.location}</p>
+                  <p className="product-card-price">
+                    {product.price.toLocaleString()} ETB
+                    <span> / {product.unit || 'Kg'}</span>
+                  </p>
+                  <p className="product-card-location">📍 {product.location} ({product.region})</p>
                 </div>
               </Link>
             ))}
           </div>
         )}
+        <div className="center-action">
+          <Link to="/products" className="btn btn-secondary">
+            {t('viewAllProducts')} &rarr;
+          </Link>
+        </div>
       </section>
 
-      <section className="cta-banner">
-        <h2>Ready to grow your reach?</h2>
-        <p>Join as a farmer to list your harvest, or as a buyer to find fresh produce near you.</p>
-        <Link to="/register" className="btn btn-primary">
-          Create your free account
-        </Link>
+      {/* Freight Call to Action Banner */}
+      <section className="cta-banner freight-cta">
+        <h2>{t('freightBannerTitle')}</h2>
+        <p>{t('freightBannerSubtitle')}</p>
+        <div className="hero-actions">
+          <Link to="/freight" className="btn btn-primary">
+            Explore Freight Routes
+          </Link>
+          <Link to="/advisory" className="btn btn-secondary">
+            View Crop Health Guide
+          </Link>
+        </div>
       </section>
     </div>
   );
