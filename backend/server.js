@@ -14,6 +14,8 @@ const uploadRoutes = require('./routes/uploadRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const chatRoutes = require('./routes/chatRoutes');
+const freightRoutes = require('./routes/freightRoutes');
+const advisoryRoutes = require('./routes/advisoryRoutes');
 
 const app = express();
 
@@ -34,11 +36,14 @@ app.use('/api/uploads', uploadRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/chat', chatRoutes);
+app.use('/api/freight', freightRoutes);
+app.use('/api/advisory', advisoryRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', message: 'Wolaita AgroConnect API is running' });
+  res.json({ status: 'ok', message: 'AgroConnect Ethiopia API is running' });
 });
+
 
 // 404 handler
 app.use((req, res) => {

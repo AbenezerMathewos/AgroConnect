@@ -1,0 +1,8 @@
+const express = require('express');
+const router = express.Router();
+const { getCropAdvisories, getAdvisoryById } = require('../controllers/advisoryController');
+
+router.get('/', getCropAdvisories);
+router.get('/:id', getAdvisoryById);
+
+module.exports = router;
