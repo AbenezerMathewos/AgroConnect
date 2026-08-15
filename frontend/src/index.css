@@ -487,25 +487,31 @@ p {
 }
 
 .navbar-container {
-  max-width: var(--container-max);
+  max-width: 100%;
   width: 100%;
   margin: 0 auto;
-  padding: 0 1.5rem;
+  padding: 0 1.25rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
   height: 100%;
+  box-sizing: border-box;
 }
 
-/* Brand */
-.nav-brand {
+/* Brand (Enforce Crisp White in All Themes) */
+.nav-brand,
+.nav-brand:visited,
+.nav-brand:hover,
+.brand-title,
+[data-theme="dark"] .nav-brand,
+[data-theme="dark"] .brand-title {
   display: flex;
   align-items: center;
   gap: 0.55rem;
   font-family: var(--font-display);
   font-size: 1.15rem;
   font-weight: 800;
-  color: var(--white);
+  color: #ffffff !important;
   letter-spacing: -0.02em;
   flex-shrink: 0;
   white-space: nowrap;
@@ -515,12 +521,12 @@ p {
   width: 28px;
   height: 28px;
   border-radius: var(--radius-sm);
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.18);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 0.95rem;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .brand-text {
@@ -530,18 +536,19 @@ p {
 }
 
 .brand-title {
-  color: var(--white);
+  color: #ffffff !important;
   font-weight: 800;
 }
 
-.brand-badge {
-  background: rgba(255, 255, 255, 0.15);
-  color: #a7f3d0;
+.brand-badge,
+[data-theme="dark"] .brand-badge {
+  background: rgba(255, 255, 255, 0.18) !important;
+  color: #6ee7b7 !important;
   font-size: 0.65rem;
   font-weight: 800;
   padding: 1px 5px;
   border-radius: var(--radius-xs);
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
 }
 
 /* Nav Menu */
@@ -550,8 +557,9 @@ p {
   align-items: center;
   justify-content: space-between;
   flex: 1;
-  margin-left: 1.5rem;
+  margin-left: 1.25rem;
 }
+
 
 .nav-main-links {
   display: flex;

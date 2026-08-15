@@ -79,30 +79,31 @@ export default function Navbar() {
               className={`nav-link ${isActive('/products') ? 'active' : ''}`}
               onClick={() => setOpen(false)}
             >
-              🌾 {t('browseProducts')}
+              🌾 Marketplace
             </Link>
             <Link
               to="/market-prices"
               className={`nav-link ${isActive('/market-prices') ? 'active' : ''}`}
               onClick={() => setOpen(false)}
             >
-              📊 {t('marketPrices')}
+              📊 Price Radar
             </Link>
             <Link
               to="/freight"
               className={`nav-link ${isActive('/freight') ? 'active' : ''}`}
               onClick={() => setOpen(false)}
             >
-              🚚 {t('logistics')}
+              🚚 Freight
             </Link>
             <Link
               to="/advisory"
               className={`nav-link ${isActive('/advisory') ? 'active' : ''}`}
               onClick={() => setOpen(false)}
             >
-              🌿 {t('cropAdvisory')}
+              🌿 Crop AI
             </Link>
           </div>
+
 
           <div className="nav-actions">
             {/* Theme Toggler Button */}
