@@ -125,13 +125,20 @@ export default function ProductDetails() {
             )}
           </dl>
 
-          {!isOwner && (
-            <div className="product-actions-box">
+          <div className="product-actions-box">
+            {!isOwner && (
               <button className="btn btn-secondary btn-sm" onClick={messageSeller} disabled={messaging}>
                 💬 {messaging ? 'Starting chat...' : t('messageSeller')}
               </button>
-            </div>
-          )}
+            )}
+            <button
+              className="btn btn-secondary btn-sm"
+              onClick={() => setInvoiceOpen(true)}
+              title="Generate printable ECX Pro-Forma Invoice & Bill of Lading"
+            >
+              📄 Export ECX Pro-Forma Invoice
+            </button>
+          </div>
           {chatError && <p className="form-error">{chatError}</p>}
         </div>
 
@@ -144,6 +151,13 @@ export default function ProductDetails() {
       <EscrowTrustTimeline />
 
       <ReviewList productId={product._id} />
+
+      {/* Official ECX Pro-Forma Invoice Modal */}
+      <ProformaInvoiceModal
+        isOpen={invoiceOpen}
+        onClose={() => setInvoiceOpen(false)}
+        product={product}
+      />
     </div>
   );
 }
