@@ -278,19 +278,34 @@ const NON_AGRO_KEYWORDS = [
   'book', 'pen', 'pencil', 'glasses', 'bag', 'backpack', 'wallet'
 ];
 
-// Helper: Call Google Gemini Cloud Vision Model if API Key is present
+// Helper: Call Google Gemini Cloud Vision Model with multi-model fallback
+const CANDIDATE_MODELS = [
+  'gemini-1.5-flash-latest',
+  'gemini-2.0-flash',
+  'gemini-1.5-flash',
+  'gemini-1.5-pro-latest',
+  'gemini-1.5-pro',
+  'gemini-pro-vision',
+];
+
 async function analyzeWithCloudGemini(imageBase64, customPrompt) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return null;
 
-  try {
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+  const genAI = new GoogleGenerativeAI(apiKey);
+  // Clean base64 string and extract mime
+  let mimeType = 'image/jpeg';
+  let base64Data = imageBase64;
 
-    // Clean base64 string
-    const base64Data = imageBase64.replace(/^data:image\/\w+;base64,/, '');
+  const match = imageBase64.match(/^data:(image\/\w+);base64,(.+)$/);
+  if (match) {
+    mimeType = match[1];
+    base64Data = match[2];
+  } else {
+    base64Data = imageBase64.replace(/^data:image\/\w+;base64,/, '');
+  }
 
-    const systemPrompt = `
+  const systemPrompt = `
 You are the AgroConnect Ethiopia AI Plant Pathology & Agricultural Classifier.
 Analyze this image carefully.
 
@@ -340,25 +355,34 @@ Return ONLY valid JSON matching this schema:
 Do NOT include markdown formatting or backticks, just raw JSON.
 `;
 
-    const result = await model.generateContent([
-      systemPrompt,
-      {
-        inlineData: {
-          mimeType: 'image/jpeg',
-          data: base64Data,
+  for (const modelName of CANDIDATE_MODELS) {
+    try {
+      const model = genAI.getGenerativeModel({ model: modelName });
+      const result = await model.generateContent([
+        systemPrompt,
+        {
+          inlineData: {
+            mimeType,
+            data: base64Data,
+          },
         },
-      },
-    ]);
+      ]);
 
-    const text = result.response.text().trim();
-    // Parse JSON
-    const cleanJson = text.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim();
-    const parsed = JSON.parse(cleanJson);
-    return parsed;
-  } catch (err) {
-    console.warn('Cloud Gemini Vision call skipped/failed, using local agronomy engine:', err.message);
-    return null;
+      const text = result.response.text().trim();
+      const cleanJson = text.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim();
+      const parsed = JSON.parse(cleanJson);
+      return parsed;
+    } catch (err) {
+      // If 404 on this model name, try the next candidate model
+      if (err.message && (err.message.includes('404') || err.message.includes('not found'))) {
+        continue;
+      }
+      console.warn(`Cloud Gemini model ${modelName} error:`, err.message);
+    }
   }
+
+  console.warn('All Cloud Gemini candidate models exhausted, smoothly utilizing local agronomy engine.');
+  return null;
 }
 
 // @route   GET /api/advisory
