@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
@@ -18,9 +18,12 @@ export default function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
   const [open, setOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const userMenuRef = useRef(null);
 
   const handleLogout = () => {
     setOpen(false);
+    setUserMenuOpen(false);
     logout();
     navigate('/');
   };
@@ -29,8 +32,19 @@ export default function Navbar() {
   const currentRole = user?.role || 'public';
   const roleMeta = ROLE_INFO[currentRole] || { label: 'User', class: 'role-buyer' };
 
+  // Close user dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target)) {
+        setUserMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   return (
-    <header className={`navbar-wrapper nav-theme-${currentRole}`}>
+    <header className={`navbar-wrapper nav-theme-${currentRole === 'admin' ? 'admin' : 'emerald'}`}>
       <nav className="navbar-container">
         {/* Brand Logo */}
         <Link to="/" className="nav-brand" onClick={() => setOpen(false)}>
@@ -61,28 +75,28 @@ export default function Navbar() {
               className={`nav-link ${isActive('/products') ? 'active' : ''}`}
               onClick={() => setOpen(false)}
             >
-              {t('browseProducts')}
+              🌾 {t('browseProducts')}
             </Link>
             <Link
               to="/market-prices"
               className={`nav-link ${isActive('/market-prices') ? 'active' : ''}`}
               onClick={() => setOpen(false)}
             >
-              {t('marketPrices')}
+              📊 {t('marketPrices')}
             </Link>
             <Link
               to="/freight"
               className={`nav-link ${isActive('/freight') ? 'active' : ''}`}
               onClick={() => setOpen(false)}
             >
-              {t('logistics')}
+              🚚 {t('logistics')}
             </Link>
             <Link
               to="/advisory"
               className={`nav-link ${isActive('/advisory') ? 'active' : ''}`}
               onClick={() => setOpen(false)}
             >
-              {t('cropAdvisory')}
+              🌿 {t('cropAdvisory')}
             </Link>
           </div>
 
@@ -115,53 +129,92 @@ export default function Navbar() {
                 </Link>
               </div>
             ) : (
-              <div className="nav-user-cluster">
+              <div className="nav-user-cluster" ref={userMenuRef}>
+                {/* Fast Action: Dashboard Button */}
                 {(user.role === 'farmer' || user.role === 'cooperative') && (
                   <Link
                     to="/farmer/dashboard"
-                    className={`nav-link-user ${isActive('/farmer/dashboard') ? 'active' : ''}`}
+                    className={`nav-btn-action ${isActive('/farmer/dashboard') ? 'active' : ''}`}
                     onClick={() => setOpen(false)}
                   >
-                    {t('myDashboard')}
+                    👨‍🌾 Dashboard
                   </Link>
                 )}
-                <Link
-                  to="/orders"
-                  className={`nav-link-user ${isActive('/orders') ? 'active' : ''}`}
-                  onClick={() => setOpen(false)}
-                >
-                  {t('myOrders')}
-                </Link>
-                <Link
-                  to="/messages"
-                  className={`nav-link-user ${isActive('/messages') ? 'active' : ''}`}
-                  onClick={() => setOpen(false)}
-                >
-                  {t('messages')}
-                </Link>
                 {user.role === 'admin' && (
                   <Link
                     to="/admin/dashboard"
-                    className={`nav-link-user ${isActive('/admin/dashboard') ? 'active' : ''}`}
+                    className={`nav-btn-action ${isActive('/admin/dashboard') ? 'active' : ''}`}
                     onClick={() => setOpen(false)}
                   >
-                    {t('adminDashboard')}
+                    🛡️ Admin Panel
                   </Link>
                 )}
 
+                {/* Unread Notifications */}
                 <NotificationBell />
 
-                <div className="nav-user-pill">
-                  <span className="user-avatar-initial">{user.name.charAt(0).toUpperCase()}</span>
-                  <div className="user-info-stack">
-                    <span className="user-name-short">{user.name.split(' ')[0]}</span>
-                    <span className={`user-role-badge ${roleMeta.class}`}>{roleMeta.label}</span>
-                  </div>
-                </div>
+                {/* User Dropdown Menu Button */}
+                <div className="user-dropdown-container">
+                  <button
+                    className={`nav-user-pill-btn ${userMenuOpen ? 'active' : ''}`}
+                    onClick={() => setUserMenuOpen((prev) => !prev)}
+                    aria-expanded={userMenuOpen}
+                  >
+                    <span className="user-avatar-initial">{user.name.charAt(0).toUpperCase()}</span>
+                    <div className="user-info-stack">
+                      <span className="user-name-short">{user.name.split(' ')[0]}</span>
+                      <span className={`user-role-badge ${roleMeta.class}`}>{roleMeta.label}</span>
+                    </div>
+                    <span className="dropdown-caret">▾</span>
+                  </button>
 
-                <button onClick={handleLogout} className="nav-logout-btn" title="Logout">
-                  ✕
-                </button>
+                  {/* Glassmorphic Dropdown Menu */}
+                  {userMenuOpen && (
+                    <div className="user-glass-dropdown">
+                      <div className="dropdown-user-header">
+                        <strong>{user.name}</strong>
+                        <small>{user.email}</small>
+                      </div>
+                      <hr className="dropdown-divider" />
+                      {(user.role === 'farmer' || user.role === 'cooperative') && (
+                        <Link
+                          to="/farmer/dashboard"
+                          className="dropdown-item"
+                          onClick={() => { setUserMenuOpen(false); setOpen(false); }}
+                        >
+                          🌾 {t('myDashboard')}
+                        </Link>
+                      )}
+                      {user.role === 'admin' && (
+                        <Link
+                          to="/admin/dashboard"
+                          className="dropdown-item"
+                          onClick={() => { setUserMenuOpen(false); setOpen(false); }}
+                        >
+                          🛡️ {t('adminDashboard')}
+                        </Link>
+                      )}
+                      <Link
+                        to="/orders"
+                        className="dropdown-item"
+                        onClick={() => { setUserMenuOpen(false); setOpen(false); }}
+                      >
+                        📦 {t('myOrders')}
+                      </Link>
+                      <Link
+                        to="/messages"
+                        className="dropdown-item"
+                        onClick={() => { setUserMenuOpen(false); setOpen(false); }}
+                      >
+                        💬 {t('messages')}
+                      </Link>
+                      <hr className="dropdown-divider" />
+                      <button onClick={handleLogout} className="dropdown-item dropdown-logout">
+                        🚪 {t('logout')}
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </div>
@@ -170,6 +223,3 @@ export default function Navbar() {
     </header>
   );
 }
-
-
-
