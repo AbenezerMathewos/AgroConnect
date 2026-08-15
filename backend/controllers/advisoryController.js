@@ -203,28 +203,62 @@ exports.getAdvisoryById = async (req, res) => {
   }
 };
 
+// Non-Agro keyword blacklists
+const NON_AGRO_KEYWORDS = [
+  'car', 'automobile', 'vehicle', 'truck', 'bike', 'motorcycle', 'engine',
+  'shoe', 'shoes', 'boot', 'sneaker', 'clothes', 'shirt', 'pants', 'jacket',
+  'phone', 'mobile', 'iphone', 'samsung', 'laptop', 'computer', 'screen', 'keyboard', 'mouse', 'ipad',
+  'building', 'house', 'wall', 'concrete', 'furniture', 'chair', 'table', 'door', 'window',
+  'cat', 'dog', 'pet', 'animal', 'cow', 'sheep', 'goat', 'bird', 'human', 'face', 'person', 'hand',
+  'plastic', 'bottle', 'can', 'cup', 'paper', 'cardboard', 'metal', 'iron', 'steel',
+  'tv', 'television', 'camera', 'watch', 'clock', 'money', 'coin', 'birr', 'dollar',
+  'book', 'pen', 'pencil', 'glasses', 'bag', 'backpack', 'wallet'
+];
+
 // @route   POST /api/advisory/diagnose
 // @desc    AI Plant Pathology & Leaf Scanner Engine for Ethiopian Crops
 // @access  Public
 exports.diagnoseCropDisease = async (req, res) => {
   try {
-    const { cropType, symptomsText, sampleId } = req.body;
+    const { cropType, symptomsText, sampleId, fileName } = req.body;
+
+    // 1. Check for explicit Non-Agro sample or non-agricultural keyword trigger
+    const queryText = `${symptomsText || ''} ${fileName || ''}`.toLowerCase().trim();
+    const isNonAgroSample = sampleId === 'non_agro';
+    const isNonAgroKeyword = NON_AGRO_KEYWORDS.some((kw) => {
+      const regex = new RegExp(`\\b${kw}\\b`, 'i');
+      return regex.test(queryText);
+    });
+
+    if (isNonAgroSample || isNonAgroKeyword) {
+      return res.status(200).json({
+        success: true,
+        isAgroProduct: false,
+        diagnosisId: `REJECT-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
+        timestamp: new Date().toISOString(),
+        message: "This isn't an agro product.",
+        messageAm: 'ይህ የግብርና ምርት ወይም የሰብል ቅጠል አይደለም።',
+        reason: 'The scanned image or symptom description does not contain recognized botanical foliage, agricultural crop tissue, or plant pathology markers.',
+        guidance: 'Please scan or upload clear photos of crop leaves, grains, pseudostems, roots, or fruits (e.g., Coffee, Maize, Enset, Teff, Wheat, Ginger, or Avocado).',
+        detectedCategory: 'Non-Agricultural Synthetic / Physical Object',
+      });
+    }
 
     let matchedEntry = null;
 
-    // 1. If explicit sample ID passed
+    // 2. If explicit sample ID passed
     if (sampleId) {
       matchedEntry = ETHIOPIAN_DISEASE_KNOWLEDGE_BASE.find((e) => e.id === sampleId);
     }
 
-    // 2. If cropType and symptoms passed
+    // 3. If cropType passed
     if (!matchedEntry && cropType) {
       matchedEntry = ETHIOPIAN_DISEASE_KNOWLEDGE_BASE.find(
         (e) => e.crop.toLowerCase() === cropType.toLowerCase()
       );
     }
 
-    // 3. Keyword matching across symptom text
+    // 4. Keyword matching across symptom text
     if (!matchedEntry && symptomsText) {
       const text = symptomsText.toLowerCase();
       let bestScore = 0;
@@ -242,7 +276,28 @@ exports.diagnoseCropDisease = async (req, res) => {
       }
     }
 
-    // Fallback to first disease if nothing matched
+    // 5. If user entered completely unrecognized text that is not a known crop
+    if (!matchedEntry && symptomsText && symptomsText.trim().length > 0) {
+      const recognizedCrops = ['coffee', 'enset', 'maize', 'wheat', 'teff', 'ginger', 'avocado', 'ቡና', 'እንሰት', 'በቆሎ', 'ስንዴ', 'ጤፍ', 'ዝንጅብል'];
+      const hasAgroTerm = recognizedCrops.some((term) => queryText.includes(term)) ||
+        ETHIOPIAN_DISEASE_KNOWLEDGE_BASE.some((d) => d.keyFeatures.some((f) => queryText.includes(f.toLowerCase())));
+
+      if (!hasAgroTerm) {
+        return res.status(200).json({
+          success: true,
+          isAgroProduct: false,
+          diagnosisId: `REJECT-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
+          timestamp: new Date().toISOString(),
+          message: "This isn't an agro product.",
+          messageAm: 'ይህ የግብርና ምርት ወይም የሰብል ቅጠል አይደለም።',
+          reason: `No agricultural botanical features detected for "${symptomsText}".`,
+          guidance: 'Please select a crop type or upload an image of a real agricultural crop.',
+          detectedCategory: 'Unrecognized / Non-Agricultural Input',
+        });
+      }
+    }
+
+    // Fallback to first disease if standard crop scan
     if (!matchedEntry) {
       matchedEntry = ETHIOPIAN_DISEASE_KNOWLEDGE_BASE[0];
     }
@@ -256,6 +311,7 @@ exports.diagnoseCropDisease = async (req, res) => {
 
     const responseData = {
       success: true,
+      isAgroProduct: true,
       diagnosisId,
       timestamp: new Date().toISOString(),
       crop: matchedEntry.crop,
@@ -284,3 +340,4 @@ exports.diagnoseCropDisease = async (req, res) => {
     });
   }
 };
+
