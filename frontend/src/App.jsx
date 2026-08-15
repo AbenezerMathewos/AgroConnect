@@ -10,6 +10,7 @@ import Footer from './components/Footer';
 import VantaDotsCanvas from './components/VantaDotsCanvas';
 import FloatingActionMenu from './components/FloatingActionMenu';
 import LiveTradeToast from './components/LiveTradeToast';
+import AiAgronomistChatModal from './components/AiAgronomistChatModal';
 
 
 
@@ -118,6 +119,7 @@ export default function App() {
               <Footer />
               <LiveTradeToast />
               <FloatingActionMenu />
+              <AiAgronomistChatModal />
             </SocketProvider>
           </AuthProvider>
         </LanguageProvider>
