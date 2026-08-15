@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { advisoryService } from '../services/advisoryService';
+import AiCropScannerWidget from '../components/AiCropScannerWidget';
 
 export default function CropAdvisory() {
   const { lang, t } = useLanguage();
@@ -42,6 +43,9 @@ export default function CropAdvisory() {
         <h1>{t('diseaseAdvisoryTitle')}</h1>
         <p>{t('diseaseAdvisorySubtitle')}</p>
       </section>
+
+      {/* AI Crop Disease Scanner & Diagnostics Widget */}
+      <AiCropScannerWidget />
 
       <div className="advisory-filters-bar">
         <div className="crop-tab-buttons">
