@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import L from 'leaflet';
 import { useTheme } from '../context/ThemeContext';
 
-// Real GPS Coordinates for Ethiopian Agricultural Trade Corridors
+// Real GPS Coordinates & 3D Altitudes for Ethiopian Agricultural Corridors
 const AGRI_HUBS = [
   {
     id: 'addis',
@@ -11,6 +11,7 @@ const AGRI_HUBS = [
     amharic: 'አዲስ አበባ (እህል በረንዳ / መርካቶ)',
     lat: 9.0300,
     lng: 38.7400,
+    altitude: 2355,
     type: 'terminal',
     role: 'Central National Terminal Market',
     activeLots: 840,
@@ -26,6 +27,7 @@ const AGRI_HUBS = [
     amharic: 'ወላይታ ሶዶ እና ደቡብ ኢትዮጵያ',
     lat: 6.8600,
     lng: 37.7500,
+    altitude: 2100,
     type: 'production',
     role: 'Central Root & Spice Aggregation Depot',
     activeLots: 168,
@@ -41,6 +43,7 @@ const AGRI_HUBS = [
     amharic: 'ጅማ እና ኦሮሚያ',
     lat: 7.6700,
     lng: 36.8300,
+    altitude: 1780,
     type: 'production',
     role: 'Specialty Washed Coffee & Maize Aggregator',
     activeLots: 245,
@@ -56,6 +59,7 @@ const AGRI_HUBS = [
     amharic: 'ባሕር ዳር እና ጎጃም',
     lat: 11.5900,
     lng: 37.3900,
+    altitude: 1800,
     type: 'production',
     role: 'Magna Teff & Oilseed Union Pool',
     activeLots: 194,
@@ -71,6 +75,7 @@ const AGRI_HUBS = [
     amharic: 'ሐዋሳ እና ሲዳማ',
     lat: 7.0500,
     lng: 38.4700,
+    altitude: 1900,
     type: 'production',
     role: 'ECX Certified Specialty Sourcing Depot',
     activeLots: 112,
@@ -86,6 +91,7 @@ const AGRI_HUBS = [
     amharic: 'መቀሌ እና ራያ',
     lat: 13.4900,
     lng: 39.4700,
+    altitude: 2250,
     type: 'production',
     role: 'Northern Cereals & White Honey Corridor',
     activeLots: 86,
@@ -101,6 +107,7 @@ const AGRI_HUBS = [
     amharic: 'ድሬዳዋ እና ሐረር',
     lat: 9.5900,
     lng: 41.8600,
+    altitude: 1885,
     type: 'production',
     role: 'Eastern Export Gateway & Transit Depot',
     activeLots: 98,
@@ -131,18 +138,20 @@ export default function EthiopiaAgriMap() {
   const navigate = useNavigate();
 
   const [selectedHub, setSelectedHub] = useState(AGRI_HUBS[1]); // Default Wolaita Sodo
-  const [mapStyle, setMapStyle] = useState(isDark ? 'dark' : 'streets');
+  const [mapStyle, setMapStyle] = useState('streets'); // 'streets' | 'satellite' | 'earth3d' | 'dark'
 
   // Initialize Leaflet Map
   useEffect(() => {
+    if (mapStyle === 'earth3d') return; // Do not initialize Leaflet when 3D Google Earth is active
+
     if (!mapContainerRef.current) return;
 
     if (!mapInstanceRef.current) {
       const map = L.map(mapContainerRef.current, {
-        center: [9.1450, 39.0000],
-        zoom: 6.2,
+        center: [selectedHub.lat, selectedHub.lng],
+        zoom: 6.8,
         minZoom: 5.5,
-        maxZoom: 14,
+        maxZoom: 16,
         zoomControl: false,
         attributionControl: false,
       });
@@ -151,19 +160,26 @@ export default function EthiopiaAgriMap() {
 
       mapInstanceRef.current = map;
       layerGroupRef.current = L.layerGroup().addTo(map);
+
+      // Invalidate size after layout stabilization
+      setTimeout(() => {
+        if (mapInstanceRef.current) {
+          mapInstanceRef.current.invalidateSize();
+        }
+      }, 250);
     }
 
     return () => {
-      // Map cleanup on unmount
       if (mapInstanceRef.current) {
         mapInstanceRef.current.remove();
         mapInstanceRef.current = null;
       }
     };
-  }, []);
+  }, [mapStyle]);
 
   // Update Tile Layer when mapStyle or isDark changes
   useEffect(() => {
+    if (mapStyle === 'earth3d') return;
     if (!mapInstanceRef.current) return;
 
     const map = mapInstanceRef.current;
@@ -171,27 +187,29 @@ export default function EthiopiaAgriMap() {
       map.removeLayer(tileLayerRef.current);
     }
 
+    // Google Maps & OpenStreetMap Tile Providers
     let tileUrl = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
     if (mapStyle === 'dark' || (mapStyle === 'streets' && isDark)) {
       tileUrl = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
     } else if (mapStyle === 'satellite') {
-      tileUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
-    } else if (mapStyle === '3d') {
-      // 3D Topographic Shaded Relief Tile Engine (ESRI World Topo + Shaded Relief)
-      tileUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}';
-    } else if (mapStyle === 'osm') {
-      tileUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+      // Real Google Satellite Hybrid with labels & high-res vegetation
+      tileUrl = 'https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}';
+    } else if (mapStyle === 'streets') {
+      // Real Google Maps Road Vector
+      tileUrl = 'https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}';
     }
 
     tileLayerRef.current = L.tileLayer(tileUrl, {
-      maxZoom: 18,
+      maxZoom: 19,
       subdomains: 'abcd',
     }).addTo(map);
-  }, [mapStyle, isDark]);
 
+    map.invalidateSize();
+  }, [mapStyle, isDark]);
 
   // Render Markers and Corridors
   useEffect(() => {
+    if (mapStyle === 'earth3d') return;
     if (!mapInstanceRef.current || !layerGroupRef.current) return;
 
     const layerGroup = layerGroupRef.current;
@@ -201,8 +219,8 @@ export default function EthiopiaAgriMap() {
     FREIGHT_CORRIDORS.forEach((corridor) => {
       L.polyline([corridor.from, corridor.to], {
         color: '#10b981',
-        weight: 2.5,
-        opacity: 0.65,
+        weight: 3,
+        opacity: 0.8,
         dashArray: '6, 8',
         lineCap: 'round',
       }).addTo(layerGroup);
@@ -232,19 +250,21 @@ export default function EthiopiaAgriMap() {
 
       marker.on('click', () => {
         setSelectedHub(hub);
-        mapInstanceRef.current.flyTo([hub.lat, hub.lng], 8.5, {
-          duration: 1.2,
-          easeLinearity: 0.25,
-        });
+        if (mapInstanceRef.current) {
+          mapInstanceRef.current.flyTo([hub.lat, hub.lng], 9.5, {
+            duration: 1.2,
+            easeLinearity: 0.25,
+          });
+        }
       });
     });
-  }, [selectedHub]);
+  }, [selectedHub, mapStyle]);
 
   // Fly to Hub handler
   const handleSelectHub = (hub) => {
     setSelectedHub(hub);
-    if (mapInstanceRef.current) {
-      mapInstanceRef.current.flyTo([hub.lat, hub.lng], 8.5, {
+    if (mapStyle !== 'earth3d' && mapInstanceRef.current) {
+      mapInstanceRef.current.flyTo([hub.lat, hub.lng], 9.5, {
         duration: 1.2,
       });
     }
@@ -252,12 +272,18 @@ export default function EthiopiaAgriMap() {
 
   // Reset to National Overview
   const handleResetNationalView = () => {
-    if (mapInstanceRef.current) {
-      mapInstanceRef.current.flyTo([9.1450, 39.0000], 6.2, {
+    if (mapStyle !== 'earth3d' && mapInstanceRef.current) {
+      mapInstanceRef.current.flyTo([9.1450, 39.0000], 6.5, {
         duration: 1.2,
       });
     }
   };
+
+  // Google Earth 3D Web Direct URL
+  const googleEarth3DUrl = `https://earth.google.com/web/@${selectedHub.lat},${selectedHub.lng},${selectedHub.altitude}a,18000d,35y,0h,60t,0r`;
+
+  // Real Google Maps 3D Satellite Embed URL
+  const googleMaps3dEmbedUrl = `https://maps.google.com/maps?q=${selectedHub.lat},${selectedHub.lng}&t=k&z=13&ie=UTF8&iwloc=&output=embed`;
 
   return (
     <div className="agri-map-card real-leaflet-card">
@@ -265,7 +291,7 @@ export default function EthiopiaAgriMap() {
         <div>
           <div className="agri-map-badge-row">
             <span className="eyebrow">Real GIS Map System & Logistics Radar</span>
-            <span className="badge badge-discount">🛰️ Live OpenStreetMap / GPS Network</span>
+            <span className="badge badge-discount">🛰️ Live GPS & Google Earth 3D Network</span>
           </div>
           <h2>Ethiopian Live Agricultural Trade Map</h2>
           <p className="agri-map-subtitle">
@@ -288,10 +314,10 @@ export default function EthiopiaAgriMap() {
             🛰️ Satellite
           </button>
           <button
-            className={`map-style-btn ${mapStyle === '3d' ? 'active' : ''}`}
-            onClick={() => setMapStyle('3d')}
+            className={`map-style-btn ${mapStyle === 'earth3d' ? 'active' : ''}`}
+            onClick={() => setMapStyle('earth3d')}
           >
-            🏔️ 3D Terrain
+            🌍 3D Google Earth
           </button>
           <button
             className={`map-style-btn ${mapStyle === 'dark' ? 'active' : ''}`}
@@ -310,28 +336,45 @@ export default function EthiopiaAgriMap() {
       </div>
 
       <div className="agri-map-grid">
-        {/* Real Leaflet Map Container */}
-        <div className={`real-map-view-container ${mapStyle === '3d' ? 'container-3d-active' : ''}`}>
-          <div ref={mapContainerRef} className={`leaflet-map-canvas ${mapStyle === '3d' ? 'mode-3d' : ''}`} />
-
-          {/* 3D Atmospheric Horizon Glow when 3D is active */}
-          {mapStyle === '3d' && (
-            <div className="horizon-3d-glow">
-              <span className="altitude-chip">🏔️ Great Rift Valley & Highlands 3D Relief Active</span>
+        {/* Real Leaflet Map or Google Earth 3D Container */}
+        <div className="real-map-view-container">
+          {mapStyle === 'earth3d' ? (
+            <div className="google-earth-3d-wrapper">
+              <iframe
+                title="Google Earth 3D Agricultural View"
+                src={googleMaps3dEmbedUrl}
+                className="google-earth-iframe"
+                loading="lazy"
+                allowFullScreen
+              />
+              <div className="earth-3d-floating-overlay">
+                <div className="earth-3d-info">
+                  <span className="earth-3d-badge">🌍 Google Earth 3D Elevation</span>
+                  <strong>{selectedHub.name} ({selectedHub.altitude}m Altitude)</strong>
+                </div>
+                <a
+                  href={googleEarth3DUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-primary btn-sm earth-launch-btn"
+                >
+                  🚀 Launch in Google Earth Web (3D Globe) &rarr;
+                </a>
+              </div>
             </div>
+          ) : (
+            <>
+              <div ref={mapContainerRef} className="leaflet-map-canvas" />
+
+              {/* Map Overlay Legend */}
+              <div className="real-map-legend">
+                <span className="legend-chip"><span className="legend-dot green"></span> Farmgate Hubs</span>
+                <span className="legend-chip"><span className="legend-dot amber"></span> Terminal Market</span>
+                <span className="legend-chip"><span className="legend-route-line"></span> Return Freight Corridor</span>
+              </div>
+            </>
           )}
-
-          {/* Map Overlay Legend */}
-          <div className="real-map-legend">
-            <span className="legend-chip"><span className="legend-dot green"></span> Farmgate Hubs</span>
-            <span className="legend-chip"><span className="legend-dot amber"></span> Terminal Market</span>
-            <span className="legend-chip"><span className="legend-route-line"></span> Return Freight Corridor</span>
-            {mapStyle === '3d' && (
-              <span className="legend-chip"><span className="legend-dot purple"></span> 3D Shaded Elevation</span>
-            )}
-          </div>
         </div>
-
 
         {/* Live Regional Hub Intelligence Card */}
         <div className="agri-zone-details-panel">
@@ -361,16 +404,16 @@ export default function EthiopiaAgriMap() {
               <strong>{selectedHub.lat.toFixed(4)}° N, {selectedHub.lng.toFixed(4)}° E</strong>
             </div>
             <div className="zone-metric-box">
+              <span className="zone-metric-label">🏔️ Elevation Altitude</span>
+              <strong>{selectedHub.altitude.toLocaleString()} meters ASL</strong>
+            </div>
+            <div className="zone-metric-box">
               <span className="zone-metric-label">💰 Farmgate Price Spread</span>
               <strong className="text-gain">{selectedHub.avgPrice}</strong>
             </div>
             <div className="zone-metric-box">
               <span className="zone-metric-label">🚚 Freight Route Capacity</span>
               <strong>{selectedHub.freightStatus}</strong>
-            </div>
-            <div className="zone-metric-box">
-              <span className="zone-metric-label">🇪🇹 Hub Connectivity</span>
-              <strong>Connected to ECX & Unions</strong>
             </div>
           </div>
 
@@ -409,12 +452,14 @@ export default function EthiopiaAgriMap() {
             >
               Browse {selectedHub.name.split(' ')[0]} Harvests ({selectedHub.activeLots} Lots) &rarr;
             </button>
-            <button
-              className="btn btn-secondary btn-block"
-              onClick={() => navigate(`/market-prices`)}
+            <a
+              href={googleEarth3DUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-secondary btn-block text-center"
             >
-              📊 Compare {selectedHub.name.split(' ')[0]} Price Radar
-            </button>
+              🌍 Explore {selectedHub.name.split(' ')[0]} in Google Earth 3D
+            </a>
           </div>
         </div>
       </div>
