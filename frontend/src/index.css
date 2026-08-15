@@ -6038,11 +6038,75 @@ p {
   background: #10b981;
 }
 
-.phone-bottom-actions {
+/* Quick Call / End Action Row */
+.phone-action-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.65rem;
   width: 100%;
 }
 
+.phone-green-call-btn {
+  background: #10b981;
+  color: #ffffff;
+  border: 1px solid #059669;
+  border-radius: 12px;
+  padding: 0.45rem 0;
+  font-size: 0.84rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 3px 0 #047857;
+  transition: transform 0.1s ease;
+}
+
+.phone-green-call-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #047857;
+}
+
+.phone-red-end-btn {
+  background: #ef4444;
+  color: #ffffff;
+  border: 1px solid #dc2626;
+  border-radius: 12px;
+  padding: 0.45rem 0;
+  font-size: 0.84rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 3px 0 #991b1b;
+  transition: transform 0.1s ease;
+}
+
+.phone-red-end-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #991b1b;
+}
+
+.phone-bottom-actions {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
 .phone-reset-btn {
+  width: 100%;
+  background: rgba(14, 165, 233, 0.15);
+  border: 1px solid rgba(14, 165, 233, 0.4);
+  color: #38bdf8;
+  padding: 0.35rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.phone-reset-btn:hover {
+  background: #0284c7;
+  color: #ffffff;
+}
+
+.phone-exit-btn {
   width: 100%;
   background: rgba(239, 68, 68, 0.2);
   border: 1px solid rgba(239, 68, 68, 0.5);
@@ -6054,10 +6118,11 @@ p {
   cursor: pointer;
 }
 
-.phone-reset-btn:hover {
+.phone-exit-btn:hover {
   background: #ef4444;
   color: #ffffff;
 }
+
 
 /* USSD Info Sidebar */
 .ussd-info-sidebar {
