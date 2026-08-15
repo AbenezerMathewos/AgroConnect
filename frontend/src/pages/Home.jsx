@@ -6,6 +6,8 @@ import { useLanguage } from '../context/LanguageContext';
 import { resolveImageUrl } from '../utils/imageUrl';
 import EthiopiaAgriMap from '../components/EthiopiaAgriMap';
 import VoiceSearchButton from '../components/VoiceSearchButton';
+import FreightProfitCalculator from '../components/FreightProfitCalculator';
+
 
 
 
@@ -366,7 +368,11 @@ export default function Home() {
       {/* Interactive Regional Harvest GIS Map & Sourcing Corridors */}
       <EthiopiaAgriMap />
 
+      {/* Interactive Freight & Arbitrage Profit Calculator */}
+      <FreightProfitCalculator />
+
       {/* Featured Harvests — Infinite Smooth Marquee Carousel */}
+
       <section className="featured-section">
 
         <div className="section-header-flex">
