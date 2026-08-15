@@ -33,7 +33,7 @@ const LANGUAGE_TABS = [
   { code: 'en', label: '🌐 English', name: 'English' },
 ];
 
-export default function AiCropScannerWidget() {
+export default function AiCropScannerWidget({ onPosted }) {
   const { lang } = useLanguage();
   const [activeLang, setActiveLang] = useState(lang || 'am');
   const [selectedCrop, setSelectedCrop] = useState('Auto');
@@ -45,6 +45,8 @@ export default function AiCropScannerWidget() {
   const [diagnosis, setDiagnosis] = useState(null);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
+  const [posting, setPosting] = useState(false);
+  const [postedStatus, setPostedStatus] = useState('idle'); // 'idle' | 'posted' | 'declined'
   const fileInputRef = useRef(null);
 
   // Sync with global language if changed in Navbar
@@ -112,6 +114,7 @@ export default function AiCropScannerWidget() {
     setError('');
     setDiagnosis(null);
     setCopied(false);
+    setPostedStatus('idle');
 
     try {
       await new Promise((resolve) => setTimeout(resolve, 800));
@@ -144,6 +147,95 @@ export default function AiCropScannerWidget() {
       navigator.clipboard.writeText(diagnosis.smsPrescriptionTemplate);
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
+    }
+  };
+
+  // Handler to Post Verified Scan directly to Mongo Database & Public Advisory Grid
+  const handlePostToAdvisory = async () => {
+    if (!diagnosis) return;
+    setPosting(true);
+    try {
+      const diseaseEn = typeof diagnosis.diseaseName === 'object' ? (diagnosis.diseaseName.en || diagnosis.diseaseName.am) : diagnosis.diseaseName;
+      const diseaseAm = typeof diagnosis.diseaseName === 'object' ? diagnosis.diseaseName.am : diagnosis.diseaseAm;
+      const diseaseOm = typeof diagnosis.diseaseName === 'object' ? diagnosis.diseaseName.om : diagnosis.diseaseOr;
+      const diseaseWot = typeof diagnosis.diseaseName === 'object' ? diagnosis.diseaseName.wot : diagnosis.diseaseWl;
+      const diseaseTi = typeof diagnosis.diseaseName === 'object' ? diagnosis.diseaseName.ti : '';
+
+      const extractSteps = (proto) => {
+        if (!proto) return '';
+        if (typeof proto === 'string') return proto;
+        if (Array.isArray(proto.steps)) return proto.steps.join(' ');
+        if (proto.en && Array.isArray(proto.en.steps)) return proto.en.steps.join(' ');
+        if (proto.en && typeof proto.en.steps === 'string') return proto.en.steps;
+        return '';
+      };
+
+      const extractAmSteps = (proto) => {
+        if (!proto) return '';
+        if (proto.am && Array.isArray(proto.am.steps)) return proto.am.steps.join(' ');
+        if (proto.am && typeof proto.am.steps === 'string') return proto.am.steps;
+        return extractSteps(proto);
+      };
+
+      const extractChem = (proto, langKey) => {
+        if (!proto) return '';
+        const target = proto[langKey] || proto.en || proto;
+        if (typeof target === 'string') return target;
+        const form = target.formulation || '';
+        const dose = target.dosage ? ` [${target.dosage}]` : '';
+        const time = target.timing ? ` - ${target.timing}` : '';
+        return `${form}${dose}${time}`.trim();
+      };
+
+      const postPayload = {
+        cropName: diagnosis.crop || 'Crop',
+        localNames: {
+          am: diagnosis.cropTranslations?.am || diagnosis.cropAm || diagnosis.crop,
+          om: diagnosis.cropTranslations?.om || diagnosis.crop,
+          wot: diagnosis.cropTranslations?.wot || diagnosis.crop,
+          ti: diagnosis.cropTranslations?.ti || diagnosis.crop,
+        },
+        pestOrDisease: diseaseEn || 'Crop Disease',
+        scientificName: diseaseEn || '',
+        severity: diagnosis.severity ? (diagnosis.severity.charAt(0).toUpperCase() + diagnosis.severity.slice(1)) : 'Critical',
+        symptoms: {
+          en: typeof diagnosis.clinicalSymptoms === 'object' ? (diagnosis.clinicalSymptoms.en || '') : String(diagnosis.clinicalSymptoms || ''),
+          am: typeof diagnosis.clinicalSymptoms === 'object' ? (diagnosis.clinicalSymptoms.am || '') : '',
+          om: typeof diagnosis.clinicalSymptoms === 'object' ? (diagnosis.clinicalSymptoms.om || '') : '',
+          wot: typeof diagnosis.clinicalSymptoms === 'object' ? (diagnosis.clinicalSymptoms.wot || '') : '',
+          ti: typeof diagnosis.clinicalSymptoms === 'object' ? (diagnosis.clinicalSymptoms.ti || '') : '',
+        },
+        prevention: {
+          en: `Field scouting and certified seeds recommended by ${diagnosis.accreditedResearchCenter || 'EIAR'}.`,
+          am: `በ ${diagnosis.accreditedResearchCenter || 'የግብርና ምርምር ማዕከል'} የተረጋገጡ ዝርያዎችን መጠቀምና የንጽህና አያያዝ።`,
+          om: `Sanyii filatamaa fayyadamuu fi qulqullina eeguu.`,
+          wot: `Zariyaa loytti aattidi go\'ettiyoogaa.`,
+        },
+        organicTreatment: {
+          en: extractSteps(diagnosis.organicProtocol),
+          am: extractAmSteps(diagnosis.organicProtocol),
+          om: diagnosis.organicProtocol?.om ? extractSteps(diagnosis.organicProtocol.om) : '',
+          wot: diagnosis.organicProtocol?.wot ? extractSteps(diagnosis.organicProtocol.wot) : '',
+        },
+        chemicalTreatment: {
+          en: extractChem(diagnosis.chemicalProtocol, 'en'),
+          am: extractChem(diagnosis.chemicalProtocol, 'am'),
+          om: extractChem(diagnosis.chemicalProtocol, 'om'),
+          wot: extractChem(diagnosis.chemicalProtocol, 'wot'),
+        },
+        imageUrl: uploadedImagePreview || '',
+      };
+
+      const res = await advisoryService.create(postPayload);
+      setPostedStatus('posted');
+      if (onPosted && res?.advisory) {
+        onPosted(res.advisory);
+      }
+    } catch (err) {
+      console.error('Failed to post advisory:', err);
+      alert('Could not post advisory. Please ensure backend is connected.');
+    } finally {
+      setPosting(false);
     }
   };
 
@@ -394,6 +486,57 @@ export default function AiCropScannerWidget() {
                     <div className="chem-row"><span>{activeLang === 'am' ? 'መጠን:' : activeLang === 'om' ? 'Hamma:' : activeLang === 'wot' ? 'Kessiyoogaa:' : 'Dosage:'}</span> <strong>{currentChemical?.dosage || 'Standard dosage'}</strong></div>
                     <div className="chem-row"><span>{activeLang === 'am' ? 'የመርጫ ወቅት:' : activeLang === 'om' ? 'Yeroo:' : activeLang === 'wot' ? 'Wodiyaa:' : 'Timing:'}</span> <strong>{currentChemical?.timing || 'Apply during early onset'}</strong></div>
                   </div>
+                </div>
+
+                {/* POST OR DON'T POST DECISION SECTION */}
+                <div className="diagnosis-sharing-decision-card">
+                  {postedStatus === 'posted' ? (
+                    <div className="decision-published-banner">
+                      <span className="published-check-icon">✅</span>
+                      <div>
+                        <strong>Successfully Posted & Saved to Local Storage! (በተሳካ ሁኔታ ተለጥፏል)</strong>
+                        <p>This diagnosis is now published to the public National Advisory Grid below and permanently stored in local MongoDB for offline access during internet outages.</p>
+                      </div>
+                    </div>
+                  ) : postedStatus === 'declined' ? (
+                    <div className="decision-private-banner">
+                      <div className="private-info-text">
+                        <span>🔒</span>
+                        <span>Kept as private local scan session. Not posted to public advisory grid.</span>
+                      </div>
+                      <button type="button" className="btn-change-decision" onClick={() => setPostedStatus('idle')}>
+                        Publish instead?
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="decision-prompt-wrapper">
+                      <div className="decision-prompt-text">
+                        <span className="decision-tag-label">📢 PUBLIC ADVISORY CONTRIBUTION / ለህዝብ ማጋራት</span>
+                        <h4>Do you want to post this scanned diagnosis to the public Advisory Board?</h4>
+                        <p>
+                          Posting will add this case to the <strong>National Crop Health Directory</strong> below and save it into <strong>local MongoDB storage</strong> so other farmers can access it offline.
+                        </p>
+                      </div>
+
+                      <div className="decision-actions-row">
+                        <button
+                          type="button"
+                          className="btn-decision-post"
+                          disabled={posting}
+                          onClick={handlePostToAdvisory}
+                        >
+                          {posting ? '⏳ Posting to Database...' : '📤 Post to Advisory Board (ለህዝብ አጋራ)'}
+                        </button>
+                        <button
+                          type="button"
+                          className="btn-decision-decline"
+                          onClick={() => setPostedStatus('declined')}
+                        >
+                          ❌ Keep Private / Don't Post (አታጋራ)
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Footer Actions */}

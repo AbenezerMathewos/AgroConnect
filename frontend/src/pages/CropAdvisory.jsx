@@ -10,13 +10,13 @@ export default function CropAdvisory() {
   const [search, setSearch] = useState('');
   const [selectedCrop, setSelectedCrop] = useState('All');
 
-  const CROPS = ['All', 'Enset', 'Coffee', 'Teff', 'Maize'];
+  const CROPS = ['All', 'Enset', 'Coffee', 'Teff', 'Maize', 'Wheat', 'Ginger', 'Avocado'];
 
   const loadAdvisories = () => {
     setLoading(true);
     advisoryService
       .getAll({ search: search !== '' ? search : undefined, crop: selectedCrop !== 'All' ? selectedCrop : undefined })
-      .then((data) => setAdvisories(data.advisories))
+      .then((data) => setAdvisories(data.advisories || []))
       .catch(() => setAdvisories([]))
       .finally(() => setLoading(false));
   };
@@ -33,7 +33,8 @@ export default function CropAdvisory() {
 
   const getLocalized = (obj) => {
     if (!obj) return '';
-    return obj[lang] || obj.en || Object.values(obj)[0] || '';
+    if (typeof obj === 'string') return obj;
+    return obj[lang] || obj.am || obj.en || obj.om || obj.wot || obj.ti || Object.values(obj)[0] || '';
   };
 
   return (
@@ -44,8 +45,8 @@ export default function CropAdvisory() {
         <p>{t('diseaseAdvisorySubtitle')}</p>
       </section>
 
-      {/* AI Crop Disease Scanner & Diagnostics Widget */}
-      <AiCropScannerWidget />
+      {/* AI Crop Disease Scanner & Diagnostics Widget with Direct Mongo Publishing */}
+      <AiCropScannerWidget onPosted={() => loadAdvisories()} />
 
       <div className="advisory-filters-bar">
         <div className="crop-tab-buttons">
@@ -80,6 +81,13 @@ export default function CropAdvisory() {
         <div className="advisory-grid">
           {advisories.map((item) => (
             <article className="advisory-card" key={item._id}>
+              {item.imageUrl && (
+                <div className="advisory-card-img-wrapper">
+                  <img src={item.imageUrl} alt={item.pestOrDisease} className="advisory-card-thumb" />
+                  <span className="verified-scan-badge">📷 Verified Field Scan</span>
+                </div>
+              )}
+
               <div className="advisory-card-header">
                 <div>
                   <span className="badge badge-crop">{item.cropName}</span>
@@ -90,8 +98,8 @@ export default function CropAdvisory() {
                     </p>
                   )}
                 </div>
-                <span className={`badge badge-severity-${item.severity.toLowerCase()}`}>
-                  {item.severity} Severity
+                <span className={`badge badge-severity-${(item.severity || 'moderate').toLowerCase()}`}>
+                  {item.severity || 'High'} Severity
                 </span>
               </div>
 
