@@ -819,3 +819,117 @@ exports.diagnoseCropDisease = async (req, res) => {
     });
   }
 };
+
+// @route   POST /api/advisory/chat
+// @desc    Live 24/7 Multilingual AI Agronomist & Plant Doctor Chatbot
+// @access  Public
+exports.chatWithAiAgronomist = async (req, res) => {
+  try {
+    const { message, history, language = 'am', cropContext } = req.body;
+
+    if (!message || !message.trim()) {
+      return res.status(400).json({ message: 'Message text is required' });
+    }
+
+    const langInstructions = {
+      am: 'Respond in fluent, clear Amharic (አማርኛ). Use respectful and easy-to-understand Ethiopian farming terminology.',
+      om: 'Respond in fluent Afaan Oromoo. Use practical and clear agricultural terminology.',
+      wot: 'Respond in Wolaytta (or Wolayttatto / Amharic blend if technical). Help the farmer with practical guidance.',
+      ti: 'Respond in fluent Tigrinya (ትግርኛ). Provide actionable, clear agricultural instructions.',
+      en: 'Respond in fluent, friendly English with Ethiopian agronomic context and metrics.',
+    };
+
+    const targetLangPrompt = langInstructions[language] || langInstructions.am;
+    const apiKey = process.env.GEMINI_API_KEY;
+
+    if (apiKey) {
+      const genAI = new GoogleGenerativeAI(apiKey);
+
+      const systemPrompt = `
+You are the AgroConnect Ethiopia 24/7 AI Master Agronomist & Plant Pathology Doctor.
+Your role: Provide expert, caring, and scientifically verified agronomic advice for Ethiopian farmers, unions, and agronomists across Ethiopia (Wolaita, Sidama, Oromia, Amhara, Tigray, SNNPR, etc.).
+
+Guidelines:
+1. Language: ${targetLangPrompt}
+2. Tone: Respectful, practical, encouraging, and clear.
+3. Expertise:
+   - Ethiopian major crops: Coffee (Buna), Enset (Qocho/Utta), Maize (Boqollo), Wheat (Qamadi/Srnay), Teff (Xaffi), Ginger (Zinjibil), Avocado, Tomato, Potato, Pulses.
+   - Soil, water conservation, weather seasons (Belg, Meher, Bega).
+   - Organic / cultural methods (compost, wood ash, push-pull, neem, crop rotation, shade trees).
+   - Ministry of Agriculture (MoA) registered chemical fungicides, pesticides, and fertilizers (NPS, Urea) with exact safe dosages per hectare/liter.
+   - Refer farmers to Ethiopian Research Centers (EIAR, JARC Jimma, Areka, Hawassa, Debre Zeit, Kulumsa, Bako) and Ethio Telecom free 8028 hotline when appropriate.
+4. Formatting: Use concise bullet points and bold headers for readability.
+
+${cropContext ? `Current Crop In Question: ${cropContext}` : ''}
+`;
+
+      const candidateModels = ['gemini-flash-lite-latest', 'gemini-flash-latest', 'gemini-1.5-flash-latest', 'gemini-1.5-flash'];
+
+      for (const modelName of candidateModels) {
+        try {
+          const model = genAI.getGenerativeModel({ model: modelName });
+
+          let promptPayload = `${systemPrompt}\n\n`;
+
+          if (Array.isArray(history) && history.length > 0) {
+            const recentHistory = history.slice(-6);
+            promptPayload += 'Previous Conversation:\n';
+            for (const h of recentHistory) {
+              promptPayload += `${h.role === 'user' ? 'Farmer' : 'AgroDoctor'}: ${h.text}\n`;
+            }
+            promptPayload += '\n';
+          }
+
+          promptPayload += `Farmer Question: ${message}\nAgroDoctor Answer:`;
+
+          const result = await model.generateContent(promptPayload);
+          const reply = result.response.text().trim();
+
+          return res.status(200).json({
+            success: true,
+            reply,
+            source: 'Cloud AI Agronomist (Gemini)',
+            timestamp: new Date().toISOString(),
+          });
+        } catch (err) {
+          console.warn(`Chat model ${modelName} attempt failed:`, err.message);
+        }
+      }
+    }
+
+    // Smart Local Agronomy Engine Fallback if offline
+    let localReply = '';
+    const qLower = message.toLowerCase();
+
+    if (qLower.includes('ቡና') || qLower.includes('coffee') || qLower.includes('buna') || qLower.includes('cbd')) {
+      localReply = language === 'am'
+        ? `🌱 **የቡና ፍሬ በሽታ (ሲ.ቢ.ዲ / CBD) እና እንክብካቤ መመሪያ:**\n\n1. **የተፈጥሮ መፍትሄ:** አየርና ፀሐይ በደንብ እንዲገባ የደረቁ ቅርንጫፎችን መግረዝ፤ የረገፉ ጥቁር ፍሬዎችን ሰብስቦ ማቃጠል ወይም መቅበር።\n2. **የኬሚካል መድኃኒት:** ኮሳይድ 2000 (Copper Hydroxide 77% WP) በሄክታር 2.5 ኪ.ግ በ 500 ሊትር ውሃ ተበጥብጦ የበልግ ዝናብ ከመግባቱ በፊት መርጨት።\n3. **ምርምር ማዕከል:** ጅማ የግብርና ምርምር ማዕከል (JARC)። ተጨማሪ መረጃ በነጻ ወደ *8028# ይደውሉ።`
+        : `🌱 **Coffee Berry Disease (CBD) Advisory:**\n\n1. **Organic:** Prune dense branches for sunlight and bury all dropped mummified berries.\n2. **Chemical:** Spray Copper Hydroxide 77% WP (Kocide 2000) @ 2.5 kg/ha before heavy rains.\n3. **Contact:** Jimma Agricultural Research Center (JARC) or call *8028#.`;
+    } else if (qLower.includes('እንሰት') || qLower.includes('enset') || qLower.includes('gomere') || qLower.includes('ጎመሬ') || qLower.includes('ዎሾ') || qLower.includes('ቆጮ')) {
+      localReply = language === 'am'
+        ? `🍌 **የእንሰት ባክቴሪያል ዊልት (ጎመሬ / ዎሾ) መከላከያ መመሪያ:**\n\n1. **ጥብቅ ንጽህና:** ማንኛውንም እንሰት መቁረጫ ቢላዋ፣ ጩቤ እና ገጀራ በእሳት ነበልባል ወይም በበረኪና ማምከን።\n2. **የታመመውን ማጥፋት:** የታመመውን እንሰት ወዲያውኑ ነቅሎ በመቆራረጥ ከውሃ መውረጃ ርቆ በጥልቅ ጉድጓድ ውስጥ መቅበር።\n3. **አጥር ማጠር:** ከብቶችና ፍየሎች የታመመውን እንሰት በልተው እንዳያስተላልፉ ማሳውን መከለል።\n4. **ማስታወሻ:** ለእንሰት ጎመሬ ምንም አይነት የኬሚካል መድኃኒት የለም፤ ንጽህና ብቻ ያድነዋል።\n5. **ምርምር ማዕከል:** አረካ የግብርና ምርምር ማዕከል (ደቡብ ግብርና ምርምር)።`
+        : `🍌 **Enset Bacterial Wilt (Gomere) Prevention:**\n\n1. **Sterilization:** Flame-sterilize or bleach all machetes and harvesting knives between plants.\n2. **Uproot:** Completely uproot and bury infected enset in deep pits.\n3. **Quarantine:** Fence the area to prevent livestock transmission.\n4. **Note:** There is NO chemical cure; strict phytosanitation is essential.\n5. **Contact:** Areka Agricultural Research Center.`;
+    } else if (qLower.includes('በቆሎ') || qLower.includes('maize') || qLower.includes('armyworm') || qLower.includes('አባጨጓሬ') || qLower.includes('corn')) {
+      localReply = language === 'am'
+        ? `🌽 **የመኸር ሰራዊት አባጨጓሬ (Fall Armyworm) መቆጣጠሪያ:**\n\n1. **ባህላዊ ዘዴ:** ደረቅ የእንጨት አመድ ከሚጥሚጣ ዱቄት ጋር በመደባለቅ በበቆሎው ልብ (ፈነል) ውስጥ መነስነስ።\n2. **የኬሚካል መድኃኒት:** ኢማሜክቲን ቤንዞኤት 5% SG በሄክታር 250 ግራም ከሰአት በኋላ ጸሐይ ሲቀዘቅዝ በበቆሎው አናት ላይ መርጨት።\n3. **ምርምር ማዕከል:** ሀዋሳ እና ባኮ የግብርና ምርምር ማዕከላት።`
+        : `🌽 **Fall Armyworm Management in Maize:**\n\n1. **Cultural:** Apply dry fine wood ash with chili powder directly into the central whorl funnel.\n2. **Chemical:** Spray Emamectin Benzoate 5% SG @ 250g/ha late in the afternoon.\n3. **Contact:** Hawassa / Bako Agricultural Research Center.`;
+    } else {
+      localReply = language === 'am'
+        ? `🌾 **ሰላም! እኔ የአግሮኮኔክት ኢትዮጵያ የግብርና AI አማካሪ ነኝ።**\n\nስለ ቡና፣ እንሰት፣ በቆሎ፣ ስንዴ፣ ጤፍ፣ ዝንጅብል፣ አቮካዶ፣ የአፈር ማዳበሪያ (NPS/Urea)፣ ተባይና በሽታ መከላከያ ማንኛውንም ጥያቄ ይጠይቁኝ። እንዲሁም በስልክዎ ወደ *8028# ደውለው ፈጣን የግብርና መረጃ ማግኘት ይችላሉ።`
+        : `🌾 **Hello! I am your 24/7 AgroConnect AI Agronomist.**\n\nAsk me anything about crop diseases, organic treatments, chemical dosages, soil fertility (NPS/Urea), and Ethiopian farming seasons across Coffee, Enset, Maize, Wheat, Teff, and Ginger. You can also dial *8028# on your phone for free advisory.`;
+    }
+
+    return res.status(200).json({
+      success: true,
+      reply: localReply,
+      source: 'AgroConnect Agronomic Expert Engine (Offline Ready)',
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: 'Chat service temporarily unavailable',
+      error: error.message,
+    });
+  }
+};
