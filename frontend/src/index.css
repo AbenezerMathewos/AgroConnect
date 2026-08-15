@@ -318,9 +318,43 @@ body.dark-theme {
   }
 }
 
+@keyframes organicBoxGlow {
+
+  0%, 100% {
+    border-left-color: #10b981;
+    box-shadow: inset 0 0 0 1px rgba(16, 185, 129, 0.15), 0 2px 8px rgba(16, 185, 129, 0.08);
+  }
+  50% {
+    border-left-color: #34d399;
+    box-shadow: inset 0 0 0 1px rgba(52, 211, 153, 0.35), 0 4px 14px rgba(52, 211, 153, 0.22);
+  }
+}
+
+@keyframes chemicalBoxGlow {
+  0%, 100% {
+    border-left-color: #0ea5e9;
+    box-shadow: inset 0 0 0 1px rgba(14, 165, 233, 0.15), 0 2px 8px rgba(14, 165, 233, 0.08);
+  }
+  50% {
+    border-left-color: #38bdf8;
+    box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.35), 0 4px 14px rgba(56, 189, 248, 0.22);
+  }
+}
+
+@keyframes lightBoxPulse {
+  0%, 100% {
+    border-color: rgba(226, 232, 240, 0.85);
+    box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.04);
+  }
+  50% {
+    border-color: rgba(52, 211, 153, 0.45);
+    box-shadow: 0 6px 20px -2px rgba(16, 185, 129, 0.12);
+  }
+}
 
 /* ==========================================================================
    Vanta.js 3D Animated Dots Mesh Canvas Layer
+
    ========================================================================== */
 
 .vanta-dots-canvas {
@@ -2783,25 +2817,73 @@ p {
 
 .advisory-treatment-box {
   border-radius: var(--radius-sm);
-  padding: 0.75rem 0.95rem;
+  padding: 0.8rem 1rem;
   font-size: 0.82rem;
+  transition: all 0.25s ease;
 }
 
 .advisory-treatment-box strong {
-  margin-bottom: 0.2rem;
+  margin-bottom: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
 }
 
 .organic-box {
-  background: var(--forest-50);
-  border-left: 3px solid var(--forest-500);
+  background: linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 100%);
+  border-left: 4px solid var(--forest-500);
   color: var(--forest-900);
+  animation: organicBoxGlow 4s ease-in-out infinite;
 }
 
 .chemical-box {
-  background: var(--sky-50);
-  border-left: 3px solid var(--sky-500);
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border-left: 4px solid var(--sky-500);
   color: #0369a1;
+  animation: chemicalBoxGlow 4s ease-in-out infinite;
 }
+
+/* Comfortable Dark Mode Contrast for Advisory Boxes (Zero Glare) */
+[data-theme="dark"] .organic-box {
+  background: rgba(6, 78, 59, 0.28) !important;
+  border-left: 4px solid #10b981 !important;
+  color: #a7f3d0 !important;
+  box-shadow: inset 0 0 0 1px rgba(52, 211, 153, 0.2) !important;
+  animation: none !important;
+}
+
+[data-theme="dark"] .organic-box strong {
+  color: #6ee7b7 !important;
+}
+
+[data-theme="dark"] .organic-box p {
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .chemical-box {
+  background: rgba(14, 116, 144, 0.22) !important;
+  border-left: 4px solid #0ea5e9 !important;
+  color: #7dd3fc !important;
+  box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.2) !important;
+  animation: none !important;
+}
+
+[data-theme="dark"] .chemical-box strong {
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .chemical-box p {
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .advisory-section strong {
+  color: #34d399 !important;
+}
+
+[data-theme="dark"] .advisory-section p {
+  color: #cbd5e1 !important;
+}
+
 
 /* ==========================================================================
    Escrow Stepper in MyOrders
