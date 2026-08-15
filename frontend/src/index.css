@@ -88,6 +88,118 @@
 }
 
 /* ==========================================================================
+   Dark Theme Design System & Tokens
+   ========================================================================== */
+
+[data-theme="dark"],
+.dark-theme {
+  --canvas: #090d16;
+  --white: #111827;
+  --slate-50: #1e293b;
+  --slate-100: #1e293b;
+  --slate-150: #263346;
+  --slate-200: #334155;
+  --slate-300: #475569;
+  --slate-400: #94a3b8;
+  --slate-500: #cbd5e1;
+  --slate-600: #e2e8f0;
+  --slate-700: #f1f5f9;
+  --slate-800: #f8fafc;
+  --slate-900: #ffffff;
+  --slate-950: #ffffff;
+  --color-text-main: #f8fafc;
+  --color-text-muted: #cbd5e1;
+  --color-text-light: #94a3b8;
+  --color-border: #334155;
+}
+
+[data-theme="dark"] body,
+body.dark-theme {
+  background-color: #090d16 !important;
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] h1,
+[data-theme="dark"] h2,
+[data-theme="dark"] h3,
+[data-theme="dark"] h4 {
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] p {
+  color: #cbd5e1;
+}
+
+[data-theme="dark"] .arbitrage-ticker-section,
+[data-theme="dark"] .hub-spotlight-card,
+[data-theme="dark"] .pillar-item,
+[data-theme="dark"] .step-card,
+[data-theme="dark"] .product-card,
+[data-theme="dark"] .price-card,
+[data-theme="dark"] .freight-card,
+[data-theme="dark"] .advisory-card,
+[data-theme="dark"] .filters-form,
+[data-theme="dark"] .auth-form,
+[data-theme="dark"] .order-panel,
+[data-theme="dark"] .product-detail-list,
+[data-theme="dark"] .stat-card,
+[data-theme="dark"] .my-products-table,
+[data-theme="dark"] .admin-table,
+[data-theme="dark"] .modal-card,
+[data-theme="dark"] .conversation-list,
+[data-theme="dark"] .conversation-active,
+[data-theme="dark"] .table-responsive-wrapper {
+  background: rgba(17, 24, 39, 0.92) !important;
+  border-color: rgba(51, 65, 85, 0.85) !important;
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .ticker-card,
+[data-theme="dark"] .freight-route,
+[data-theme="dark"] .hub-spotlight-right,
+[data-theme="dark"] .order-summary-box,
+[data-theme="dark"] .escrow-stepper,
+[data-theme="dark"] .admin-tab-btn,
+[data-theme="dark"] .hub-tab-btn,
+[data-theme="dark"] .crop-tab-btn {
+  background: rgba(30, 41, 59, 0.85) !important;
+  border-color: rgba(51, 65, 85, 0.75) !important;
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .hub-tab-btn.active,
+[data-theme="dark"] .crop-tab-btn.active,
+[data-theme="dark"] .admin-tab-btn.active {
+  background: var(--forest-700) !important;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] input,
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+  background: #1e293b !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .my-products-table th,
+[data-theme="dark"] .admin-table th,
+[data-theme="dark"] .arbitrage-table th {
+  background: #1e293b !important;
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .step-watermark {
+  color: #1e293b !important;
+}
+
+
+/* ==========================================================================
    Animation Keyframes & Motion Suite
    ========================================================================== */
 
@@ -466,8 +578,47 @@ p {
 .nav-actions {
   display: flex;
   align-items: center;
-  gap: 0.65rem;
+  gap: 0.55rem;
   white-space: nowrap;
+}
+
+/* Theme Toggle Button */
+.nav-theme-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: var(--radius-pill);
+  padding: 0.22rem 0.65rem;
+  color: var(--white);
+  font-size: 0.76rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s var(--ease-spring);
+}
+
+.nav-theme-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.24);
+  border-color: var(--forest-300);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.theme-toggle-icon {
+  font-size: 0.85rem;
+  line-height: 1;
+  transition: transform 0.3s ease;
+}
+
+.nav-theme-toggle-btn:hover .theme-toggle-icon {
+  transform: rotate(25deg) scale(1.15);
+}
+
+.theme-toggle-label {
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
 }
 
 /* Language Picker */
@@ -481,6 +632,7 @@ p {
   padding: 0.2rem 0.55rem;
   white-space: nowrap;
 }
+
 
 .lang-icon {
   font-size: 0.8rem;

@@ -105,6 +105,17 @@ export default function Navbar() {
           </div>
 
           <div className="nav-actions">
+            {/* Theme Toggler Button */}
+            <button
+              onClick={toggleTheme}
+              className={`nav-theme-toggle-btn ${isDark ? 'active-dark' : 'active-light'}`}
+              aria-label={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+              title={isDark ? '☀️ Switch to Light Mode' : '🌙 Switch to Dark Mode'}
+            >
+              <span className="theme-toggle-icon">{isDark ? '☀️' : '🌙'}</span>
+              <span className="theme-toggle-label">{isDark ? 'Light' : 'Dark'}</span>
+            </button>
+
             {/* Language Switcher */}
             <div className="nav-lang-picker">
               <span className="lang-icon">🌐</span>
@@ -121,6 +132,7 @@ export default function Navbar() {
                 ))}
               </select>
             </div>
+
 
             {/* Authenticated Links or Auth Buttons */}
             {!user ? (
