@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import axios from 'axios';
+import { advisoryService } from '../services/advisoryService';
 
 const SAMPLE_DISEASES = [
   { id: 'coffee_cbd', label: '☕ Coffee Berry Disease', crop: 'Coffee', icon: '☕', desc: 'Dark sunken spots on green coffee berries' },
@@ -51,14 +51,15 @@ export default function AiCropScannerWidget() {
         fileName: fileName || uploadedFileName,
       };
 
-      const res = await axios.post('/api/advisory/diagnose', payload);
-      if (res.data && res.data.success) {
-        setDiagnosis(res.data);
+      const data = await advisoryService.diagnose(payload);
+      if (data && data.success) {
+        setDiagnosis(data);
       } else {
         setError('Diagnosis failed. Please try again.');
       }
     } catch (err) {
-      setError('Could not connect to AI diagnostic server.');
+      console.error('Diagnosis error:', err);
+      setError('Could not connect to AI diagnostic server. Please make sure the backend is active.');
     } finally {
       setScanning(false);
     }
