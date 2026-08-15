@@ -3413,12 +3413,307 @@ p {
    Market Intelligence & Arbitrage Radar
    ========================================================================== */
 
+/* ECX Live Floor Session Ticker Banner */
+.ecx-live-session-banner {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  background: linear-gradient(135deg, rgba(6, 78, 59, 0.92) 0%, rgba(15, 23, 42, 0.95) 100%);
+  border: 1px solid rgba(52, 211, 153, 0.4);
+  padding: 0.65rem 1.25rem;
+  border-radius: var(--radius-lg);
+  margin-bottom: 2rem;
+  overflow: hidden;
+  box-shadow: 0 4px 18px rgba(6, 78, 59, 0.2);
+  white-space: nowrap;
+}
+
+.ecx-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: rgba(16, 185, 129, 0.2);
+  border: 1px solid rgba(52, 211, 153, 0.5);
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: #34d399;
+  flex-shrink: 0;
+}
+
+.live-session-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 8px #10b981;
+  animation: pulseDot 1.4s ease-in-out infinite;
+}
+
+.ecx-ticker-marquee {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  font-size: 0.82rem;
+  color: #e2e8f0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.ecx-ticker-marquee::-webkit-scrollbar {
+  display: none;
+}
+
+.ecx-ticker-stat strong {
+  color: #ffffff;
+}
+
+.ecx-ticker-sep {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+/* Category & Region Filter Bars */
+.market-category-filters,
+.market-region-filters {
+  display: flex;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.category-filter-btn,
+.region-filter-pill {
+  background: var(--white);
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-pill);
+  padding: 0.35rem 0.85rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--slate-700);
+  cursor: pointer;
+  transition: all 0.2s var(--ease-spring);
+}
+
+[data-theme="dark"] .category-filter-btn,
+[data-theme="dark"] .region-filter-pill {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+.category-filter-btn:hover,
+.region-filter-pill:hover {
+  border-color: var(--forest-400);
+  transform: translateY(-1px);
+}
+
+.category-filter-btn.active,
+.region-filter-pill.active {
+  background: var(--forest-700) !important;
+  color: #ffffff !important;
+  border-color: var(--forest-700) !important;
+  box-shadow: 0 4px 12px rgba(4, 120, 87, 0.25);
+}
+
+/* Interactive Price Card */
+.interactive-price-card {
+  cursor: pointer;
+}
+
+.price-card-bottom-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 0.65rem;
+  margin-top: auto;
+  border-top: 1px solid var(--slate-100);
+  font-size: 0.74rem;
+}
+
+[data-theme="dark"] .price-card-bottom-bar {
+  border-top-color: #334155 !important;
+}
+
+.price-inspect-link {
+  color: var(--forest-700);
+  font-weight: 700;
+  transition: transform 0.2s ease;
+}
+
+[data-theme="dark"] .price-inspect-link {
+  color: #34d399 !important;
+}
+
+.interactive-price-card:hover .price-inspect-link {
+  transform: translateX(3px);
+}
+
+/* ECX Intelligence Modal */
+.price-intelligence-modal {
+  max-width: 620px !important;
+  width: 92% !important;
+}
+
+.intelligence-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 1.5rem 0 0.5rem;
+}
+
+.intelligence-stat-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.85rem;
+}
+
+@media (max-width: 600px) {
+  .intelligence-stat-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.intel-stat-box {
+  background: var(--slate-50);
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-md);
+  padding: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+[data-theme="dark"] .intel-stat-box {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+.intel-stat-box span {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--slate-500);
+}
+
+.intel-stat-box strong {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--slate-900);
+}
+
+[data-theme="dark"] .intel-stat-box strong {
+  color: #f8fafc !important;
+}
+
+.intel-stat-box small {
+  font-size: 0.72rem;
+  color: var(--slate-500);
+}
+
+.ecx-grade-specs-card {
+  background: linear-gradient(135deg, rgba(6, 78, 59, 0.08) 0%, rgba(14, 165, 233, 0.06) 100%);
+  border: 1px solid rgba(52, 211, 153, 0.4);
+  border-radius: var(--radius-lg);
+  padding: 1.15rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+[data-theme="dark"] .ecx-grade-specs-card {
+  background: rgba(6, 78, 59, 0.2) !important;
+  border-color: rgba(52, 211, 153, 0.3) !important;
+}
+
+.ecx-grade-specs-card h4 {
+  font-size: 0.86rem;
+  color: var(--forest-900);
+  margin-bottom: 0.25rem;
+}
+
+[data-theme="dark"] .ecx-grade-specs-card h4 {
+  color: #34d399 !important;
+}
+
+.spec-item-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.78rem;
+  border-bottom: 1px dashed rgba(203, 213, 225, 0.8);
+  padding-bottom: 0.35rem;
+}
+
+[data-theme="dark"] .spec-item-row {
+  border-bottom-color: #334155 !important;
+}
+
+.spec-item-row span {
+  color: var(--slate-600);
+}
+
+[data-theme="dark"] .spec-item-row span {
+  color: #94a3b8 !important;
+}
+
+.spec-item-row strong {
+  color: var(--slate-900);
+  text-align: right;
+}
+
+[data-theme="dark"] .spec-item-row strong {
+  color: #f8fafc !important;
+}
+
+.intelligence-actions-row {
+  display: flex;
+  gap: 0.75rem;
+  flex-direction: column;
+  margin-top: 0.5rem;
+}
+
+.arbitrage-hero-banner {
+  background: linear-gradient(135deg, rgba(6, 78, 59, 0.1) 0%, rgba(14, 165, 233, 0.08) 100%);
+  border: 1px solid rgba(52, 211, 153, 0.4);
+  padding: 1.25rem 1.5rem;
+  border-radius: var(--radius-lg);
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+[data-theme="dark"] .arbitrage-hero-banner {
+  background: rgba(6, 78, 59, 0.2) !important;
+}
+
+.arbitrage-hero-banner h3 {
+  font-size: 1.1rem;
+  margin-bottom: 0.25rem;
+}
+
+.arbitrage-hero-banner p {
+  font-size: 0.84rem;
+  color: var(--slate-600);
+  margin: 0;
+}
+
+[data-theme="dark"] .arbitrage-hero-banner p {
+  color: #cbd5e1 !important;
+}
+
 .market-view-toggle {
   display: flex;
   gap: 0.65rem;
   margin-bottom: 1.5rem;
   flex-wrap: wrap;
 }
+
 
 .price-grid {
   display: grid;
