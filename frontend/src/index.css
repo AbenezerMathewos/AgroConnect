@@ -5629,6 +5629,7 @@ p {
 }
 
 
+@media (max-width: 768px) {
   .hero-metrics-bar {
     flex-direction: column;
     gap: 1rem;
