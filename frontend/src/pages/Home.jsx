@@ -339,11 +339,15 @@ export default function Home() {
             <span className="ticker-sub">Real-time farmgate to terminal market price spreads across Ethiopia:</span>
           </div>
           <div className="arbitrage-ticker-cards">
-            {arbitrage.map((item) => (
-              <div className="ticker-card" key={item.crop}>
+            {arbitrage.map((item, index) => (
+              <div className={`ticker-card flame-card flame-theme-${index % 6}`} key={item.crop}>
+                <div className="card-flame-glow-layer"></div>
+                <div className="card-spark-flare"></div>
                 <div className="ticker-card-top">
                   <strong className="ticker-crop-name">{item.crop}</strong>
-                  <span className="ticker-gain-badge">+{item.spreadPercentage}%</span>
+                  <span className="ticker-gain-badge">
+                    <span className="spark-fire-icon">🔥</span> +{item.spreadPercentage}%
+                  </span>
                 </div>
                 <div className="ticker-spread-row">
                   <div className="spread-node">
@@ -357,11 +361,13 @@ export default function Home() {
                   </div>
                 </div>
                 <div className="ticker-footer-gain">
-                  Gross Spread: <strong>+{item.spread} ETB</strong>/{item.lowestMarket.unit}
+                  <span>Gross Spread: <strong>+{item.spread} ETB</strong>/{item.lowestMarket.unit}</span>
+                  <span className="sparkle-hint">✨</span>
                 </div>
               </div>
             ))}
           </div>
+
         </section>
       )}
 

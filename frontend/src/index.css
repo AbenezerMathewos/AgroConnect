@@ -1786,51 +1786,247 @@ p {
   color: var(--slate-600);
 }
 
+/* ==========================================================================
+   Arbitrage Flame Boxes — Radiant Sparking Color Animations
+   ========================================================================== */
+
 .arbitrage-ticker-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 0.9rem;
+  gap: 1.15rem;
 }
 
-.ticker-card {
-  background: rgba(255, 255, 255, 0.75);
-  border: 1px solid rgba(226, 232, 240, 0.85);
-  border-radius: var(--radius-md);
-  padding: 1rem;
+.ticker-card.flame-card {
+  position: relative;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  transition: all 0.22s ease;
+  gap: 0.5rem;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  transition: all 0.35s var(--ease-spring);
+  overflow: hidden;
+  border: 1.5px solid transparent;
+  isolation: isolate;
+  z-index: 1;
 }
 
-.ticker-card:hover {
-  background: rgba(255, 255, 255, 0.95);
-  border-color: var(--forest-400);
-  box-shadow: 0 6px 16px -2px rgba(4, 120, 87, 0.12);
-  transform: translateY(-2px);
+/* Rotating Ambient Flame Border Halo */
+.ticker-card.flame-card::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: var(--flame-conic, conic-gradient(from 0deg, #10b981, #06b6d4, #f59e0b, #ec4899, #8b5cf6, #10b981));
+  z-index: -2;
+  opacity: 0.65;
+  animation: flameBorderRotate 6s linear infinite;
+  transition: opacity 0.35s ease, filter 0.35s ease;
 }
 
+/* Inner Background Mask with Ambient Breathing Color Wave */
+.ticker-card.flame-card::after {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  border-radius: calc(var(--radius-lg) - 1px);
+  background: var(--flame-surface, linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(240, 253, 244, 0.9) 100%));
+  z-index: -1;
+  transition: background 0.35s ease;
+}
 
+/* Pulsating Core Flame Glow Layer */
+.card-flame-glow-layer {
+  position: absolute;
+  top: -40%;
+  left: -40%;
+  width: 180%;
+  height: 180%;
+  background: var(--flame-radial, radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.15), transparent 70%));
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.5;
+  animation: flamePulseCore 4s ease-in-out infinite alternate;
+  transition: opacity 0.35s ease;
+}
+
+/* Immersive Sparking Hover State */
+.ticker-card.flame-card:hover {
+  transform: translateY(-8px) scale(1.035);
+  box-shadow: var(--flame-hover-shadow, 0 16px 36px -4px rgba(16, 185, 129, 0.4), 0 0 25px 2px rgba(56, 189, 248, 0.35), 0 0 40px 6px rgba(245, 158, 11, 0.25));
+}
+
+.ticker-card.flame-card:hover::before {
+  opacity: 1;
+  filter: blur(1.5px) brightness(1.2);
+  animation-duration: 2.8s;
+}
+
+.ticker-card.flame-card:hover .card-flame-glow-layer {
+  opacity: 1;
+}
+
+/* Keyframes for Rotating Flame Border */
+@keyframes flameBorderRotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes flamePulseCore {
+  0% { transform: scale(0.9) rotate(0deg); opacity: 0.35; }
+  50% { transform: scale(1.15) rotate(15deg); opacity: 0.75; }
+  100% { transform: scale(0.95) rotate(-10deg); opacity: 0.45; }
+}
+
+/* ==========================================================================
+   6 Distinct Radiant Flame Color Combinations
+   ========================================================================== */
+
+/* Theme 0: Emerald Lime Fire (Hass Avocado / Enset) */
+.flame-theme-0 {
+  --flame-conic: conic-gradient(from 0deg, #10b981, #84cc16, #14b8a6, #22c55e, #10b981);
+  --flame-surface: linear-gradient(135deg, rgba(255, 255, 255, 0.96) 0%, rgba(236, 253, 245, 0.92) 50%, rgba(240, 253, 244, 0.96) 100%);
+  --flame-radial: radial-gradient(circle at 75% 25%, rgba(16, 185, 129, 0.25), rgba(132, 204, 22, 0.15) 50%, transparent 75%);
+  --flame-hover-shadow: 0 16px 36px -4px rgba(16, 185, 129, 0.45), 0 0 24px rgba(132, 204, 22, 0.35), 0 0 45px rgba(20, 184, 166, 0.25);
+}
+
+.flame-theme-0 .ticker-gain-badge {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #ffffff;
+  box-shadow: 0 2px 10px rgba(16, 185, 129, 0.4);
+}
+
+/* Theme 1: Amber Gold Fire (Specialty Washed Coffee) */
+.flame-theme-1 {
+  --flame-conic: conic-gradient(from 0deg, #f59e0b, #fbbf24, #d97706, #f97316, #f59e0b);
+  --flame-surface: linear-gradient(135deg, rgba(255, 255, 255, 0.96) 0%, rgba(254, 243, 199, 0.92) 50%, rgba(255, 251, 235, 0.96) 100%);
+  --flame-radial: radial-gradient(circle at 75% 25%, rgba(245, 158, 11, 0.28), rgba(251, 191, 36, 0.18) 50%, transparent 75%);
+  --flame-hover-shadow: 0 16px 36px -4px rgba(245, 158, 11, 0.5), 0 0 24px rgba(251, 191, 36, 0.4), 0 0 45px rgba(217, 119, 6, 0.3);
+}
+
+.flame-theme-1 .ticker-gain-badge {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: #ffffff;
+  box-shadow: 0 2px 10px rgba(245, 158, 11, 0.4);
+}
+
+/* Theme 2: Ruby Sunset Fire (Red Ginger / Spices) */
+.flame-theme-2 {
+  --flame-conic: conic-gradient(from 0deg, #ef4444, #f97316, #ec4899, #dc2626, #ef4444);
+  --flame-surface: linear-gradient(135deg, rgba(255, 255, 255, 0.96) 0%, rgba(255, 237, 213, 0.92) 50%, rgba(254, 242, 242, 0.96) 100%);
+  --flame-radial: radial-gradient(circle at 75% 25%, rgba(239, 68, 68, 0.25), rgba(249, 115, 22, 0.2) 50%, transparent 75%);
+  --flame-hover-shadow: 0 16px 36px -4px rgba(239, 68, 68, 0.45), 0 0 24px rgba(249, 115, 22, 0.4), 0 0 45px rgba(236, 72, 153, 0.3);
+}
+
+.flame-theme-2 .ticker-gain-badge {
+  background: linear-gradient(135deg, #ef4444 0%, #ea580c 100%);
+  color: #ffffff;
+  box-shadow: 0 2px 10px rgba(239, 68, 68, 0.4);
+}
+
+/* Theme 3: Electric Cyan Azure Fire (White Maize / Cereals) */
+.flame-theme-3 {
+  --flame-conic: conic-gradient(from 0deg, #06b6d4, #3b82f6, #0ea5e9, #6366f1, #06b6d4);
+  --flame-surface: linear-gradient(135deg, rgba(255, 255, 255, 0.96) 0%, rgba(224, 242, 254, 0.92) 50%, rgba(240, 249, 255, 0.96) 100%);
+  --flame-radial: radial-gradient(circle at 75% 25%, rgba(6, 182, 212, 0.25), rgba(59, 130, 246, 0.18) 50%, transparent 75%);
+  --flame-hover-shadow: 0 16px 36px -4px rgba(6, 182, 212, 0.45), 0 0 24px rgba(59, 130, 246, 0.38), 0 0 45px rgba(14, 165, 233, 0.3);
+}
+
+.flame-theme-3 .ticker-gain-badge {
+  background: linear-gradient(135deg, #06b6d4 0%, #0284c7 100%);
+  color: #ffffff;
+  box-shadow: 0 2px 10px rgba(6, 182, 212, 0.4);
+}
+
+/* Theme 4: Cosmic Violet Radiant Fire (Durum Wheat / Magna Teff) */
+.flame-theme-4 {
+  --flame-conic: conic-gradient(from 0deg, #8b5cf6, #a855f7, #ec4899, #7c3aed, #8b5cf6);
+  --flame-surface: linear-gradient(135deg, rgba(255, 255, 255, 0.96) 0%, rgba(243, 232, 255, 0.92) 50%, rgba(250, 245, 255, 0.96) 100%);
+  --flame-radial: radial-gradient(circle at 75% 25%, rgba(139, 92, 246, 0.28), rgba(168, 85, 247, 0.2) 50%, transparent 75%);
+  --flame-hover-shadow: 0 16px 36px -4px rgba(139, 92, 246, 0.5), 0 0 24px rgba(168, 85, 247, 0.4), 0 0 45px rgba(124, 58, 237, 0.35);
+}
+
+.flame-theme-4 .ticker-gain-badge {
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  color: #ffffff;
+  box-shadow: 0 2px 10px rgba(139, 92, 246, 0.45);
+}
+
+/* Theme 5: Rose Coral Fire (Red Kidney Beans / Pulses) */
+.flame-theme-5 {
+  --flame-conic: conic-gradient(from 0deg, #f43f5e, #fb7185, #e11d48, #be123c, #f43f5e);
+  --flame-surface: linear-gradient(135deg, rgba(255, 255, 255, 0.96) 0%, rgba(255, 228, 230, 0.92) 50%, rgba(255, 241, 242, 0.96) 100%);
+  --flame-radial: radial-gradient(circle at 75% 25%, rgba(244, 63, 94, 0.28), rgba(251, 113, 133, 0.2) 50%, transparent 75%);
+  --flame-hover-shadow: 0 16px 36px -4px rgba(244, 63, 94, 0.45), 0 0 24px rgba(251, 113, 133, 0.4), 0 0 45px rgba(225, 29, 72, 0.3);
+}
+
+.flame-theme-5 .ticker-gain-badge {
+  background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
+  color: #ffffff;
+  box-shadow: 0 2px 10px rgba(244, 63, 94, 0.4);
+}
+
+/* ==========================================================================
+   Dark Theme Adjustments for Flame Cards
+   ========================================================================== */
+
+[data-theme="dark"] .flame-theme-0 {
+  --flame-surface: linear-gradient(135deg, #090d16 0%, rgba(6, 78, 59, 0.4) 50%, #090d16 100%) !important;
+}
+[data-theme="dark"] .flame-theme-1 {
+  --flame-surface: linear-gradient(135deg, #090d16 0%, rgba(120, 53, 15, 0.35) 50%, #090d16 100%) !important;
+}
+[data-theme="dark"] .flame-theme-2 {
+  --flame-surface: linear-gradient(135deg, #090d16 0%, rgba(127, 29, 29, 0.35) 50%, #090d16 100%) !important;
+}
+[data-theme="dark"] .flame-theme-3 {
+  --flame-surface: linear-gradient(135deg, #090d16 0%, rgba(14, 116, 144, 0.35) 50%, #090d16 100%) !important;
+}
+[data-theme="dark"] .flame-theme-4 {
+  --flame-surface: linear-gradient(135deg, #090d16 0%, rgba(88, 28, 135, 0.35) 50%, #090d16 100%) !important;
+}
+[data-theme="dark"] .flame-theme-5 {
+  --flame-surface: linear-gradient(135deg, #090d16 0%, rgba(136, 19, 55, 0.35) 50%, #090d16 100%) !important;
+}
+
+[data-theme="dark"] .ticker-crop-name {
+  color: #f8fafc !important;
+}
+
+/* Inner Elements */
 .ticker-card-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 0.5rem;
 }
 
 .ticker-crop-name {
-  font-size: 0.95rem;
+  font-size: 0.96rem;
+  font-weight: 800;
   color: var(--slate-900);
 }
 
 .ticker-gain-badge {
-  background: var(--forest-100);
-  color: var(--forest-800);
   font-size: 0.76rem;
   font-weight: 800;
-  padding: 0.15rem 0.5rem;
+  padding: 0.2rem 0.6rem;
   border-radius: var(--radius-pill);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.spark-fire-icon {
+  font-size: 0.75rem;
+  animation: fireFlicker 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes fireFlicker {
+  0% { transform: scale(0.9) rotate(-4deg); }
+  100% { transform: scale(1.15) rotate(6deg); }
 }
 
 .ticker-spread-row {
@@ -1839,10 +2035,28 @@ p {
   justify-content: space-between;
   font-size: 0.8rem;
   margin: 0.35rem 0;
-  padding: 0.4rem 0.6rem;
-  background: var(--white);
-  border: 1px solid var(--slate-150);
+  padding: 0.5rem 0.75rem;
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(226, 232, 240, 0.8);
   border-radius: var(--radius-sm);
+  backdrop-filter: blur(8px);
+  transition: all 0.25s ease;
+}
+
+[data-theme="dark"] .ticker-spread-row {
+  background: rgba(30, 41, 59, 0.7) !important;
+  border-color: rgba(51, 65, 85, 0.7) !important;
+}
+
+.ticker-card.flame-card:hover .ticker-spread-row {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(52, 211, 153, 0.6);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="dark"] .ticker-card.flame-card:hover .ticker-spread-row {
+  background: rgba(30, 41, 59, 0.95) !important;
+  border-color: rgba(52, 211, 153, 0.5) !important;
 }
 
 .spread-node {
@@ -1852,22 +2066,53 @@ p {
 
 .node-market {
   font-size: 0.7rem;
-  color: var(--slate-400);
+  color: var(--slate-500);
+}
+
+[data-theme="dark"] .node-market {
+  color: #94a3b8 !important;
 }
 
 .node-price {
   color: var(--slate-800);
-  font-weight: 600;
+  font-weight: 700;
+  font-size: 0.82rem;
+}
+
+[data-theme="dark"] .node-price {
+  color: #f8fafc !important;
 }
 
 .spread-arrow {
-  color: var(--slate-400);
+  color: var(--forest-600);
+  font-weight: 800;
 }
 
 .ticker-footer-gain {
   font-size: 0.78rem;
   color: var(--forest-700);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 600;
 }
+
+[data-theme="dark"] .ticker-footer-gain {
+  color: #34d399 !important;
+}
+
+.sparkle-hint {
+  font-size: 0.85rem;
+  opacity: 0.7;
+  animation: sparkleTwinkle 2s ease-in-out infinite;
+}
+
+@keyframes sparkleTwinkle {
+  0% { transform: scale(0.8) rotate(0deg); opacity: 0.4; }
+  50% { transform: scale(1.2) rotate(180deg); opacity: 1; filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.8)); }
+  100% { transform: scale(0.8) rotate(360deg); opacity: 0.4; }
+}
+
 
 /* ==========================================================================
    Regional Production Hub Section
