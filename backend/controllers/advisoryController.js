@@ -6,6 +6,7 @@ const ETHIOPIAN_DISEASE_KNOWLEDGE_BASE = [
     id: 'coffee_cbd',
     crop: 'Coffee',
     cropAm: 'ቡና',
+    aliases: ['coffee', 'buuna', 'buna', 'ቡና', 'berry', 'cbd', 'kahawae'],
     diseaseName: 'Coffee Berry Disease (Colletotrichum kahawae)',
     diseaseAm: 'የቡና ፍሬ በሽታ (ሲ.ቢ.ዲ / CBD)',
     diseaseOr: 'Dhukkuba Firi Bunnaa',
@@ -13,7 +14,7 @@ const ETHIOPIAN_DISEASE_KNOWLEDGE_BASE = [
     pathogen: 'Fungal (ፈንገስ)',
     severity: 'critical',
     confidenceRange: [92.4, 98.6],
-    keyFeatures: ['dark sunken spots on green berries', 'mummified black berries', 'premature fruit drop', 'berry lesions'],
+    keyFeatures: ['dark sunken spots on green berries', 'mummified black berries', 'premature fruit drop', 'berry lesions', 'black spots', 'berry'],
     symptoms: {
       en: 'Dark, sunken necrotic spots on young green berries that rapidly expand, turning the entire berry black, mummified, and hollow. Causes severe fruit drop during wet rainy seasons.',
       am: 'በአረንጓዴ የቡና ፍሬዎች ላይ ጥቁር የሰመጡ ነጠብጣቦች መታየት፤ ፍሬው ወደ ጥቁርነት ተቀይሮ ደርቆ መርገፍ፤ በዝናባማ ወቅት ከፍተኛ የፍሬ መጥፋት።',
@@ -35,9 +36,42 @@ const ETHIOPIAN_DISEASE_KNOWLEDGE_BASE = [
     researchCenter: 'Jimma Agricultural Research Center (JARC) - Tel: +251 47 111 0019',
   },
   {
+    id: 'coffee_rust',
+    crop: 'Coffee',
+    cropAm: 'ቡና',
+    aliases: ['coffee rust', 'rust', 'ዝገት', 'orange powder', 'hemileia'],
+    diseaseName: 'Coffee Leaf Rust (Hemileia vastatrix)',
+    diseaseAm: 'የቡና ቅጠል ዝገት (Rust)',
+    diseaseOr: 'Waagii Baala Bunnaa',
+    diseaseWl: 'Buuna Haytsa Wagge',
+    pathogen: 'Fungal (ፈንገስ)',
+    severity: 'high',
+    confidenceRange: [91.5, 97.8],
+    keyFeatures: ['yellow orange powdery spots on underside of leaves', 'chlorotic leaf lesions', 'premature leaf defoliation'],
+    symptoms: {
+      en: 'Yellowish-orange powdery spore patches appearing on the lower surface of mature coffee leaves, leading to severe defoliation and dieback.',
+      am: 'በቡና ቅጠል ስር ቢጫ-ብርቱካናማ የዱቄት ነጠብጣቦች መታየት፤ ቅጠሉ ረግፎ የቡናው ዛፍ መራቆት።',
+    },
+    organicRemedy: {
+      title: 'Aeration Pruning & Resistant Selections',
+      steps: [
+        'Plant CBD and Rust resistant Ethiopian selections (741, 74110, 74112, 75227) from JARC.',
+        'Prune lower skirts to improve ventilation and reduce splashing raindrops from soil.',
+      ],
+    },
+    chemicalTreatment: {
+      title: 'Copper-Based Protectant Spray',
+      formulation: 'Copper Oxychloride 50% WP',
+      dosage: '3.0 kg / hectare in 400 liters of water',
+      timing: 'Apply just before the onset of the small Belg rains in February-March.',
+    },
+    researchCenter: 'Jimma Agricultural Research Center (JARC)',
+  },
+  {
     id: 'enset_bacterial_wilt',
     crop: 'Enset',
     cropAm: 'እንሰት / ቆጮ',
+    aliases: ['enset', 'inset', 'kocho', 'bulla', 'ቆጮ', 'እንሰት', 'gomere', 'wilt', 'xanthomonas'],
     diseaseName: 'Bacterial Wilt of Enset (Xanthomonas vasicola pv. musacearum)',
     diseaseAm: 'የእንሰት ባክቴሪያል ዊልት (ጎመሬ / ዎሾ)',
     diseaseOr: 'Bacterial Wilt Qoccoo',
@@ -45,7 +79,7 @@ const ETHIOPIAN_DISEASE_KNOWLEDGE_BASE = [
     pathogen: 'Bacterial (ባክቴሪያ)',
     severity: 'critical',
     confidenceRange: [94.1, 99.2],
-    keyFeatures: ['yellowing wilting leaves', 'bacterial ooze from cut pseudostem', 'collapsing spindle', 'rotting corm'],
+    keyFeatures: ['yellowing wilting leaves', 'bacterial ooze from cut pseudostem', 'collapsing spindle', 'rotting corm', 'ooze', 'yellow leaves'],
     symptoms: {
       en: 'Inner emerging leaves turn pale yellow, wilt, and lose turgidity. When pseudostem is cut, yellow-gray sticky bacterial ooze discharges within 15 minutes. Leads to total rotting of the bulla/kocho corm.',
       am: 'የውስጠኛው የእንሰት ልብ ቅጠል ቢጫ መሆንና መድረቅ፤ ግንዱ ሲቆረጥ የሚወጣ ቢጫ ተጣባቂ ፈሳሽ (ባክቴሪያል ኦዝ)፤ የቆጮ ጉዝጓዝ መበስበስ።',
@@ -70,6 +104,7 @@ const ETHIOPIAN_DISEASE_KNOWLEDGE_BASE = [
     id: 'maize_fall_armyworm',
     crop: 'Maize',
     cropAm: 'በቆሎ',
+    aliases: ['maize', 'corn', 'በቆሎ', 'boqollo', 'armyworm', 'caterpillar', 'frass', 'whorl'],
     diseaseName: 'Fall Armyworm (Spodoptera frugiperda)',
     diseaseAm: 'የመኸር ሰራዊት አባጨጓሬ (Fall Armyworm)',
     diseaseOr: 'Raammoo Boqqolloo',
@@ -77,7 +112,7 @@ const ETHIOPIAN_DISEASE_KNOWLEDGE_BASE = [
     pathogen: 'Insect Pest (ተባይ)',
     severity: 'high',
     confidenceRange: [91.8, 97.4],
-    keyFeatures: ['ragged feeding holes in whorl', 'sawdust frass in leaf funnel', 'window pane damage', 'caterpillar larvae'],
+    keyFeatures: ['ragged feeding holes in whorl', 'sawdust frass in leaf funnel', 'window pane damage', 'caterpillar larvae', 'holes in leaves', 'chewed'],
     symptoms: {
       en: 'Ragged window-pane feeding holes in the leaf whorl accompanied by sawdust-like yellowish larval frass. In severe infestations, larvae bore directly into developing maize cobs.',
       am: 'በበቆሎው አናት (ልብ) ላይ የተቀዳደደ ቅጠል፤ በመሃከሉ ላይ የተፈጨ እንጨት የሚመስል የትል እዳሪ መታየት፤ የዘር ቆጥ መበላት።',
@@ -102,6 +137,7 @@ const ETHIOPIAN_DISEASE_KNOWLEDGE_BASE = [
     id: 'wheat_stem_rust',
     crop: 'Wheat',
     cropAm: 'ስንዴ',
+    aliases: ['wheat', 'ስንዴ', 'qamadi', 'stem rust', 'ug99', 'ዋግ', 'rust pustules'],
     diseaseName: 'Wheat Stem Rust / Ug99 (Puccinia graminis f. sp. tritici)',
     diseaseAm: 'የስንዴ ግንድ ዝገት (Ug99 / ዋግ)',
     diseaseOr: 'Waagii Qamadii',
@@ -109,7 +145,7 @@ const ETHIOPIAN_DISEASE_KNOWLEDGE_BASE = [
     pathogen: 'Fungal (ፈንገስ)',
     severity: 'critical',
     confidenceRange: [93.5, 98.9],
-    keyFeatures: ['reddish-brown spore pustules on stems', 'ruptured stem epidermis', 'black teliospores', 'lodged wheat stems'],
+    keyFeatures: ['reddish-brown spore pustules on stems', 'ruptured stem epidermis', 'black teliospores', 'lodged wheat stems', 'red stems', 'rust'],
     symptoms: {
       en: 'Elongated reddish-brown (rust colored) spore pustules erupting through the epidermis of wheat stems and leaf sheaths, turning black towards maturity and causing lodging.',
       am: 'በስንዴው ግንድና ቅጠል ላይ ቀይ-ቡናማ የዝገት ዱቄት መውጣት፤ ግንዱ ተሰባብሮ መውደቅና እህሉ ሳይሞላ ማጨንገፍ።',
@@ -131,9 +167,42 @@ const ETHIOPIAN_DISEASE_KNOWLEDGE_BASE = [
     researchCenter: 'Kulumsa Agricultural Research Center (National Wheat Research Hub) - Tel: +251 22 331 1877',
   },
   {
+    id: 'teff_head_smut',
+    crop: 'Teff',
+    cropAm: 'ጤፍ',
+    aliases: ['teff', 'ጤፍ', 'taafi', 'smut', 'head smut', 'እሳት በሽታ', 'black heads'],
+    diseaseName: 'Teff Head Smut (Helminthosporium miyakei)',
+    diseaseAm: 'የጤፍ ራስ እሳት በሽታ (Head Smut)',
+    diseaseOr: 'Dhukkuba Mataa Xaafii',
+    diseaseWl: 'Xafiyaa Huuphe Eesattiya',
+    pathogen: 'Fungal (ፈንገስ)',
+    severity: 'moderate',
+    confidenceRange: [89.5, 95.5],
+    keyFeatures: ['black powdery masses replacing grain florets', 'stunted teff panicles', 'sooty grains'],
+    symptoms: {
+      en: 'Individual teff florets and panicles transform into black sooty fungal spore masses, destroying teff seed formation in humid highlands.',
+      am: 'የጤፉ ዘር ወደ ጥቁር አቧራማ ዱቄትነት መቀየር፤ የጤፍ ዘለላው ማጠርና የጤፍ እህል ሳይይዝ መቅረት።',
+    },
+    organicRemedy: {
+      title: 'Certified Clean Seed Sourcing & Crop Rotation',
+      steps: [
+        'Use certified disease-free Magna or Quncho teff seeds from the Ethiopian Seed Enterprise (ESE).',
+        'Rotate teff fields with chickpea or haricot beans every 2 seasons to break soil fungal inoculum cycles.',
+      ],
+    },
+    chemicalTreatment: {
+      title: 'Fungicidal Seed Dressing',
+      formulation: 'Thiram 75% WP or Mancozeb 80% WP seed coating',
+      dosage: '2.5 grams per 1 kg of teff seed',
+      timing: 'Dress seeds thoroughly 24 hours before broadcast sowing.',
+    },
+    researchCenter: 'Debre Zeit Agricultural Research Center (National Teff Research Hub)',
+  },
+  {
     id: 'ginger_bacterial_wilt',
     crop: 'Ginger',
     cropAm: 'ዝንጅብል',
+    aliases: ['ginger', 'ዝንጅብል', 'zinjibil', 'rhizome rot', 'wilt', 'መበስበስ'],
     diseaseName: 'Bacterial Wilt of Ginger (Ralstonia solanacearum)',
     diseaseAm: 'የዝንጅብል ባክቴሪያል ዊልት (የዝንጅብል መበስበስ)',
     diseaseOr: 'Dhukkuba Zinjibilaa',
@@ -141,7 +210,7 @@ const ETHIOPIAN_DISEASE_KNOWLEDGE_BASE = [
     pathogen: 'Bacterial (ባክቴሪያ)',
     severity: 'critical',
     confidenceRange: [90.2, 96.8],
-    keyFeatures: ['yellowing leaf margins', 'water-soaked shoots', 'rotted rhizomes with foul odor', 'rhizome ooze'],
+    keyFeatures: ['yellowing leaf margins', 'water-soaked shoots', 'rotted rhizomes with foul odor', 'rhizome ooze', 'soft rot'],
     symptoms: {
       en: 'Lower leaves curl and turn bronze-yellow, progressing upwards. Pseudostems become water-soaked and easily pull away from rhizomes. Underground rhizomes rot with milky bacterial stream in water test.',
       am: 'የዝንጅብል ቅጠሎች ወደ ቢጫነት መቀየር፤ ከስሩ መበስበስና መጥፎ ጠረን ማመንጨት፤ ግንዱ በቀላሉ ተነቅሎ መውጣት።',
@@ -162,6 +231,50 @@ const ETHIOPIAN_DISEASE_KNOWLEDGE_BASE = [
     },
     researchCenter: 'Areka & Tepi National Spices Research Center',
   },
+  {
+    id: 'avocado_root_rot',
+    crop: 'Avocado',
+    cropAm: 'አቮካዶ',
+    aliases: ['avocado', 'አቮካዶ', 'abukato', 'hass', 'root rot', 'phytophthora', 'dieback'],
+    diseaseName: 'Phytophthora Root Rot (Phytophthora cinnamomi)',
+    diseaseAm: 'የአቮካዶ ስር መበስበስ (Phytophthora Root Rot)',
+    diseaseOr: 'Root Rot Avokaadoo',
+    diseaseWl: 'Avokaado Xaphuwaa Borqqiya',
+    pathogen: 'Oomycete / Fungal',
+    severity: 'critical',
+    confidenceRange: [91.0, 97.2],
+    keyFeatures: ['pale wilted foliage', 'small sunburned fruits', 'black brittle feeder roots', 'branch dieback'],
+    symptoms: {
+      en: 'Foliage becomes pale green, wilts, and drops. Feeder roots turn black, brittle, and rot, preventing water uptake. Trees suffer branch dieback in waterlogged volcanic soils.',
+      am: 'የአቮካዶ ቅጠል መገርጣትና መርገፍ፤ ስሮቹ ወደ ጥቁርነት ተቀይረው መበስበስ፤ የዛፉ ቅርንጫፎች ከጫፍ ወደ ስር መድረቅ።',
+    },
+    organicRemedy: {
+      title: 'Gypsum Mulching & Deep Drainage Furrows',
+      steps: [
+        'Apply coarse woodchip mulch (15cm thick) kept 20cm away from the trunk to encourage antagonistic beneficial microbes.',
+        'Apply 1 kg of agricultural gypsum (calcium sulfate) per tree to suppress zoospore motility.',
+      ],
+    },
+    chemicalTreatment: {
+      title: 'Phosphonate Trunk Injection & Drench',
+      formulation: 'Potassium Phosphite (Fosetyl-Al 80% WP) or Metalaxyl 25% WP',
+      dosage: 'Trunk injection @ 20ml per meter of canopy diameter or 2.0 kg/ha soil drench',
+      timing: 'Apply during active root flush in spring.',
+    },
+    researchCenter: 'Wondo Genet Agricultural Research Center & Wolaita Sodo Nursery',
+  },
+];
+
+// Non-Agro keyword blacklists
+const NON_AGRO_KEYWORDS = [
+  'car', 'automobile', 'vehicle', 'truck', 'bike', 'motorcycle', 'engine',
+  'shoe', 'shoes', 'boot', 'sneaker', 'clothes', 'shirt', 'pants', 'jacket',
+  'phone', 'mobile', 'iphone', 'samsung', 'laptop', 'computer', 'screen', 'keyboard', 'mouse', 'ipad',
+  'building', 'house', 'wall', 'concrete', 'furniture', 'chair', 'table', 'door', 'window',
+  'cat', 'dog', 'pet', 'animal', 'cow', 'sheep', 'goat', 'bird', 'human', 'face', 'person', 'hand',
+  'plastic', 'bottle', 'can', 'cup', 'paper', 'cardboard', 'metal', 'iron', 'steel',
+  'tv', 'television', 'camera', 'watch', 'clock', 'money', 'coin', 'birr', 'dollar',
+  'book', 'pen', 'pencil', 'glasses', 'bag', 'backpack', 'wallet'
 ];
 
 // @route   GET /api/advisory
@@ -203,18 +316,6 @@ exports.getAdvisoryById = async (req, res) => {
   }
 };
 
-// Non-Agro keyword blacklists
-const NON_AGRO_KEYWORDS = [
-  'car', 'automobile', 'vehicle', 'truck', 'bike', 'motorcycle', 'engine',
-  'shoe', 'shoes', 'boot', 'sneaker', 'clothes', 'shirt', 'pants', 'jacket',
-  'phone', 'mobile', 'iphone', 'samsung', 'laptop', 'computer', 'screen', 'keyboard', 'mouse', 'ipad',
-  'building', 'house', 'wall', 'concrete', 'furniture', 'chair', 'table', 'door', 'window',
-  'cat', 'dog', 'pet', 'animal', 'cow', 'sheep', 'goat', 'bird', 'human', 'face', 'person', 'hand',
-  'plastic', 'bottle', 'can', 'cup', 'paper', 'cardboard', 'metal', 'iron', 'steel',
-  'tv', 'television', 'camera', 'watch', 'clock', 'money', 'coin', 'birr', 'dollar',
-  'book', 'pen', 'pencil', 'glasses', 'bag', 'backpack', 'wallet'
-];
-
 // @route   POST /api/advisory/diagnose
 // @desc    AI Plant Pathology & Leaf Scanner Engine for Ethiopian Crops
 // @access  Public
@@ -222,8 +323,9 @@ exports.diagnoseCropDisease = async (req, res) => {
   try {
     const { cropType, symptomsText, sampleId, fileName } = req.body;
 
+    const queryText = `${symptomsText || ''} ${fileName || ''} ${cropType || ''}`.toLowerCase().trim();
+
     // 1. Check for explicit Non-Agro sample or non-agricultural keyword trigger
-    const queryText = `${symptomsText || ''} ${fileName || ''}`.toLowerCase().trim();
     const isNonAgroSample = sampleId === 'non_agro';
     const isNonAgroKeyword = NON_AGRO_KEYWORDS.some((kw) => {
       const regex = new RegExp(`\\b${kw}\\b`, 'i');
@@ -251,21 +353,34 @@ exports.diagnoseCropDisease = async (req, res) => {
       matchedEntry = ETHIOPIAN_DISEASE_KNOWLEDGE_BASE.find((e) => e.id === sampleId);
     }
 
-    // 3. If cropType passed
-    if (!matchedEntry && cropType) {
+    // 3. Match by cropType / alias
+    if (!matchedEntry && cropType && cropType !== 'All' && cropType !== 'Auto') {
       matchedEntry = ETHIOPIAN_DISEASE_KNOWLEDGE_BASE.find(
-        (e) => e.crop.toLowerCase() === cropType.toLowerCase()
+        (e) => e.crop.toLowerCase() === cropType.toLowerCase() ||
+               e.cropAm === cropType ||
+               e.aliases.some((a) => a.toLowerCase() === cropType.toLowerCase())
       );
     }
 
-    // 4. Keyword matching across symptom text
-    if (!matchedEntry && symptomsText) {
+    // 4. Match by file name keywords (e.g. maize_leaf.jpg, enset.png, wheat.jpg)
+    if (!matchedEntry && fileName) {
+      const cleanFileName = fileName.toLowerCase();
+      for (const entry of ETHIOPIAN_DISEASE_KNOWLEDGE_BASE) {
+        if (entry.aliases.some((a) => cleanFileName.includes(a.toLowerCase()))) {
+          matchedEntry = entry;
+          break;
+        }
+      }
+    }
+
+    // 5. Keyword matching across symptom text
+    if (!matchedEntry && symptomsText && symptomsText.trim().length > 0) {
       const text = symptomsText.toLowerCase();
       let bestScore = 0;
 
       for (const entry of ETHIOPIAN_DISEASE_KNOWLEDGE_BASE) {
         let score = 0;
-        if (text.includes(entry.crop.toLowerCase()) || text.includes(entry.cropAm)) score += 3;
+        if (entry.aliases.some((a) => text.includes(a.toLowerCase()))) score += 4;
         for (const feat of entry.keyFeatures) {
           if (text.includes(feat.toLowerCase())) score += 2;
         }
@@ -276,28 +391,29 @@ exports.diagnoseCropDisease = async (req, res) => {
       }
     }
 
-    // 5. If user entered completely unrecognized text that is not a known crop
+    // 6. If user entered symptoms or uploaded a generic file without any agro term
     if (!matchedEntry && symptomsText && symptomsText.trim().length > 0) {
-      const recognizedCrops = ['coffee', 'enset', 'maize', 'wheat', 'teff', 'ginger', 'avocado', 'ቡና', 'እንሰት', 'በቆሎ', 'ስንዴ', 'ጤፍ', 'ዝንጅብል'];
-      const hasAgroTerm = recognizedCrops.some((term) => queryText.includes(term)) ||
-        ETHIOPIAN_DISEASE_KNOWLEDGE_BASE.some((d) => d.keyFeatures.some((f) => queryText.includes(f.toLowerCase())));
-
-      if (!hasAgroTerm) {
-        return res.status(200).json({
-          success: true,
-          isAgroProduct: false,
-          diagnosisId: `REJECT-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
-          timestamp: new Date().toISOString(),
-          message: "This isn't an agro product.",
-          messageAm: 'ይህ የግብርና ምርት ወይም የሰብል ቅጠል አይደለም።',
-          reason: `No agricultural botanical features detected for "${symptomsText}".`,
-          guidance: 'Please select a crop type or upload an image of a real agricultural crop.',
-          detectedCategory: 'Unrecognized / Non-Agricultural Input',
-        });
-      }
+      return res.status(200).json({
+        success: true,
+        isAgroProduct: false,
+        diagnosisId: `REJECT-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
+        timestamp: new Date().toISOString(),
+        message: "This isn't an agro product.",
+        messageAm: 'ይህ የግብርና ምርት ወይም የሰብል ቅጠል አይደለም።',
+        reason: `No recognizable agricultural crop or pathology markers detected for "${symptomsText}".`,
+        guidance: 'Please choose your crop type or describe specific plant symptoms (such as Coffee, Maize, Enset, Wheat, Ginger, or Avocado).',
+        detectedCategory: 'Unrecognized / Non-Agricultural Input',
+      });
     }
 
-    // Fallback to first disease if standard crop scan
+    // 7. If user selected a crop but no symptoms, default to the top primary disease of THAT specific crop
+    if (!matchedEntry && cropType && cropType !== 'All') {
+      matchedEntry = ETHIOPIAN_DISEASE_KNOWLEDGE_BASE.find(
+        (e) => e.crop.toLowerCase() === cropType.toLowerCase() || e.cropAm === cropType
+      );
+    }
+
+    // Fallback: If absolutely no crop or symptom was provided at all
     if (!matchedEntry) {
       matchedEntry = ETHIOPIAN_DISEASE_KNOWLEDGE_BASE[0];
     }
@@ -340,4 +456,3 @@ exports.diagnoseCropDisease = async (req, res) => {
     });
   }
 };
-

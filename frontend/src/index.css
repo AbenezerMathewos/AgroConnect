@@ -7359,6 +7359,37 @@ p {
   margin-top: 0.5rem;
 }
 
+/* Crop Selector Dropdown Control */
+.crop-selector-control {
+  margin-bottom: 0.85rem;
+}
+
+.scanner-crop-select {
+  width: 100%;
+  padding: 0.55rem 0.85rem;
+  background: #ffffff;
+  border: 1.5px solid var(--forest-500);
+  border-radius: var(--radius-md);
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: var(--slate-800);
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+[data-theme="dark"] .scanner-crop-select {
+  background: #1e293b !important;
+  color: #f8fafc !important;
+  border-color: #10b981 !important;
+}
+
+.scanner-crop-select:focus {
+  border-color: var(--forest-600);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+}
+
+
 
 
 
