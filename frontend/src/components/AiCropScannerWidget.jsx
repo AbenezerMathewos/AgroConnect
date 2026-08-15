@@ -1,4 +1,5 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { useLanguage } from '../context/LanguageContext';
 import { advisoryService } from '../services/advisoryService';
 
 const SAMPLE_DISEASES = [
@@ -24,7 +25,17 @@ const CROP_OPTIONS = [
   { value: 'Avocado', label: '🥑 Avocado (አቮካዶ)' },
 ];
 
+const LANGUAGE_TABS = [
+  { code: 'am', label: '🇪🇹 አማርኛ', name: 'Amharic' },
+  { code: 'om', label: '🟢 Afaan Oromoo', name: 'Oromo' },
+  { code: 'wot', label: '🟡 ወላይታቱ', name: 'Wolaytta' },
+  { code: 'ti', label: '🔴 ትግርኛ', name: 'Tigrinya' },
+  { code: 'en', label: '🌐 English', name: 'English' },
+];
+
 export default function AiCropScannerWidget() {
+  const { lang } = useLanguage();
+  const [activeLang, setActiveLang] = useState(lang || 'am');
   const [selectedCrop, setSelectedCrop] = useState('Auto');
   const [selectedSample, setSelectedSample] = useState('coffee_cbd');
   const [customSymptom, setCustomSymptom] = useState('');
@@ -35,6 +46,23 @@ export default function AiCropScannerWidget() {
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
   const fileInputRef = useRef(null);
+
+  // Sync with global language if changed in Navbar
+  useEffect(() => {
+    if (lang) setActiveLang(lang);
+  }, [lang]);
+
+  const getLangText = (item, currentLang) => {
+    if (!item) return '';
+    if (typeof item === 'string') return item;
+    return item[currentLang] || item.am || item.en || item.om || item.wot || item.ti || Object.values(item)[0] || '';
+  };
+
+  const getProtocol = (protocolObj, currentLang) => {
+    if (!protocolObj) return { title: '', steps: [], formulation: '', dosage: '', timing: '' };
+    if (protocolObj[currentLang]) return protocolObj[currentLang];
+    return protocolObj.am || protocolObj.en || Object.values(protocolObj)[0] || protocolObj;
+  };
 
   const handleFileUpload = (e) => {
     const file = e.target.files?.[0];
@@ -86,8 +114,7 @@ export default function AiCropScannerWidget() {
     setCopied(false);
 
     try {
-      // Simulate visual scan radar delay
-      await new Promise((resolve) => setTimeout(resolve, 900));
+      await new Promise((resolve) => setTimeout(resolve, 800));
 
       const activeCrop = cropChoice || selectedCrop;
       const payload = {
@@ -120,16 +147,22 @@ export default function AiCropScannerWidget() {
     }
   };
 
+  const currentDiseaseName = diagnosis ? getLangText(diagnosis.diseaseName, activeLang) : '';
+  const currentCropName = diagnosis ? (getLangText(diagnosis.cropTranslations, activeLang) || diagnosis.crop) : '';
+  const currentSymptoms = diagnosis ? getLangText(diagnosis.clinicalSymptoms, activeLang) : '';
+  const currentOrganic = diagnosis ? getProtocol(diagnosis.organicProtocol, activeLang) : null;
+  const currentChemical = diagnosis ? getProtocol(diagnosis.chemicalProtocol, activeLang) : null;
+
   return (
     <div className="ai-scanner-widget">
       <div className="ai-scanner-header">
         <div className="scanner-badge-pill">
           <span className="live-session-dot"></span>
-          <strong>AI PLANT PATHOLOGY & LEAF SCANNER</strong>
+          <strong>AI PLANT PATHOLOGY & MULTILINGUAL SCANNER</strong>
         </div>
-        <h3>Multi-Crop Disease Diagnostics & Validation Engine</h3>
+        <h3>Multi-Crop Disease Diagnostics & Language Translation</h3>
         <p>
-          Diagnoses real diseases across <strong>Coffee, Enset, Maize, Wheat, Teff, Ginger & Avocado</strong> with instant organic & MoA chemical solutions.
+          Diagnoses real diseases across <strong>Coffee, Enset, Maize, Wheat, Teff, Ginger & Avocado</strong> with instant organic & chemical prescriptions in <strong>Amharic, Afaan Oromoo, Wolaytta, Tigrinya, and English</strong>.
         </p>
       </div>
 
@@ -266,12 +299,12 @@ export default function AiCropScannerWidget() {
 
                 <div className="rejection-content">
                   <h2 className="rejection-title">{diagnosis.message}</h2>
-                  <h3 className="rejection-amharic">{diagnosis.messageAm}</h3>
+                  <h3 className="rejection-amharic">{diagnosis.messageAm || diagnosis.message}</h3>
 
                   <div className="rejection-reason-box">
                     <strong>🔍 Detection Reason:</strong>
                     <p>{diagnosis.reason}</p>
-                    <small>Category Detected: <code>{diagnosis.detectedCategory}</code></small>
+                    <small>Category Detected: <code>{diagnosis.detectedCategory || diagnosis.detectedObject}</code></small>
                   </div>
 
                   <div className="rejection-guidance-box">
@@ -296,22 +329,32 @@ export default function AiCropScannerWidget() {
             ) : (
               /* REAL AGRO PRODUCT DIAGNOSIS */
               <div className="diagnosis-result-card" style={{ '--severity-color': diagnosis.severity === 'critical' ? '#ef4444' : '#f59e0b' }}>
+                {/* 1-Click Language Selector Bar */}
+                <div className="diagnosis-lang-bar">
+                  <span className="lang-bar-label">🗣️ Translation / ቋንቋ:</span>
+                  <div className="diagnosis-lang-pills">
+                    {LANGUAGE_TABS.map((lt) => (
+                      <button
+                        key={lt.code}
+                        type="button"
+                        className={`lang-pill-btn ${activeLang === lt.code ? 'active' : ''}`}
+                        onClick={() => setActiveLang(lt.code)}
+                      >
+                        {lt.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
                 <div className="diagnosis-card-top">
                   <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', marginBottom: '0.2rem' }}>
-                      <span className="eyebrow">{diagnosis.crop} ({diagnosis.cropAm}) &bull; {diagnosis.pathogenType}</span>
+                      <span className="eyebrow">{currentCropName} &bull; {diagnosis.pathogenType}</span>
                       {diagnosis.isCloudAi && (
                         <span className="cloud-ai-badge">☁️ Cloud Vision AI</span>
                       )}
                     </div>
-                    <h2>{diagnosis.diseaseName}</h2>
-                    <div className="diagnosis-multilingual-names">
-                      <span>🇪🇹 {diagnosis.diseaseAm}</span>
-                      <span>&bull;</span>
-                      <span>Afaan Oromoo: {diagnosis.diseaseOr}</span>
-                      <span>&bull;</span>
-                      <span>Wolaytta: {diagnosis.diseaseWl}</span>
-                    </div>
+                    <h2>{currentDiseaseName}</h2>
                   </div>
 
                   <div className="diagnosis-confidence-box">
@@ -320,31 +363,36 @@ export default function AiCropScannerWidget() {
                   </div>
                 </div>
 
-                {/* Clinical Symptoms */}
+                {/* Clinical Symptoms in Selected Language */}
                 <div className="diagnosis-symptom-callout">
-                  <strong>📋 Visual Symptoms Identified:</strong>
-                  <p>{diagnosis.clinicalSymptoms.en}</p>
-                  <p className="amharic-text">{diagnosis.clinicalSymptoms.am}</p>
+                  <strong>📋 {activeLang === 'am' ? 'የታዩ የበሽታው ምልክቶች:' : activeLang === 'om' ? 'Mallattoolee Mul\'atan:' : activeLang === 'wot' ? 'Beettida Harggetta Malatata:' : activeLang === 'ti' ? 'ዝተራእዩ ምልክታት ሕማም:' : 'Visual Symptoms Identified:'}</strong>
+                  <p>{currentSymptoms}</p>
                 </div>
 
-                {/* Treatment Protocols */}
+                {/* Treatment Protocols in Selected Language */}
                 <div className="diagnosis-protocols-grid">
                   <div className="protocol-box organic-protocol">
-                    <h4>🌿 Recommended Organic / Cultural Remedy:</h4>
-                    <strong>{diagnosis.organicProtocol.title}</strong>
+                    <h4>🌿 {activeLang === 'am' ? 'የተፈጥሮ / ባህላዊ ህክምና መመሪያ:' : activeLang === 'om' ? 'Yaala Aadaa fi Uumamaa:' : activeLang === 'wot' ? 'Medhetta Qora / Hayqqiyoogaa:' : activeLang === 'ti' ? 'ባህላዊ / ተፈጥሮኣዊ ፈውሲ:' : 'Recommended Organic / Cultural Remedy:'}</h4>
+                    <strong>{currentOrganic?.title || 'Organic Protocol'}</strong>
                     <ul>
-                      {diagnosis.organicProtocol.steps.map((step, i) => (
-                        <li key={i}>{step}</li>
-                      ))}
+                      {currentOrganic?.steps && Array.isArray(currentOrganic.steps) ? (
+                        currentOrganic.steps.map((step, i) => (
+                          <li key={i}>{step}</li>
+                        ))
+                      ) : typeof currentOrganic?.steps === 'string' ? (
+                        <li>{currentOrganic.steps}</li>
+                      ) : (
+                        <li>Follow cultural sanitation and aeration pruning.</li>
+                      )}
                     </ul>
                   </div>
 
                   <div className="protocol-box chemical-protocol">
-                    <h4>🧪 Ministry of Agriculture Chemical Formulation:</h4>
-                    <strong>{diagnosis.chemicalProtocol.title}</strong>
-                    <div className="chem-row"><span>Formulation:</span> <strong>{diagnosis.chemicalProtocol.formulation}</strong></div>
-                    <div className="chem-row"><span>Dosage:</span> <strong>{diagnosis.chemicalProtocol.dosage}</strong></div>
-                    <div className="chem-row"><span>Application:</span> <strong>{diagnosis.chemicalProtocol.timing}</strong></div>
+                    <h4>🧪 {activeLang === 'am' ? 'የግብርና ሚኒስቴር የኬሚካል መመሪያ:' : activeLang === 'om' ? 'Qoricha Ministeera Qonnaa:' : activeLang === 'wot' ? 'Goshsha Ministiriyaa Qora:' : activeLang === 'ti' ? 'ናይ ሚኒስትሪ ሕርሻ ኬሚካላዊ መምርሒ:' : 'Ministry of Agriculture Chemical Formulation:'}</h4>
+                    <strong>{currentChemical?.title || 'Approved Formulation'}</strong>
+                    <div className="chem-row"><span>{activeLang === 'am' ? 'መድኃኒት:' : activeLang === 'om' ? 'Qoricha:' : activeLang === 'wot' ? 'Qora:' : 'Formulation:'}</span> <strong>{currentChemical?.formulation || 'Standard formulation'}</strong></div>
+                    <div className="chem-row"><span>{activeLang === 'am' ? 'መጠን:' : activeLang === 'om' ? 'Hamma:' : activeLang === 'wot' ? 'Kessiyoogaa:' : 'Dosage:'}</span> <strong>{currentChemical?.dosage || 'Standard dosage'}</strong></div>
+                    <div className="chem-row"><span>{activeLang === 'am' ? 'የመርጫ ወቅት:' : activeLang === 'om' ? 'Yeroo:' : activeLang === 'wot' ? 'Wodiyaa:' : 'Timing:'}</span> <strong>{currentChemical?.timing || 'Apply during early onset'}</strong></div>
                   </div>
                 </div>
 
@@ -364,7 +412,7 @@ export default function AiCropScannerWidget() {
             <div className="scanner-idle-placeholder" onClick={() => runDiagnosis('coffee_cbd', '', '', 'Coffee')}>
               <span className="placeholder-leaf-icon">🔬</span>
               <strong>Select a crop or click any preset to run AI Diagnosis</strong>
-              <p>Detects diseases across Coffee, Enset, Maize, Wheat, Teff, Ginger & Avocado.</p>
+              <p>Detects diseases across Coffee, Enset, Maize, Wheat, Teff, Ginger & Avocado in your preferred language.</p>
             </div>
           )}
         </div>
