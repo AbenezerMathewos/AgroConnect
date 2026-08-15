@@ -270,7 +270,12 @@ export default function AiCropScannerWidget() {
               <div className="diagnosis-result-card" style={{ '--severity-color': diagnosis.severity === 'critical' ? '#ef4444' : '#f59e0b' }}>
                 <div className="diagnosis-card-top">
                   <div>
-                    <span className="eyebrow">{diagnosis.crop} ({diagnosis.cropAm}) &bull; {diagnosis.pathogenType}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', marginBottom: '0.2rem' }}>
+                      <span className="eyebrow">{diagnosis.crop} ({diagnosis.cropAm}) &bull; {diagnosis.pathogenType}</span>
+                      {diagnosis.isCloudAi && (
+                        <span className="cloud-ai-badge">☁️ Cloud Vision AI</span>
+                      )}
+                    </div>
                     <h2>{diagnosis.diseaseName}</h2>
                     <div className="diagnosis-multilingual-names">
                       <span>🇪🇹 {diagnosis.diseaseAm}</span>
