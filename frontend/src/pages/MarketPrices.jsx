@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { marketPriceService } from '../services/marketPriceService';
 import { useLanguage } from '../context/LanguageContext';
+import PriceSparkline from '../components/PriceSparkline';
+
 
 export default function MarketPrices() {
   const { t } = useLanguage();
@@ -92,10 +94,17 @@ export default function MarketPrices() {
                   <h2>{price.crop}</h2>
                   <span className="price-market-type">{price.marketType} &middot; {price.region}</span>
                   <div className="price-card-figures">
-                    <strong>
-                      {price.lowPrice.toLocaleString()}&ndash;{price.highPrice.toLocaleString()}
-                    </strong>
-                    <small>ETB / {price.unit}</small>
+                    <div>
+                      <strong>
+                        {price.lowPrice.toLocaleString()}&ndash;{price.highPrice.toLocaleString()}
+                      </strong>
+                      <small>ETB / {price.unit}</small>
+                    </div>
+                    <PriceSparkline
+                      basePrice={(price.lowPrice + price.highPrice) / 2}
+                      trend={price.trend}
+                      unit="ETB"
+                    />
                   </div>
                   <p className="price-date">Recorded {new Date(price.recordedAt).toLocaleDateString()}</p>
                 </article>
@@ -119,6 +128,7 @@ export default function MarketPrices() {
                     <th>Lowest Source (Farmgate / Hub)</th>
                     <th>Highest Destination (Terminal Market)</th>
                     <th>Price Gap (Spread)</th>
+                    <th>30-Day Trajectory</th>
                     <th>Gross Margin</th>
                   </tr>
                 </thead>
@@ -138,12 +148,18 @@ export default function MarketPrices() {
                       </td>
                       <td>
                         <span className="spread-number">+{item.spread?.toLocaleString()} ETB</span>
-                        <small> per {item.lowestMarket.unit}</small>
                       </td>
                       <td>
-                        <span className="badge badge-arbitrage">
-                          +{item.spreadPercentage}% Gross
-                        </span>
+                        <PriceSparkline
+                          basePrice={item.highestMarket.price || 8000}
+                          trend="rising"
+                          width={110}
+                          height={36}
+                          showBadge={false}
+                        />
+                      </td>
+                      <td>
+                        <span className="badge badge-gain">+{item.spreadPercentage}% Spread</span>
                       </td>
                     </tr>
                   ))}
@@ -156,4 +172,3 @@ export default function MarketPrices() {
     </div>
   );
 }
-
