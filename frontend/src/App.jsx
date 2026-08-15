@@ -2,10 +2,12 @@ import { Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { SocketProvider } from './context/SocketContext';
 import { LanguageProvider } from './context/LanguageContext';
+import { ThemeProvider } from './context/ThemeContext';
 import PrivateRoute from './components/PrivateRoute';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import VantaDotsCanvas from './components/VantaDotsCanvas';
+
 
 import Home from './pages/Home';
 import Login from './pages/Login';
@@ -25,12 +27,14 @@ import CropAdvisory from './pages/CropAdvisory';
 
 export default function App() {
   return (
-    <LanguageProvider>
-      <AuthProvider>
-        <SocketProvider>
-          <VantaDotsCanvas />
-          <Navbar />
-          <main className="main-content">
+    <ThemeProvider>
+      <LanguageProvider>
+        <AuthProvider>
+          <SocketProvider>
+            <VantaDotsCanvas />
+            <Navbar />
+            <main className="main-content">
+
 
             <Routes>
               {/* Public Routes */}
@@ -112,6 +116,8 @@ export default function App() {
         </SocketProvider>
       </AuthProvider>
     </LanguageProvider>
+  </ThemeProvider>
   );
 }
+
 

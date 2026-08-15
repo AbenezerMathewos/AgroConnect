@@ -2,7 +2,9 @@ import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
+import { useTheme } from '../context/ThemeContext';
 import NotificationBell from './NotificationBell';
+
 
 const ROLE_INFO = {
   admin: { label: '🛡️ Admin', class: 'role-admin' },
@@ -15,11 +17,13 @@ const ROLE_INFO = {
 export default function Navbar() {
   const { user, logout } = useAuth();
   const { lang, setLang, t, languages } = useLanguage();
+  const { theme, toggleTheme, isDark } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   const [open, setOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userMenuRef = useRef(null);
+
 
   const handleLogout = () => {
     setOpen(false);
