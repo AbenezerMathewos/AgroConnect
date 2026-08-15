@@ -533,57 +533,103 @@ p {
   gap: 0.5rem;
 }
 
-/* Brand (Enforce Crisp White in All Themes) */
-.nav-brand,
-.nav-brand:visited,
-.nav-brand:hover,
-.brand-title,
-[data-theme="dark"] .nav-brand,
-[data-theme="dark"] .brand-title {
+/* ==========================================================================
+   AgroConnect Custom Brand Insignia & Logo
+   ========================================================================== */
+
+.agro-brand-logo {
   display: flex;
   align-items: center;
-  gap: 0.45rem;
-  font-family: var(--font-display);
-  font-size: 1.05rem;
-  font-weight: 800;
-  color: #ffffff !important;
-  letter-spacing: -0.02em;
-  flex-shrink: 0;
-  white-space: nowrap;
+  gap: 0.55rem;
+  text-decoration: none;
+  cursor: pointer;
+  user-select: none;
 }
 
-.brand-icon {
-  width: 26px;
-  height: 26px;
-  border-radius: var(--radius-sm);
-  background: rgba(255, 255, 255, 0.18);
+.agro-logo-mark {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.9rem;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  flex-shrink: 0;
+  transition: transform 0.3s var(--ease-spring);
 }
 
-.brand-text {
+.nav-brand:hover .agro-logo-mark,
+.agro-brand-logo:hover .agro-logo-mark {
+  transform: scale(1.12) rotate(4deg);
+}
+
+.agro-svg-emblem {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 2px 6px rgba(16, 185, 129, 0.4));
+}
+
+.logo-arc-outer {
+  animation: logoArcSpin 12s linear infinite;
+  transform-origin: 24px 24px;
+}
+
+@keyframes logoArcSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.logo-node {
+  animation: logoNodePulse 2.5s ease-in-out infinite alternate;
+}
+
+.node-2 {
+  animation-delay: 0.8s;
+}
+
+.node-3 {
+  animation-delay: 1.6s;
+}
+
+@keyframes logoNodePulse {
+  0% { transform: scale(0.85); opacity: 0.7; }
+  100% { transform: scale(1.2); opacity: 1; filter: drop-shadow(0 0 4px #38bdf8); }
+}
+
+.agro-logo-text {
   display: flex;
-  align-items: center;
-  gap: 0.3rem;
+  align-items: baseline;
+  gap: 0.35rem;
+  white-space: nowrap;
 }
 
-.brand-title {
+.logo-name-agro {
+  font-family: var(--font-display);
+  font-size: 1.12rem;
+  font-weight: 900;
   color: #ffffff !important;
+  letter-spacing: -0.03em;
+}
+
+.logo-name-connect {
+  color: #34d399 !important;
   font-weight: 800;
 }
 
-.brand-badge,
-[data-theme="dark"] .brand-badge {
-  background: rgba(255, 255, 255, 0.18) !important;
-  color: #6ee7b7 !important;
-  font-size: 0.62rem;
-  font-weight: 800;
-  padding: 1px 4px;
-  border-radius: var(--radius-xs);
-  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+.logo-badge-et {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.25) 0%, rgba(16, 185, 129, 0.35) 100%);
+  color: #fde68a !important;
+  border: 1px solid rgba(251, 191, 36, 0.5);
+  font-size: 0.58rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  padding: 1px 5px;
+  border-radius: 4px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.footer-brand-row {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0.5rem;
 }
 
 /* Nav Menu */
