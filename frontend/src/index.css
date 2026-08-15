@@ -7133,6 +7133,233 @@ p {
   font-weight: 800 !important;
 }
 
+/* Photo Upload Box */
+.scanner-upload-box {
+  background: var(--slate-100);
+  border: 2px dashed var(--forest-500);
+  border-radius: var(--radius-md);
+  padding: 1.25rem 1rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 0.85rem;
+}
+
+[data-theme="dark"] .scanner-upload-box {
+  background: #1e293b !important;
+  border-color: #059669 !important;
+}
+
+.scanner-upload-box:hover {
+  background: rgba(16, 185, 129, 0.08);
+  border-color: #10b981;
+  transform: translateY(-2px);
+}
+
+.upload-placeholder-cta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.upload-camera-icon {
+  font-size: 2.2rem;
+}
+
+.upload-placeholder-cta strong {
+  font-size: 0.92rem;
+  color: var(--slate-800);
+}
+
+[data-theme="dark"] .upload-placeholder-cta strong {
+  color: #f8fafc !important;
+}
+
+.upload-placeholder-cta small {
+  font-size: 0.72rem;
+  color: var(--slate-500);
+}
+
+.uploaded-preview-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.uploaded-preview-img {
+  max-height: 140px;
+  max-width: 100%;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid var(--slate-300);
+}
+
+.uploaded-file-tag {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--forest-700);
+  background: rgba(16, 185, 129, 0.15);
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-pill);
+}
+
+[data-theme="dark"] .uploaded-file-tag {
+  color: #34d399 !important;
+}
+
+.radar-sample-img {
+  width: 90px;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 2px solid #10b981;
+}
+
+.non-agro-card {
+  border-left: 3px solid #ef4444 !important;
+  background: rgba(239, 68, 68, 0.06) !important;
+}
+
+/* Non-Agro Rejection Card */
+.non-agro-rejection-card {
+  background: #fff5f5;
+  border: 2px solid #ef4444;
+  border-radius: var(--radius-lg);
+  padding: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  animation: shakeAlert 0.4s ease-in-out;
+}
+
+[data-theme="dark"] .non-agro-rejection-card {
+  background: rgba(69, 10, 10, 0.4) !important;
+  border-color: #ef4444 !important;
+}
+
+@keyframes shakeAlert {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+
+.rejection-icon-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.rejection-badge {
+  background: #ef4444;
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--radius-pill);
+}
+
+.rejection-big-icon {
+  font-size: 2.2rem;
+  line-height: 1;
+}
+
+.rejection-title {
+  font-size: 1.45rem;
+  font-weight: 900;
+  color: #b91c1c;
+  margin: 0 0 0.25rem;
+}
+
+[data-theme="dark"] .rejection-title {
+  color: #f87171 !important;
+}
+
+.rejection-amharic {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #991b1b;
+  margin: 0 0 1rem;
+}
+
+[data-theme="dark"] .rejection-amharic {
+  color: #fca5a5 !important;
+}
+
+.rejection-reason-box {
+  background: rgba(239, 68, 68, 0.08);
+  border-left: 3px solid #ef4444;
+  padding: 0.65rem 0.85rem;
+  border-radius: 4px;
+  font-size: 0.82rem;
+}
+
+.rejection-reason-box strong {
+  color: #991b1b;
+  display: block;
+  margin-bottom: 0.2rem;
+}
+
+[data-theme="dark"] .rejection-reason-box strong {
+  color: #fca5a5 !important;
+}
+
+.rejection-reason-box p {
+  color: #7f1d1d;
+  margin: 0 0 0.35rem;
+}
+
+[data-theme="dark"] .rejection-reason-box p {
+  color: #fecaca !important;
+}
+
+.rejection-reason-box small code {
+  background: rgba(0, 0, 0, 0.1);
+  padding: 0.1rem 0.35rem;
+  border-radius: 3px;
+  font-size: 0.72rem;
+  color: #991b1b;
+}
+
+.rejection-guidance-box {
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  padding: 0.65rem 0.85rem;
+  border-radius: 4px;
+  font-size: 0.82rem;
+}
+
+[data-theme="dark"] .rejection-guidance-box {
+  background: rgba(6, 78, 59, 0.25) !important;
+  border-color: rgba(52, 211, 153, 0.3) !important;
+}
+
+.rejection-guidance-box strong {
+  color: #166534;
+  display: block;
+  margin-bottom: 0.2rem;
+}
+
+[data-theme="dark"] .rejection-guidance-box strong {
+  color: #6ee7b7 !important;
+}
+
+.rejection-guidance-box p {
+  color: #14532d;
+  margin: 0;
+}
+
+[data-theme="dark"] .rejection-guidance-box p {
+  color: #d1fae5 !important;
+}
+
+.rejection-actions {
+  margin-top: 0.5rem;
+}
+
+
 
 
 
