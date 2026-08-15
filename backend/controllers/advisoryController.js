@@ -280,12 +280,12 @@ const NON_AGRO_KEYWORDS = [
 
 // Helper: Call Google Gemini Cloud Vision Model with multi-model fallback
 const CANDIDATE_MODELS = [
+  'gemini-flash-latest',
+  'gemini-pro-latest',
+  'gemini-2.5-flash-lite',
   'gemini-1.5-flash-latest',
-  'gemini-2.0-flash',
   'gemini-1.5-flash',
-  'gemini-1.5-pro-latest',
-  'gemini-1.5-pro',
-  'gemini-pro-vision',
+  'gemini-pro',
 ];
 
 async function analyzeWithCloudGemini(imageBase64, customPrompt) {
