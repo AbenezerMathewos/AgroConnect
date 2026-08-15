@@ -49,7 +49,42 @@ const REGIONAL_HUBS = [
   },
 ];
 
+const PILLARS_DATA = [
+
+  {
+    icon: '🤝',
+    title: 'Direct & Fair Trade',
+    desc: 'Bypassing predatory local broker cartels so smallholder producers earn true market value.',
+  },
+  {
+    icon: '🌾',
+    title: 'Cooperative Bulk Pooling',
+    desc: 'Aggregating smallholder yields into standardized 50–200 Quintal lots for commercial buyers.',
+  },
+  {
+    icon: '🔒',
+    title: 'Telebirr Escrow Protection',
+    desc: 'Funds remain secured in mobile escrow until the buyer inspects quality at destination.',
+  },
+  {
+    icon: '🚚',
+    title: 'Freight Matchmaker',
+    desc: 'Matching return-trip empty Isuzu trucks to reduce rural agricultural freight costs by up to 40%.',
+  },
+  {
+    icon: '📊',
+    title: 'National Price Radar',
+    desc: 'Live price spread analytics between regional farmgates and central terminal markets.',
+  },
+  {
+    icon: '🌿',
+    title: 'AI Crop Diagnostics',
+    desc: 'Instant disease & pest advisory to protect yields and combat bacterial wilt.',
+  },
+];
+
 export default function Home() {
+
   const { t } = useLanguage();
   const navigate = useNavigate();
   const [featured, setFeatured] = useState([]);
@@ -394,8 +429,8 @@ export default function Home() {
           <div className="empty-card">No products listed yet.</div>
         ) : (
           <div className="marquee-carousel-wrapper">
-            <div className="marquee-track">
-              {/* Render two duplicated sets for seamless 100% gapless infinite loop */}
+            <div className="marquee-track marquee-track-left">
+              {/* Render two duplicated sets for seamless 100% gapless infinite loop (Right to Left) */}
               {[...featured, ...featured].map((product, idx) => (
                 <Link
                   to={`/products/${product._id}`}
@@ -439,35 +474,26 @@ export default function Home() {
       </section>
 
 
-      {/* 4 Pillars Highlight */}
+      {/* 4 Pillars Highlight — Infinite Marquee Stream (Left to Right) */}
       <section className="pillars-section">
         <div className="page-intro text-center">
           <span className="eyebrow">Enterprise Agricultural Infrastructure</span>
           <h2>Solving Structural Market Inefficiencies</h2>
         </div>
-        <div className="pillars-grid">
-          <div className="pillar-item">
-            <div className="pillar-icon-box">🤝</div>
-            <h3>Direct & Fair Trade</h3>
-            <p>Bypassing predatory local broker cartels so smallholder producers earn true market value.</p>
-          </div>
-          <div className="pillar-item">
-            <div className="pillar-icon-box">🌾</div>
-            <h3>Cooperative Bulk Pooling</h3>
-            <p>Aggregating smallholder yields into standardized 50–200 Quintal lots for commercial buyers.</p>
-          </div>
-          <div className="pillar-item">
-            <div className="pillar-icon-box">🔒</div>
-            <h3>Telebirr Escrow Protection</h3>
-            <p>Funds remain secured in mobile escrow until the buyer inspects quality at destination.</p>
-          </div>
-          <div className="pillar-item">
-            <div className="pillar-icon-box">🚚</div>
-            <h3>Freight Matchmaker</h3>
-            <p>Matching return-trip empty Isuzu trucks to reduce rural agricultural freight costs by up to 40%.</p>
+        <div className="marquee-carousel-wrapper">
+          <div className="marquee-track-right">
+            {/* Render two duplicated sets for seamless 100% gapless infinite loop (Left to Right) */}
+            {[...PILLARS_DATA, ...PILLARS_DATA].map((pillar, idx) => (
+              <div className="pillar-carousel-card" key={`${pillar.title}-${idx}`}>
+                <div className="pillar-icon-box">{pillar.icon}</div>
+                <h3>{pillar.title}</h3>
+                <p>{pillar.desc}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
+
 
       {/* How it Works Section */}
       <section className="how-it-works">
