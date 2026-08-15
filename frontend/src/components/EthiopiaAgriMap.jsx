@@ -176,6 +176,9 @@ export default function EthiopiaAgriMap() {
       tileUrl = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
     } else if (mapStyle === 'satellite') {
       tileUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+    } else if (mapStyle === '3d') {
+      // 3D Topographic Shaded Relief Tile Engine (ESRI World Topo + Shaded Relief)
+      tileUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}';
     } else if (mapStyle === 'osm') {
       tileUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
     }
@@ -185,6 +188,7 @@ export default function EthiopiaAgriMap() {
       subdomains: 'abcd',
     }).addTo(map);
   }, [mapStyle, isDark]);
+
 
   // Render Markers and Corridors
   useEffect(() => {
@@ -284,6 +288,12 @@ export default function EthiopiaAgriMap() {
             🛰️ Satellite
           </button>
           <button
+            className={`map-style-btn ${mapStyle === '3d' ? 'active' : ''}`}
+            onClick={() => setMapStyle('3d')}
+          >
+            🏔️ 3D Terrain
+          </button>
+          <button
             className={`map-style-btn ${mapStyle === 'dark' ? 'active' : ''}`}
             onClick={() => setMapStyle('dark')}
           >
@@ -301,16 +311,27 @@ export default function EthiopiaAgriMap() {
 
       <div className="agri-map-grid">
         {/* Real Leaflet Map Container */}
-        <div className="real-map-view-container">
-          <div ref={mapContainerRef} className="leaflet-map-canvas" />
+        <div className={`real-map-view-container ${mapStyle === '3d' ? 'container-3d-active' : ''}`}>
+          <div ref={mapContainerRef} className={`leaflet-map-canvas ${mapStyle === '3d' ? 'mode-3d' : ''}`} />
+
+          {/* 3D Atmospheric Horizon Glow when 3D is active */}
+          {mapStyle === '3d' && (
+            <div className="horizon-3d-glow">
+              <span className="altitude-chip">🏔️ Great Rift Valley & Highlands 3D Relief Active</span>
+            </div>
+          )}
 
           {/* Map Overlay Legend */}
           <div className="real-map-legend">
             <span className="legend-chip"><span className="legend-dot green"></span> Farmgate Hubs</span>
             <span className="legend-chip"><span className="legend-dot amber"></span> Terminal Market</span>
             <span className="legend-chip"><span className="legend-route-line"></span> Return Freight Corridor</span>
+            {mapStyle === '3d' && (
+              <span className="legend-chip"><span className="legend-dot purple"></span> 3D Shaded Elevation</span>
+            )}
           </div>
         </div>
+
 
         {/* Live Regional Hub Intelligence Card */}
         <div className="agri-zone-details-panel">
