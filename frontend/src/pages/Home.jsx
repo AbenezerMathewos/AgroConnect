@@ -64,7 +64,7 @@ export default function Home() {
 
   useEffect(() => {
     Promise.all([
-      productService.getAll({ limit: 4 }),
+      productService.getAll({ limit: 12 }),
       marketPriceService.getArbitrage(),
     ])
       .then(([prodData, arbData]) => {
@@ -77,6 +77,7 @@ export default function Home() {
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
+
 
   const handleHeroSearch = (e) => {
     e.preventDefault();
@@ -359,16 +360,23 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Featured Harvests */}
+      {/* Featured Harvests — Infinite Smooth Marquee Carousel */}
       <section className="featured-section">
         <div className="section-header-flex">
           <div>
-            <span className="eyebrow">Verified Quality Harvests</span>
+            <div className="carousel-eyebrow-row">
+              <span className="eyebrow">Direct from Smallholders & Unions</span>
+              <span className="badge badge-discount">● Live Streaming Feed</span>
+            </div>
             <h2>{t('featuredHarvests')}</h2>
           </div>
-          <Link to="/products" className="btn btn-secondary btn-sm">
-            {t('viewAllProducts')} &rarr;
-          </Link>
+          <div className="carousel-controls-header">
+            <span className="carousel-pause-hint">⚡ Live Non-Stop Stream</span>
+            <Link to="/products" className="btn btn-secondary btn-sm">
+              {t('viewAllProducts')} &rarr;
+            </Link>
+          </div>
+
         </div>
 
         {loading ? (
@@ -376,43 +384,51 @@ export default function Home() {
         ) : featured.length === 0 ? (
           <div className="empty-card">No products listed yet.</div>
         ) : (
-          <div className="product-grid">
-            {featured.map((product) => (
-              <Link to={`/products/${product._id}`} key={product._id} className="product-card">
-                <div className="product-card-media">
-                  {product.images?.[0] ? (
-                    <img
-                      src={resolveImageUrl(product.images[0])}
-                      alt={product.title}
-                      onError={(e) => (e.target.style.display = 'none')}
-                    />
-                  ) : (
-                    <span className="product-card-media-fallback">🌾</span>
-                  )}
-                  {product.isCooperativePooled && (
-                    <span className="badge badge-coop card-badge">Cooperative Lot</span>
-                  )}
-                </div>
-                <div className="product-card-body">
-                  <div className="product-card-tags">
-                    <span className="eyebrow">{product.category}</span>
-                    <span className="badge badge-grade">{product.grade}</span>
+          <div className="marquee-carousel-wrapper">
+            <div className="marquee-track">
+              {/* Render two duplicated sets for seamless 100% gapless infinite loop */}
+              {[...featured, ...featured].map((product, idx) => (
+                <Link
+                  to={`/products/${product._id}`}
+                  key={`${product._id}-${idx}`}
+                  className="product-card carousel-product-card"
+                >
+                  <div className="product-card-media">
+                    {product.images?.[0] ? (
+                      <img
+                        src={resolveImageUrl(product.images[0])}
+                        alt={product.title}
+                        onError={(e) => (e.target.style.display = 'none')}
+                      />
+                    ) : (
+                      <span className="product-card-media-fallback">🌾</span>
+                    )}
+                    {product.isCooperativePooled && (
+                      <span className="badge badge-coop card-badge">Cooperative Lot</span>
+                    )}
                   </div>
-                  <h3>{product.title}</h3>
-                  <p className="product-card-price">
-                    {product.price.toLocaleString()} ETB
-                    <span> / {product.unit || 'Kg'}</span>
-                  </p>
-                  <p className="product-card-location">📍 {product.location} ({product.region})</p>
-                  <p className="product-seller">
-                    {product.cooperativeName ? `🏢 ${product.cooperativeName}` : `👨‍🌾 ${product.owner?.name}`}
-                  </p>
-                </div>
-              </Link>
-            ))}
+                  <div className="product-card-body">
+                    <div className="product-card-tags">
+                      <span className="eyebrow">{product.category}</span>
+                      <span className="badge badge-grade">{product.grade || 'Grade 1'}</span>
+                    </div>
+                    <h3>{product.title}</h3>
+                    <p className="product-card-price">
+                      {product.price.toLocaleString()} ETB
+                      <span> / {product.unit || 'Kg'}</span>
+                    </p>
+                    <p className="product-card-location">📍 {product.location} ({product.region})</p>
+                    <p className="product-seller">
+                      {product.cooperativeName ? `🏢 ${product.cooperativeName}` : `👨‍🌾 ${product.owner?.name}`}
+                    </p>
+                  </div>
+                </Link>
+              ))}
+            </div>
           </div>
         )}
       </section>
+
 
       {/* 4 Pillars Highlight */}
       <section className="pillars-section">
