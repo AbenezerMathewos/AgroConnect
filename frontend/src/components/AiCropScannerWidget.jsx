@@ -43,14 +43,15 @@ export default function AiCropScannerWidget() {
     setUploadedFileName(file.name);
     const reader = new FileReader();
     reader.onload = (event) => {
-      setUploadedImagePreview(event.target.result);
+      const base64 = event.target.result;
+      setUploadedImagePreview(base64);
       // Auto-run diagnosis on uploaded file
-      runDiagnosis(undefined, customSymptom, file.name, selectedCrop);
+      runDiagnosis(undefined, customSymptom, file.name, selectedCrop, base64);
     };
     reader.readAsDataURL(file);
   };
 
-  const runDiagnosis = async (sampleId, customText, fileName, cropChoice) => {
+  const runDiagnosis = async (sampleId, customText, fileName, cropChoice, base64Override) => {
     setScanning(true);
     setError('');
     setDiagnosis(null);
@@ -62,10 +63,11 @@ export default function AiCropScannerWidget() {
 
       const activeCrop = cropChoice || selectedCrop;
       const payload = {
-        sampleId: sampleId !== undefined ? sampleId : (activeCrop === 'Auto' ? undefined : undefined),
+        sampleId: sampleId !== undefined ? sampleId : undefined,
         cropType: activeCrop !== 'Auto' ? activeCrop : undefined,
         symptomsText: customText !== undefined ? customText : customSymptom,
         fileName: fileName || uploadedFileName,
+        imageBase64: base64Override || uploadedImagePreview,
       };
 
       const data = await advisoryService.diagnose(payload);

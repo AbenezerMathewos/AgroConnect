@@ -1,6 +1,7 @@
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 const CropAdvisory = require('../models/CropAdvisory');
 
-// Knowledge base of Ethiopian crop diseases and diagnostics
+// Built-in Knowledge base of Ethiopian crop diseases and diagnostics
 const ETHIOPIAN_DISEASE_KNOWLEDGE_BASE = [
   {
     id: 'coffee_cbd',
@@ -277,6 +278,89 @@ const NON_AGRO_KEYWORDS = [
   'book', 'pen', 'pencil', 'glasses', 'bag', 'backpack', 'wallet'
 ];
 
+// Helper: Call Google Gemini Cloud Vision Model if API Key is present
+async function analyzeWithCloudGemini(imageBase64, customPrompt) {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) return null;
+
+  try {
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+
+    // Clean base64 string
+    const base64Data = imageBase64.replace(/^data:image\/\w+;base64,/, '');
+
+    const systemPrompt = `
+You are the AgroConnect Ethiopia AI Plant Pathology & Agricultural Classifier.
+Analyze this image carefully.
+
+FIRST, determine if this image shows an agricultural crop, leaf, plant tissue, grain, vegetable, root, or farm produce.
+If the image shows a NON-AGRO object (e.g. car, shoe, phone, person, animal, building, electronic, household object):
+Return ONLY a valid JSON with:
+{
+  "isAgroProduct": false,
+  "message": "This isn't an agro product.",
+  "messageAm": "ይህ የግብርና ምርት ወይም የሰብል ቅጠል አይደለም።",
+  "detectedObject": "<short name of object>",
+  "reason": "The uploaded photo depicts a <object>, which is not a plant or agricultural crop tissue.",
+  "guidance": "Please upload a clear photo of crop leaves, stems, grains, or fruits (e.g., Coffee, Maize, Enset, Wheat, Teff, Ginger, Avocado)."
+}
+
+IF IT IS an agricultural crop:
+Identify the crop and any pest/fungal/bacterial disease, nutrient deficiency, or if healthy.
+Return ONLY valid JSON matching this schema:
+{
+  "isAgroProduct": true,
+  "crop": "<Crop name in English, e.g. Coffee, Enset, Maize, Wheat, Teff, Ginger, Avocado>",
+  "cropAm": "<Crop name in Amharic, e.g. ቡና, እንሰት, በቆሎ, ስንዴ, ጤፍ, ዝንጅብል, አቮካዶ>",
+  "diseaseName": "<Disease scientific & common name>",
+  "diseaseAm": "<Disease name in Amharic>",
+  "diseaseOr": "<Disease name in Afaan Oromoo>",
+  "diseaseWl": "<Disease name in Wolaytta>",
+  "pathogenType": "<Fungal / Bacterial / Insect Pest / Viral / Healthy>",
+  "severity": "<critical / high / moderate / low>",
+  "confidenceScore": "<e.g. 96.5%>",
+  "keyIndicatorsDetected": ["<symptom 1>", "<symptom 2>", "<symptom 3>"],
+  "clinicalSymptoms": {
+    "en": "<Description in English>",
+    "am": "<Description in Amharic>"
+  },
+  "organicProtocol": {
+    "title": "<Organic remedy title>",
+    "steps": ["<step 1>", "<step 2>", "<step 3>"]
+  },
+  "chemicalProtocol": {
+    "title": "<MoA chemical formulation>",
+    "formulation": "<Fungicide / pesticide formulation>",
+    "dosage": "<Dosage per hectare>",
+    "timing": "<When to apply>"
+  },
+  "accreditedResearchCenter": "<Ethiopian Research Center, e.g. Jimma, Areka, Hawassa, or Kulumsa>"
+}
+Do NOT include markdown formatting or backticks, just raw JSON.
+`;
+
+    const result = await model.generateContent([
+      systemPrompt,
+      {
+        inlineData: {
+          mimeType: 'image/jpeg',
+          data: base64Data,
+        },
+      },
+    ]);
+
+    const text = result.response.text().trim();
+    // Parse JSON
+    const cleanJson = text.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim();
+    const parsed = JSON.parse(cleanJson);
+    return parsed;
+  } catch (err) {
+    console.warn('Cloud Gemini Vision call skipped/failed, using local agronomy engine:', err.message);
+    return null;
+  }
+}
+
 // @route   GET /api/advisory
 // @desc    Get crop pest/disease diagnostics and agronomic advice
 // @access  Public
@@ -317,15 +401,33 @@ exports.getAdvisoryById = async (req, res) => {
 };
 
 // @route   POST /api/advisory/diagnose
-// @desc    AI Plant Pathology & Leaf Scanner Engine for Ethiopian Crops
+// @desc    AI Plant Pathology & Leaf Scanner Engine for Ethiopian Crops (Cloud + Local Fallback)
 // @access  Public
 exports.diagnoseCropDisease = async (req, res) => {
   try {
-    const { cropType, symptomsText, sampleId, fileName } = req.body;
+    const { cropType, symptomsText, sampleId, fileName, imageBase64 } = req.body;
+
+    // 1. Try Cloud Gemini Vision AI if image base64 is provided and GEMINI_API_KEY is configured
+    if (imageBase64 && process.env.GEMINI_API_KEY) {
+      const cloudResult = await analyzeWithCloudGemini(imageBase64, symptomsText);
+      if (cloudResult) {
+        const diagnosisId = `DX-CLOUD-${new Date().getFullYear()}-${Math.floor(10000 + Math.random() * 90000)}`;
+        return res.status(200).json({
+          success: true,
+          diagnosisId,
+          timestamp: new Date().toISOString(),
+          isCloudAi: true,
+          ...cloudResult,
+          smsPrescriptionTemplate: cloudResult.isAgroProduct
+            ? `[AgroConnect AI] Diagnosis: ${cloudResult.diseaseAm} (${cloudResult.diseaseName}). Severity: ${(cloudResult.severity || 'HIGH').toUpperCase()}. Treatment: ${cloudResult.organicProtocol?.steps?.[0] || 'Prune infected foliage'}. Dosage: ${cloudResult.chemicalProtocol?.formulation || 'Standard formulation'}. Info: *8028#`
+            : undefined,
+        });
+      }
+    }
 
     const queryText = `${symptomsText || ''} ${fileName || ''} ${cropType || ''}`.toLowerCase().trim();
 
-    // 1. Check for explicit Non-Agro sample or non-agricultural keyword trigger
+    // 2. Check for explicit Non-Agro sample or non-agricultural keyword trigger
     const isNonAgroSample = sampleId === 'non_agro';
     const isNonAgroKeyword = NON_AGRO_KEYWORDS.some((kw) => {
       const regex = new RegExp(`\\b${kw}\\b`, 'i');
@@ -348,12 +450,12 @@ exports.diagnoseCropDisease = async (req, res) => {
 
     let matchedEntry = null;
 
-    // 2. If explicit sample ID passed
+    // 3. If explicit sample ID passed
     if (sampleId) {
       matchedEntry = ETHIOPIAN_DISEASE_KNOWLEDGE_BASE.find((e) => e.id === sampleId);
     }
 
-    // 3. Match by cropType / alias
+    // 4. Match by cropType / alias
     if (!matchedEntry && cropType && cropType !== 'All' && cropType !== 'Auto') {
       matchedEntry = ETHIOPIAN_DISEASE_KNOWLEDGE_BASE.find(
         (e) => e.crop.toLowerCase() === cropType.toLowerCase() ||
@@ -362,7 +464,7 @@ exports.diagnoseCropDisease = async (req, res) => {
       );
     }
 
-    // 4. Match by file name keywords (e.g. maize_leaf.jpg, enset.png, wheat.jpg)
+    // 5. Match by file name keywords (e.g. maize_leaf.jpg, enset.png, wheat.jpg)
     if (!matchedEntry && fileName) {
       const cleanFileName = fileName.toLowerCase();
       for (const entry of ETHIOPIAN_DISEASE_KNOWLEDGE_BASE) {
@@ -373,7 +475,7 @@ exports.diagnoseCropDisease = async (req, res) => {
       }
     }
 
-    // 5. Keyword matching across symptom text
+    // 6. Keyword matching across symptom text
     if (!matchedEntry && symptomsText && symptomsText.trim().length > 0) {
       const text = symptomsText.toLowerCase();
       let bestScore = 0;
@@ -391,7 +493,7 @@ exports.diagnoseCropDisease = async (req, res) => {
       }
     }
 
-    // 6. If user entered symptoms or uploaded a generic file without any agro term
+    // 7. If user entered symptoms or uploaded a generic file without any agro term
     if (!matchedEntry && symptomsText && symptomsText.trim().length > 0) {
       return res.status(200).json({
         success: true,
@@ -406,7 +508,7 @@ exports.diagnoseCropDisease = async (req, res) => {
       });
     }
 
-    // 7. If user selected a crop but no symptoms, default to the top primary disease of THAT specific crop
+    // 8. If user selected a crop but no symptoms, default to the top primary disease of THAT specific crop
     if (!matchedEntry && cropType && cropType !== 'All') {
       matchedEntry = ETHIOPIAN_DISEASE_KNOWLEDGE_BASE.find(
         (e) => e.crop.toLowerCase() === cropType.toLowerCase() || e.cropAm === cropType
