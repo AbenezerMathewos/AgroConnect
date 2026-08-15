@@ -425,14 +425,14 @@ const NON_AGRO_KEYWORDS = [
   'book', 'pen', 'pencil', 'glasses', 'bag', 'backpack', 'wallet'
 ];
 
-// Helper: Call Google Gemini Cloud Vision Model with multi-model fallback
+// Helper: Call Google Gemini Cloud Vision Model with multi-model fallback & retry
 const CANDIDATE_MODELS = [
-  'gemini-flash-latest',
-  'gemini-pro-latest',
   'gemini-2.5-flash-lite',
+  'gemini-flash-latest',
+  'gemini-1.5-flash-8b',
   'gemini-1.5-flash-latest',
   'gemini-1.5-flash',
-  'gemini-pro',
+  'gemini-2.0-flash',
 ];
 
 async function analyzeWithCloudGemini(imageBase64, customPrompt) {
@@ -522,27 +522,35 @@ Do NOT include markdown formatting or backticks, just raw JSON.
 `;
 
   for (const modelName of CANDIDATE_MODELS) {
-    try {
-      const model = genAI.getGenerativeModel({ model: modelName });
-      const result = await model.generateContent([
-        systemPrompt,
-        {
-          inlineData: {
-            mimeType,
-            data: base64Data,
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const model = genAI.getGenerativeModel({ model: modelName });
+        const result = await model.generateContent([
+          systemPrompt,
+          {
+            inlineData: {
+              mimeType,
+              data: base64Data,
+            },
           },
-        },
-      ]);
+        ]);
 
-      const text = result.response.text().trim();
-      const cleanJson = text.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim();
-      const parsed = JSON.parse(cleanJson);
-      return parsed;
-    } catch (err) {
-      if (err.message && (err.message.includes('404') || err.message.includes('not found'))) {
-        continue;
+        const text = result.response.text().trim();
+        const cleanJson = text.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim();
+        const parsed = JSON.parse(cleanJson);
+        return parsed;
+      } catch (err) {
+        // If 503 high demand spike, briefly wait and retry once
+        if (err.message && err.message.includes('503') && attempt === 0) {
+          await new Promise((r) => setTimeout(r, 800));
+          continue;
+        }
+        if (err.message && (err.message.includes('404') || err.message.includes('429') || err.message.includes('Quota exceeded'))) {
+          break; // Skip to next candidate model
+        }
+        console.warn(`Cloud Gemini model ${modelName} error:`, err.message);
+        break;
       }
-      console.warn(`Cloud Gemini model ${modelName} error:`, err.message);
     }
   }
 
