@@ -6,7 +6,9 @@ import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import OrderPanel from '../components/OrderPanel';
 import ReviewList from '../components/ReviewList';
+import EscrowTrustTimeline from '../components/EscrowTrustTimeline';
 import { resolveImageUrl } from '../utils/imageUrl';
+
 
 export default function ProductDetails() {
   const { id } = useParams();
@@ -135,6 +137,9 @@ export default function ProductDetails() {
           <OrderPanel product={product} />
         </div>
       </div>
+
+      {/* Interactive Telebirr Escrow Protocol */}
+      <EscrowTrustTimeline />
 
       <ReviewList productId={product._id} />
     </div>
