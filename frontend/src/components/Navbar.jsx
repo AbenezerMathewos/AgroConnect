@@ -5,6 +5,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { useCurrencyUnit } from '../context/CurrencyUnitContext';
 import NotificationBell from './NotificationBell';
+import UssdSimulatorModal from './UssdSimulatorModal';
 
 
 
@@ -25,6 +26,7 @@ export default function Navbar() {
   const location = useLocation();
   const [open, setOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [ussdOpen, setUssdOpen] = useState(false);
   const userMenuRef = useRef(null);
 
 
@@ -110,6 +112,15 @@ export default function Navbar() {
 
 
           <div className="nav-actions">
+            {/* Offline USSD Phone Simulator */}
+            <button
+              onClick={() => setUssdOpen(true)}
+              className="nav-ussd-btn"
+              title="Test Offline Farmer USSD (*8028# / *994#)"
+            >
+              <span>📲 *8028# USSD</span>
+            </button>
+
             {/* Currency Switcher */}
             <button
               onClick={toggleCurrency}
@@ -251,6 +262,9 @@ export default function Navbar() {
           </div>
         </div>
       </nav>
+
+      {/* Offline USSD & SMS Simulator Modal */}
+      <UssdSimulatorModal isOpen={ussdOpen} onClose={() => setUssdOpen(false)} />
     </header>
   );
 }
