@@ -325,16 +325,17 @@ body.dark-theme {
 
 .vanta-dots-canvas {
   position: fixed;
-  inset: 0;
-  width: 100vw;
-  height: 100vh;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   z-index: 0;
   pointer-events: none;
   opacity: 0.85;
 }
 
 /* ==========================================================================
-   Base & Reset
+   Base & Reset (Strict Overflow Control)
    ========================================================================== */
 
 *,
@@ -350,6 +351,9 @@ html {
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden !important;
+  width: 100% !important;
+  max-width: 100% !important;
 }
 
 body {
@@ -360,6 +364,10 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow-x: hidden !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  position: relative;
 }
 
 #root {
@@ -367,7 +375,11 @@ body {
   flex-direction: column;
   min-height: 100vh;
   position: relative;
+  overflow-x: hidden !important;
+  width: 100% !important;
+  max-width: 100% !important;
 }
+
 
 
 a {
@@ -3391,6 +3403,38 @@ p {
 }
 
 /* Responsive Breakpoints */
+@media (max-width: 1200px) {
+  .nav-menu {
+    margin-left: 0.65rem;
+  }
+
+  .nav-main-links {
+    gap: 0.15rem;
+  }
+
+  .nav-link {
+    font-size: 0.76rem;
+    padding: 0.28rem 0.45rem;
+  }
+
+  .nav-btn-action {
+    font-size: 0.74rem;
+    padding: 0.22rem 0.55rem;
+  }
+
+  .nav-user-pill-btn {
+    padding: 0.18rem 0.45rem 0.18rem 0.2rem;
+  }
+
+  .user-name-short {
+    font-size: 0.72rem;
+  }
+
+  .navbar-container {
+    padding: 0 0.75rem;
+  }
+}
+
 @media (max-width: 960px) {
   .product-details-grid {
     grid-template-columns: 1fr;
@@ -3475,3 +3519,4 @@ p {
     width: 100%;
   }
 }
+
