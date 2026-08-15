@@ -576,6 +576,68 @@ exports.getCropAdvisories = async (req, res) => {
   }
 };
 
+// @route   POST /api/advisory
+// @desc    Post and save a verified scanned crop advisory record to MongoDB
+// @access  Public
+exports.createCropAdvisory = async (req, res) => {
+  try {
+    const {
+      cropName,
+      localNames,
+      pestOrDisease,
+      scientificName,
+      severity,
+      symptoms,
+      prevention,
+      organicTreatment,
+      chemicalTreatment,
+      favorableSeason,
+      imageUrl,
+    } = req.body;
+
+    if (!cropName || !pestOrDisease) {
+      return res.status(400).json({ message: 'Crop name and pest/disease name are required' });
+    }
+
+    const diseaseRegex = new RegExp(`^${pestOrDisease.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&')}$`, 'i');
+    let advisory = await CropAdvisory.findOne({
+      $or: [
+        { pestOrDisease: diseaseRegex },
+        { 'localNames.am': localNames?.am },
+      ],
+    });
+
+    if (advisory) {
+      if (symptoms) advisory.symptoms = { ...advisory.symptoms, ...symptoms };
+      if (organicTreatment) advisory.organicTreatment = { ...advisory.organicTreatment, ...organicTreatment };
+      if (chemicalTreatment) advisory.chemicalTreatment = { ...advisory.chemicalTreatment, ...chemicalTreatment };
+      if (prevention) advisory.prevention = { ...advisory.prevention, ...prevention };
+      if (localNames) advisory.localNames = { ...advisory.localNames, ...localNames };
+      if (imageUrl) advisory.imageUrl = imageUrl;
+      await advisory.save();
+    } else {
+      advisory = new CropAdvisory({
+        cropName,
+        localNames: localNames || {},
+        pestOrDisease,
+        scientificName: scientificName || '',
+        severity: severity || 'High',
+        symptoms: symptoms || {},
+        prevention: prevention || {},
+        organicTreatment: organicTreatment || {},
+        chemicalTreatment: chemicalTreatment || {},
+        favorableSeason: favorableSeason || 'Belg / Meher rainy season',
+        imageUrl: imageUrl || '',
+      });
+      await advisory.save();
+    }
+
+    res.status(201).json({ success: true, message: 'Crop advisory successfully posted and stored in MongoDB!', advisory });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to post crop advisory', error: error.message });
+  }
+};
+
 // @route   GET /api/advisory/:id
 // @desc    Get single advisory details
 // @access  Public
