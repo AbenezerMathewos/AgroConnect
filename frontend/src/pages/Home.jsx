@@ -4,6 +4,10 @@ import { productService } from '../services/productService';
 import { marketPriceService } from '../services/marketPriceService';
 import { useLanguage } from '../context/LanguageContext';
 import { resolveImageUrl } from '../utils/imageUrl';
+import EthiopiaAgriMap from '../components/EthiopiaAgriMap';
+import VoiceSearchButton from '../components/VoiceSearchButton';
+
+
 
 const CROP_CHIPS = [
   { label: '🌾 White Teff', query: 'Teff' },
@@ -179,14 +183,27 @@ export default function Home() {
             <h1>{t('heroTitle')}</h1>
             <p className="hero-lead">{t('heroSubtitle')}</p>
 
-            {/* Quick Hero Search Input */}
-            <form onSubmit={handleHeroSearch} className="hero-search-box">
-              <span className="hero-search-icon">🔍</span>
+            {/* Live Search Bar with Voice Assist */}
+            <form
+              className="hero-search-box"
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (heroSearch.trim()) {
+                  navigate(`/products?search=${encodeURIComponent(heroSearch)}`);
+                }
+              }}
+            >
               <input
                 type="text"
                 placeholder="Search Magna Teff, Jimma Coffee, Wolaita Ginger..."
                 value={heroSearch}
                 onChange={(e) => setHeroSearch(e.target.value)}
+              />
+              <VoiceSearchButton
+                onResult={(query) => {
+                  setHeroSearch(query);
+                  navigate(`/products?search=${encodeURIComponent(query)}`);
+                }}
               />
               <button type="submit" className="btn btn-primary btn-sm">
                 Search
@@ -346,66 +363,12 @@ export default function Home() {
         </section>
       )}
 
-      {/* Interactive Regional Harvest Hub Explorer */}
-      <section className="regional-hub-section">
-        <div className="section-header-flex">
-          <div>
-            <span className="eyebrow">Interactive Nationwide Network</span>
-            <h2>Regional Agricultural Production Hubs</h2>
-          </div>
-          <span className="hub-status-badge">🇪🇹 Connected to ECX & Regional Cooperatives</span>
-        </div>
-
-        <div className="hub-tabs-row">
-          {REGIONAL_HUBS.map((hub) => (
-            <button
-              key={hub.id}
-              className={`hub-tab-btn ${activeRegion.id === hub.id ? 'active' : ''}`}
-              onClick={() => setActiveRegion(hub)}
-            >
-              <span>{hub.icon}</span>
-              <strong>{hub.name}</strong>
-            </button>
-          ))}
-        </div>
-
-        <div className="hub-spotlight-card">
-          <div className="hub-spotlight-left">
-            <div className="hub-badge-row">
-              <span className="badge badge-coop">{activeRegion.hub}</span>
-              <span className="badge badge-discount">● {activeRegion.status}</span>
-            </div>
-            <h3>{activeRegion.name} Supply Corridor</h3>
-            <p>
-              Directly connected with smallholder farmer unions and primary cooperatives for quality-certified bulk lots.
-            </p>
-            <div className="hub-specialties">
-              <span className="specialties-title">Key Hub Crops:</span>
-              <div className="specialties-pills">
-                {activeRegion.specialties.map((crop) => (
-                  <span key={crop} className="specialty-pill">
-                    ✓ {crop}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
-          <div className="hub-spotlight-right">
-            <Link
-              to={`/products?region=${encodeURIComponent(activeRegion.id === 'south' ? 'South Ethiopia' : activeRegion.name.split(' ')[0])}`}
-              className="btn btn-primary btn-block"
-            >
-              Browse {activeRegion.name} Harvests &rarr;
-            </Link>
-            <Link to="/freight" className="btn btn-secondary btn-block">
-              Find Freight in {activeRegion.hub.split(' ')[0]}
-            </Link>
-          </div>
-        </div>
-      </section>
+      {/* Interactive Regional Harvest GIS Map & Sourcing Corridors */}
+      <EthiopiaAgriMap />
 
       {/* Featured Harvests — Infinite Smooth Marquee Carousel */}
       <section className="featured-section">
+
         <div className="section-header-flex">
           <div>
             <div className="carousel-eyebrow-row">
