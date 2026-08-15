@@ -1,17 +1,26 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const CropAdvisory = require('../models/CropAdvisory');
 
-// Built-in Knowledge base of Ethiopian crop diseases and diagnostics
+// Built-in Multilingual Knowledge base of Ethiopian crop diseases and diagnostics
 const ETHIOPIAN_DISEASE_KNOWLEDGE_BASE = [
   {
     id: 'coffee_cbd',
     crop: 'Coffee',
-    cropAm: 'ቡና',
-    aliases: ['coffee', 'buuna', 'buna', 'ቡና', 'berry', 'cbd', 'kahawae'],
-    diseaseName: 'Coffee Berry Disease (Colletotrichum kahawae)',
-    diseaseAm: 'የቡና ፍሬ በሽታ (ሲ.ቢ.ዲ / CBD)',
-    diseaseOr: 'Dhukkuba Firi Bunnaa',
-    diseaseWl: 'Tukke Buuna Harka',
+    cropTranslations: {
+      en: 'Coffee',
+      am: 'ቡና',
+      om: 'Buna',
+      wot: 'Buuna',
+      ti: 'ቡን',
+    },
+    aliases: ['coffee', 'buuna', 'buna', 'ቡና', 'berry', 'cbd', 'kahawae', 'ቡን'],
+    diseaseName: {
+      en: 'Coffee Berry Disease (Colletotrichum kahawae)',
+      am: 'የቡና ፍሬ በሽታ (ሲ.ቢ.ዲ / CBD)',
+      om: 'Dhukkuba Firi Bunnaa (CBD)',
+      wot: 'Tukke Buuna Harka (CBD)',
+      ti: 'ናይ ቡን ፍረ ሕማም (CBD)',
+    },
     pathogen: 'Fungal (ፈንገስ)',
     severity: 'critical',
     confidenceRange: [92.4, 98.6],
@@ -19,64 +28,97 @@ const ETHIOPIAN_DISEASE_KNOWLEDGE_BASE = [
     symptoms: {
       en: 'Dark, sunken necrotic spots on young green berries that rapidly expand, turning the entire berry black, mummified, and hollow. Causes severe fruit drop during wet rainy seasons.',
       am: 'በአረንጓዴ የቡና ፍሬዎች ላይ ጥቁር የሰመጡ ነጠብጣቦች መታየት፤ ፍሬው ወደ ጥቁርነት ተቀይሮ ደርቆ መርገፍ፤ በዝናባማ ወቅት ከፍተኛ የፍሬ መጥፋት።',
+      om: 'Firiilee bunaa magariisa irratti dhibee gurraacha gadi seene mul\'achuu, firiin gogee harca\'uu fi yeroo roobaa qabeenyi firiin daran miidhamuu.',
+      wot: 'Ciloo buuna aayfiya bolla geella qoratta xalqqiya beettiyaagaa, aayfey meellidi koorissidi kunddiyaagaa.',
+      ti: 'ኣብ ለምለም ቀጠልቲ ፍረታት ቡን ጸሊም ዝተቐርቀረ ምልክታት ይርአ፤ ፍረታት ጸሊሞም ነቒጾም ይረግፉ።',
     },
     organicRemedy: {
-      title: 'Pruning & Organic Shade Management',
-      steps: [
-        'Prune dense canopy and dead coffee branches to allow sunlight penetration and reduce microclimate humidity.',
-        'Collect and bury or burn all dropped mummified berries to destroy fungal spore reserves.',
-        'Intercrop with shade trees like Cordia africana (ዋንዛ) and Millettia ferruginea (ብርብራ) for balanced airflow.',
-      ],
+      en: {
+        title: 'Pruning & Organic Shade Canopy Management',
+        steps: [
+          'Prune dense canopy and dead coffee branches to allow sunlight penetration and reduce microclimate humidity.',
+          'Collect and bury or burn all dropped mummified berries to destroy fungal spore reserves.',
+          'Intercrop with indigenous shade trees like Cordia africana (ዋንዛ) and Millettia ferruginea (ብርብራ).',
+        ],
+      },
+      am: {
+        title: 'ቅርንጫፍ መግረዝ እና የጥላ ዛፎች አያያዝ',
+        steps: [
+          'አየርና ፀሐይ በደንብ እንዲገባ የደረቁና የተጠጋጉ የቡና ቅርንጫፎችን መግረዝ።',
+          'የረገፉና የደረቁ የተበከሉ የቡና ፍሬዎችን ሰብስቦ ማቃጠል ወይም አፈር ውስጥ በጥልቀት መቅበር።',
+          'እንደ ዋንዛ እና ብርብራ ያሉ የጥላ ዛፎችን በቡና ማሳ ውስጥ ማካተት።',
+        ],
+      },
+      om: {
+        title: 'Doggomsiisuu fi Mukoota Gaaddisaa Qulqulleessuu',
+        steps: [
+          'Daree bunaa caccabee fi gogee ciruun aduu fi qilleensi akka galu gochuu.',
+          'Firiilee goggogee harca\'an walitti qabuun gubuu yookiin lafa keessa gadi fageessanii awwaaluu.',
+          'Mukoota gaaddisaa akka Waanzaa fi Birbiraa maasii bunaa keessatti facaasuu.',
+        ],
+      },
+      wot: 'Aanaara Koxxiyoone Guyye Xissiyoogaa',
+      ti: {
+        title: 'ጨናፍር ምቑራጽን ጽላል ምምሕዳርን',
+        steps: [
+          'ጸሓይን ንፋስን ጽቡቕ ጌሩ ክኣቱ ዝነቐጹ ጨናፍር ምቑራጽ።',
+          'ዝረገፉ ዝተበላሸዉ ፍረታት ቡን ኣኪብካ ምንዳድ ወይ ኣብ ሓመድ ምቕባር።',
+          'ጽላል ዝህቡ ኣግራብ ኣብ መንጎ ቡን ምትካል (ዋንዛ/ብርብራ)።',
+        ],
+      },
     },
     chemicalTreatment: {
-      title: 'MoA Approved Fungicides & Timed Spray Schedule',
-      formulation: 'Copper Hydroxide 77% WP (Kocide 2000) or Chlorothalonil 75% WP',
-      dosage: '2.5 kg / hectare in 500 liters of water',
-      timing: 'Apply 3-4 sprays starting at pinhead stage before the main Belg/Meher rains.',
+      en: {
+        title: 'MoA Approved Fungicides & Timed Spray Schedule',
+        formulation: 'Copper Hydroxide 77% WP (Kocide 2000) or Chlorothalonil 75% WP',
+        dosage: '2.5 kg / hectare in 500 liters of water',
+        timing: 'Apply 3-4 sprays starting at pinhead stage before the main Belg/Meher rains.',
+      },
+      am: {
+        title: 'በግብርና ሚኒስቴር የጸደቁ የፈንገስ መድኃኒቶችና አጠቃቀም',
+        formulation: 'ኮፐር ሃይድሮክሳይድ 77% WP (ኮሳይድ 2000) ወይም ክሎሮታሎኒል 75% WP',
+        dosage: 'በሄክታር 2.5 ኪ.ግ በ 500 ሊትር ውሃ ተበጥብጦ',
+        timing: 'የበልግና የመኸር ዝናብ ከመግባቱ በፊት ፍሬው በትንሹ ሲቋጥር መርጨት።',
+      },
+      om: {
+        title: 'Qoricha Fangaasii Ministeera Qonnaan Hayyamame',
+        formulation: 'Copper Hydroxide 77% WP (Kocide 2000) yookiin Chlorothalonil 75% WP',
+        dosage: 'Hektaara tokkoof kiiloo 2.5 bishaan liitira 500 wajjin',
+        timing: 'Roobni guddaan eegaluun dura firiin yeroo ija baaftu biifuu.',
+      },
+      wot: {
+        title: 'Goshsha Ministiriyaa Eenxidi Kessido Fangaase Qora',
+        formulation: 'Copper Hydroxide 77% WP (Kocide 2000)',
+        dosage: 'Hektaareyyas 2.5 kg haatta 500 Liitiree giddon',
+        timing: 'Iraay yiiganaappe kase aayfey cillido wode caaccatta.',
+      },
+      ti: {
+        title: 'ብሚኒስትሪ ሕርሻ ዝተፈቐደ ፈውሲ ፈንገስ',
+        formulation: 'ኮፐር ሃይድሮክሳይድ 77% WP (Kocide 2000)',
+        dosage: 'ንሓደ ሄክታር 2.5 ኪሎ ኣብ 500 ሊትሮ ማይ',
+        timing: 'እዋን ዝናብ ቅድሚ ምጅማሩ ኣብ እዋን ጥንሲ ፍረ ምርጫሕ።',
+      },
     },
     researchCenter: 'Jimma Agricultural Research Center (JARC) - Tel: +251 47 111 0019',
   },
   {
-    id: 'coffee_rust',
-    crop: 'Coffee',
-    cropAm: 'ቡና',
-    aliases: ['coffee rust', 'rust', 'ዝገት', 'orange powder', 'hemileia'],
-    diseaseName: 'Coffee Leaf Rust (Hemileia vastatrix)',
-    diseaseAm: 'የቡና ቅጠል ዝገት (Rust)',
-    diseaseOr: 'Waagii Baala Bunnaa',
-    diseaseWl: 'Buuna Haytsa Wagge',
-    pathogen: 'Fungal (ፈንገስ)',
-    severity: 'high',
-    confidenceRange: [91.5, 97.8],
-    keyFeatures: ['yellow orange powdery spots on underside of leaves', 'chlorotic leaf lesions', 'premature leaf defoliation'],
-    symptoms: {
-      en: 'Yellowish-orange powdery spore patches appearing on the lower surface of mature coffee leaves, leading to severe defoliation and dieback.',
-      am: 'በቡና ቅጠል ስር ቢጫ-ብርቱካናማ የዱቄት ነጠብጣቦች መታየት፤ ቅጠሉ ረግፎ የቡናው ዛፍ መራቆት።',
-    },
-    organicRemedy: {
-      title: 'Aeration Pruning & Resistant Selections',
-      steps: [
-        'Plant CBD and Rust resistant Ethiopian selections (741, 74110, 74112, 75227) from JARC.',
-        'Prune lower skirts to improve ventilation and reduce splashing raindrops from soil.',
-      ],
-    },
-    chemicalTreatment: {
-      title: 'Copper-Based Protectant Spray',
-      formulation: 'Copper Oxychloride 50% WP',
-      dosage: '3.0 kg / hectare in 400 liters of water',
-      timing: 'Apply just before the onset of the small Belg rains in February-March.',
-    },
-    researchCenter: 'Jimma Agricultural Research Center (JARC)',
-  },
-  {
     id: 'enset_bacterial_wilt',
     crop: 'Enset',
-    cropAm: 'እንሰት / ቆጮ',
-    aliases: ['enset', 'inset', 'kocho', 'bulla', 'ቆጮ', 'እንሰት', 'gomere', 'wilt', 'xanthomonas'],
-    diseaseName: 'Bacterial Wilt of Enset (Xanthomonas vasicola pv. musacearum)',
-    diseaseAm: 'የእንሰት ባክቴሪያል ዊልት (ጎመሬ / ዎሾ)',
-    diseaseOr: 'Bacterial Wilt Qoccoo',
-    diseaseWl: 'Utta Gomari',
+    cropTranslations: {
+      en: 'Enset',
+      am: 'እንሰት / ቆጮ',
+      om: 'Qoccoo / Warqee',
+      wot: 'Utta / Qocho',
+      ti: 'እንሰት',
+    },
+    aliases: ['enset', 'inset', 'kocho', 'bulla', 'ቆጮ', 'እንሰት', 'gomere', 'wilt', 'xanthomonas', 'utta'],
+    diseaseName: {
+      en: 'Bacterial Wilt of Enset (Xanthomonas vasicola pv. musacearum)',
+      am: 'የእንሰት ባክቴሪያል ዊልት (ጎመሬ / ዎሾ)',
+      om: 'Bacterial Wilt Qoccoo (Gomere)',
+      wot: 'Utta Gomari (Hosa / Woshsho)',
+      ti: 'ናይ እንሰት ባክቴርያዊ ምድረቕ (ጎመሬ)',
+    },
     pathogen: 'Bacterial (ባክቴሪያ)',
     severity: 'critical',
     confidenceRange: [94.1, 99.2],
@@ -84,32 +126,104 @@ const ETHIOPIAN_DISEASE_KNOWLEDGE_BASE = [
     symptoms: {
       en: 'Inner emerging leaves turn pale yellow, wilt, and lose turgidity. When pseudostem is cut, yellow-gray sticky bacterial ooze discharges within 15 minutes. Leads to total rotting of the bulla/kocho corm.',
       am: 'የውስጠኛው የእንሰት ልብ ቅጠል ቢጫ መሆንና መድረቅ፤ ግንዱ ሲቆረጥ የሚወጣ ቢጫ ተጣባቂ ፈሳሽ (ባክቴሪያል ኦዝ)፤ የቆጮ ጉዝጓዝ መበስበስ።',
+      om: 'Baalli keessaa keelloo ta\'ee goguu, yeroo muramu dhangala\'aa keelloo malaa fakkaatu baasuu fi hundeen qoccoo tortoruu.',
+      wot: 'Utattaa wozana haytsay ciillidi meelliyoogaa; gindiyaa qanxxiya wode ciilla laappiyaagaa malaadan kessiyoogaa.',
+      ti: 'ናይ ውሽጢ ቆጽሊ እንሰት ብጫ ኮይኑ ይነቅጽ፤ ግንዲ እንተተቖሪጹ ብጫ ዝተጣበቐ ፈሳሲ ይወጽእ።',
     },
     organicRemedy: {
-      title: 'Machete Flame Sterilization & Strict Field Quarantine',
-      steps: [
-        'Sterilize all harvesting knives, machetes, and axes with fire flame or 5% bleach between each plant.',
-        'Uproot infected enset plants immediately, chop them, and bury them in a deep pit away from waterways.',
-        'Fence the farm to prevent wandering cattle and goats from spreading bacterial sap through browsing.',
-      ],
+      en: {
+        title: 'Machete Flame Sterilization & Strict Field Quarantine',
+        steps: [
+          'Sterilize all harvesting knives, machetes, and axes with fire flame or 5% bleach between each plant.',
+          'Uproot infected enset plants immediately, chop them, and bury them in a deep pit away from waterways.',
+          'Fence the farm to prevent wandering cattle and goats from spreading bacterial sap through browsing.',
+        ],
+      },
+      am: {
+        title: 'የግብርና መገልገያዎችን በእሳት ማምከንና ማሳን መከለል',
+        steps: [
+          'ማንኛውንም እንሰት መቁረጫ ቢላዋ፣ ጩቤ እና ገጀራ በእሳት ነበልባል ወይም በበረኪና ማምከን።',
+          'የታመመውን እንሰት ወዲያውኑ ነቅሎ በመቆራረጥ ከውሃ መውረጃ ርቆ በጥልቅ ጉድጓድ ውስጥ መቅበር።',
+          'ከብቶችና ፍየሎች የታመመውን እንሰት በልተው ወደ ጤነኛው እንዳያስተላልፉ ማሳውን በአጥር መከለል ወይ ማሰር።',
+        ],
+      },
+      om: {
+        title: 'Meeshaalee Qonnaa Ibiddan Qulqulleessuu',
+        steps: [
+          'Haamtuu fi meeshaa qoccoo ittiin muran hunda ibiddan gubanii qulqulleessuu.',
+          'Qoccoo dhukkubsate dafanii buqqisanii boolla gadi fagootti awwaaluu.',
+          'Beelladoonni akka hin nyaanneef daangaa maasichaa dallessuu.',
+        ],
+      },
+      wot: {
+        title: 'Qanxxiya Biillawata Tamman Xoqissiyoogaa',
+        steps: [
+          'Utta qanxxiya baashshata, mashshata ubbaakka tamman xoqissidi go\'ettiyoogaa.',
+          'Harggida uttaa eesuwan shoddidi ollan xiishshidi goole moyzze miissennaadan kessiyoogaa.',
+          'Mehee harggida haytsaa miidi harggettennaadan giddiyaa gaxiyoogaa.',
+        ],
+      },
+      ti: {
+        title: 'መሳርሒታት ብሓዊ ምሕራርን ምግላልን',
+        steps: [
+          'እንሰት ዝቕንጠጸሉ መላጺ ወይ ፋስ ብሓዊ ኣንድድካ ምጽራይ።',
+          'ዝሓመመ እንሰት ብቕጽበት ነቒልካ ኣብ ዓሚቕ ጉድጓድ ምቕባር።',
+          'እንስሳታት በሊዖም ሕማም ከየመሓላልፉ ዓጸድ ምዕጻው።',
+        ],
+      },
     },
     chemicalTreatment: {
-      title: 'Zero Chemical Treatment (Strict Sanitary Quarantine)',
-      formulation: 'No chemical spray is effective against vascular Xanthomonas bacteria in enset.',
-      dosage: 'Strict field hygiene and resistant clone propagation from Areka Research Center.',
-      timing: 'Continuous monitoring throughout the rainy season.',
+      en: {
+        title: 'Zero Chemical Cure (Strict Sanitary Quarantine)',
+        formulation: 'No chemical spray cures vascular Xanthomonas bacteria in enset.',
+        dosage: 'Strict field hygiene and resistant clone propagation from Areka Research Center.',
+        timing: 'Continuous monitoring throughout the rainy season.',
+      },
+      am: {
+        title: 'ምንም አይነት ኬሚካል የለውም (ጥብቅ የንጽህና አያያዝ ብቻ)',
+        formulation: 'የእንሰት ባክቴሪያል ዊልትን የሚያድን ምንም አይነት የኬሚካል ርጭት የለም።',
+        dosage: 'ማሳን በንጽህና መጠበቅና ከአረካ ምርምር ማዕከል የተሻሻሉ ዝርያዎችን መጠቀም።',
+        timing: 'በክረምትና በበልግ ወቅት የማያቋርጥ ክትትል ማድረግ።',
+      },
+      om: {
+        title: 'Qoricha Keemikaalaa Hin Qabu',
+        formulation: 'Dhukkuba kanaaf qorichi biifamu hin jiru, qulqullina eeguu qofa.',
+        dosage: 'Sanyii filatamaa Wiirtuu Qorannoo Arekaarraa fayyadamuu.',
+        timing: 'Waggaa guutuu hordoffii gochuu.',
+      },
+      wot: {
+        title: 'Kemikaale Qori Baawa (Geeshshatetta Naagiyoogaa Xalaala)',
+        formulation: 'Utatta gomariya xayssiya kemikaale qori aawankka baawa.',
+        dosage: 'Areka Qorisa Kettaappe kiyida wolqqama uttaa zariya baqqiyoogaa.',
+        timing: 'Wode ubban loytti aattidi xelliyoogaa.',
+      },
+      ti: {
+        title: 'ኬሚካላዊ ፈውሲ የብሉን (ጽሬት ምሕላው ጥራይ)',
+        formulation: 'ንዝሓመመ እንሰት ዘድሕን ዝኾነ ኬሚካል የለን።',
+        dosage: 'ካብ ምርምር ማእከል ኣረካ ዝወጹ ጽኑዓት ዘርኢ ምጥቃም።',
+        timing: 'ቀጻሊ ምክትታል ምግባር።',
+      },
     },
     researchCenter: 'Areka Agricultural Research Center (Southern Agri Institute) - Tel: +251 46 552 0110',
   },
   {
     id: 'maize_fall_armyworm',
     crop: 'Maize',
-    cropAm: 'በቆሎ',
-    aliases: ['maize', 'corn', 'በቆሎ', 'boqollo', 'armyworm', 'caterpillar', 'frass', 'whorl'],
-    diseaseName: 'Fall Armyworm (Spodoptera frugiperda)',
-    diseaseAm: 'የመኸር ሰራዊት አባጨጓሬ (Fall Armyworm)',
-    diseaseOr: 'Raammoo Boqqolloo',
-    diseaseWl: 'Goshshuwaa',
+    cropTranslations: {
+      en: 'Maize',
+      am: 'በቆሎ',
+      om: 'Boqqolloo',
+      wot: 'Badalla / Goshshuwaa',
+      ti: 'ዕፉን',
+    },
+    aliases: ['maize', 'corn', 'በቆሎ', 'boqollo', 'armyworm', 'caterpillar', 'frass', 'whorl', 'ዕፉን'],
+    diseaseName: {
+      en: 'Fall Armyworm (Spodoptera frugiperda)',
+      am: 'የመኸር ሰራዊት አባጨጓሬ (Fall Armyworm)',
+      om: 'Raammoo Boqqolloo (Fall Armyworm)',
+      wot: 'Badallaa Goshshuwaa (Armyworm)',
+      ti: 'ሓሰኻ ዕፉን (Fall Armyworm)',
+    },
     pathogen: 'Insect Pest (ተባይ)',
     severity: 'high',
     confidenceRange: [91.8, 97.4],
@@ -117,32 +231,104 @@ const ETHIOPIAN_DISEASE_KNOWLEDGE_BASE = [
     symptoms: {
       en: 'Ragged window-pane feeding holes in the leaf whorl accompanied by sawdust-like yellowish larval frass. In severe infestations, larvae bore directly into developing maize cobs.',
       am: 'በበቆሎው አናት (ልብ) ላይ የተቀዳደደ ቅጠል፤ በመሃከሉ ላይ የተፈጨ እንጨት የሚመስል የትል እዳሪ መታየት፤ የዘር ቆጥ መበላት።',
+      om: 'Baala boqqolloo keessatti boolla dhoowwuu fi kosii mukaa fakkaatu irratti mul\'achuu, yeroo heddummatu ija boqqolloo nyaachuu.',
+      wot: 'Badallaa wozanaa haytsay daaccettiyoogaa, mittaa dooqan kessiya huuphe cilliyoogaa.',
+      ti: 'ኣብ ልቢ ዕፉን ዝተበላሸወ ዝተቦርቦረ ቆጽልን ናይ ሓሰኻ ርስሓትን ይርአ።',
     },
     organicRemedy: {
-      title: 'Wood Ash, Sand & Push-Pull Intercropping',
-      steps: [
-        'Place a pinch of dry fine wood ash mixed with chili powder into the central funnel whorl of young maize plants.',
-        'Intercrop maize with Desmodium (Silverleaf) and surround the field with Napier grass (Push-Pull technology).',
-        'Hand-pick and crush egg masses and young caterpillars during early morning field walks.',
-      ],
+      en: {
+        title: 'Wood Ash, Sand & Push-Pull Intercropping',
+        steps: [
+          'Place a pinch of dry fine wood ash mixed with chili powder into the central funnel whorl of young maize plants.',
+          'Intercrop maize with Desmodium (Silverleaf) and surround the field with Napier grass (Push-Pull technology).',
+          'Hand-pick and crush egg masses and young caterpillars during early morning field walks.',
+        ],
+      },
+      am: {
+        title: 'የእንጨት አመድ፣ አሸዋ እና የፑሽ-ፑል ቴክኖሎጂ',
+        steps: [
+          'ትንሽ ደረቅ አመድ ከሚጥሚጣ ዱቄት ጋር በመደባለቅ በበቆሎው ልብ (ፈነል) ውስጥ መነስነስ።',
+          'በቆሎን ከደስሞዲየም ጋር በጋራ ማብቀል እና በማሳው ዙሪያ የዝሆኔ ሳር (ናፒየር) መትከል።',
+          'በጠዋት ማሳን በመዞር የተባዩን እንቁላሎችና ትሎች በእጅ ለቅሞ ማጥፋት።',
+        ],
+      },
+      om: {
+        title: 'Daraaraa Mukaa fi Daaraa Fayyadamuu',
+        steps: [
+          'Daaraa gogaa qulqulluu qaraa wajjin walitti makanii handhuura boqqolloo keessa naquu.',
+          'Boqqolloo Desmodium wajjin walitti makuun dhaabuu.',
+          'Ganama barii buqqee raammoo harka qullaan funaananii balleessuu.',
+        ],
+      },
+      wot: {
+        title: 'Mittaa Binddaanene Shaashshiyaa Kessiyoogaa',
+        steps: [
+          'Meldda mittaa binddaa qariyaara walissidi badallaa wozanaa giddon wottiyoogaa.',
+          'Badallaa Desmodium giyo maataara gakissidi zariyoo.',
+          'Maallado eesuwan denddidi goshshuwaa qanxxiya aaphfe shoddiyoogaa.',
+        ],
+      },
+      ti: {
+        title: 'ሓመድ ድበን ባእሮን ምጥቃም',
+        steps: [
+          'ንቑጽ ሓመድ ድበ ምስ በርበረ ሓዊስካ ኣብ ልቢ ዕፉን ምግባር።',
+          'ዕፉን ምስ ደስሞድየም ብሓባር ምዝራእ።',
+          'ንግሆ ንግሆ ሓሰኻታት ብኢድካ ኣኪብካ ምጭፍላቕ።',
+        ],
+      },
     },
     chemicalTreatment: {
-      title: 'MoA Approved Bio-Insecticides & Spray',
-      formulation: 'Emamectin Benzoate 5% SG or Chlorantraniliprole 20% SC',
-      dosage: '250 grams / hectare directed into leaf funnels',
-      timing: 'Spray late in the afternoon when caterpillars are actively moving out of the whorl.',
+      en: {
+        title: 'MoA Approved Bio-Insecticides & Spray',
+        formulation: 'Emamectin Benzoate 5% SG or Chlorantraniliprole 20% SC',
+        dosage: '250 grams / hectare directed into leaf funnels',
+        timing: 'Spray late in the afternoon when caterpillars are actively moving out of the whorl.',
+      },
+      am: {
+        title: 'በግብርና ሚኒስቴር የጸደቁ የጸረ-ተባይ መድኃኒቶች',
+        formulation: 'ኢማሜክቲን ቤንዞኤት 5% SG ወይም ክሎራንትራኒሊፕሮል 20% SC',
+        dosage: 'በሄክታር 250 ግራም በበቆሎው አናት ላይ በትክክል በማነጣጠር',
+        timing: 'አባጨጓሬዎቹ ከልባቸው በሚወጡበት ከሰአት በኋላ ጸሐይ ሲቀዘቅዝ መርጨት።',
+      },
+      om: {
+        title: 'Qoricha Ilbiisaa Ministeera Qonnaan Hayyamame',
+        formulation: 'Emamectin Benzoate 5% SG yookiin Chlorantraniliprole 20% SC',
+        dosage: 'Hektaara tokkoof giraama 250',
+        timing: 'Galgala yeroo aduun dhiitu kallattiin handhuura baalaarratti biifuu.',
+      },
+      wot: {
+        title: 'Goshsha Ministiriyaa Kessido Qora',
+        formulation: 'Emamectin Benzoate 5% SG',
+        dosage: 'Hektaareyyas 250 giraame badallaa huuphe bolla',
+        timing: 'Away gallasappe guyyiyan sa\'ay sakkiya wode caaccatta.',
+      },
+      ti: {
+        title: 'ብሚኒስትሪ ሕርሻ ዝተፈቐደ ፈውሲ ሓሰኻ',
+        formulation: 'Emamectin Benzoate 5% SG',
+        dosage: 'ንሓደ ሄክታር 250 ግራም',
+        timing: 'ድሕሪ ቐትሪ ጸሓይ ምስ ዝሓለት ኣብ ልቢ ዕፉን ምርጫሕ።',
+      },
     },
     researchCenter: 'Hawassa Agricultural Research Center & Bako National Maize Research',
   },
   {
     id: 'wheat_stem_rust',
     crop: 'Wheat',
-    cropAm: 'ስንዴ',
-    aliases: ['wheat', 'ስንዴ', 'qamadi', 'stem rust', 'ug99', 'ዋግ', 'rust pustules'],
-    diseaseName: 'Wheat Stem Rust / Ug99 (Puccinia graminis f. sp. tritici)',
-    diseaseAm: 'የስንዴ ግንድ ዝገት (Ug99 / ዋግ)',
-    diseaseOr: 'Waagii Qamadii',
-    diseaseWl: 'Qamadiyaa Waggee',
+    cropTranslations: {
+      en: 'Wheat',
+      am: 'ስንዴ',
+      om: 'Qamadii',
+      wot: 'Qamadiyaa',
+      ti: 'ስርናይ',
+    },
+    aliases: ['wheat', 'ስንዴ', 'qamadi', 'stem rust', 'ug99', 'ዋግ', 'rust pustules', 'ስርናይ'],
+    diseaseName: {
+      en: 'Wheat Stem Rust / Ug99 (Puccinia graminis f. sp. tritici)',
+      am: 'የስንዴ ግንድ ዝገት (Ug99 / ዋግ)',
+      om: 'Waagii Qamadii (Ug99)',
+      wot: 'Qamadiyaa Waggee (Ug99)',
+      ti: 'ናይ ስርናይ ግንድ ዝገት (Ug99)',
+    },
     pathogen: 'Fungal (ፈንገስ)',
     severity: 'critical',
     confidenceRange: [93.5, 98.9],
@@ -150,119 +336,80 @@ const ETHIOPIAN_DISEASE_KNOWLEDGE_BASE = [
     symptoms: {
       en: 'Elongated reddish-brown (rust colored) spore pustules erupting through the epidermis of wheat stems and leaf sheaths, turning black towards maturity and causing lodging.',
       am: 'በስንዴው ግንድና ቅጠል ላይ ቀይ-ቡናማ የዝገት ዱቄት መውጣት፤ ግንዱ ተሰባብሮ መውደቅና እህሉ ሳይሞላ ማጨንገፍ።',
+      om: 'Girmaa fi baala qamadiirratti dhibee dhiilgee bifa daaraa mul\'isuu, girmichi cabuu fi firii malee hafuu.',
+      wot: 'Qamadiyaa gindiyaa bolla zo\'o waggey kiyiyoogaa, ginddey meqqidi aayfey cilliyoogaa.',
+      ti: 'ኣብ ግንድን ቆጽልን ስርናይ ቀይሕ-ቡናዊ ናይ ዝገት ሓመድ ይርአ፤ ግንዲ ተሰባቢሩ ይወድቕ።',
     },
     organicRemedy: {
-      title: 'Resistant Variety Adoption & Early Planting',
-      steps: [
-        'Plant certified stem-rust resistant cultivars bred in Ethiopia such as Danda\'a, Kakaba, or Ogolcho.',
-        'Sow seeds early at the onset of the Meher rains to avoid peak spore dispersal temperatures.',
-        'Eliminate volunteer wheat and barberry alternate hosts around field borders.',
-      ],
+      en: {
+        title: 'Resistant Variety Adoption & Early Sowing',
+        steps: [
+          'Plant certified stem-rust resistant cultivars bred in Ethiopia such as Danda\'a, Kakaba, or Ogolcho.',
+          'Sow seeds early at the onset of the Meher rains to avoid peak spore dispersal temperatures.',
+        ],
+      },
+      am: {
+        title: 'ተቋቋሚ የዘር ዝርያዎችን መጠቀምና በወቅቱ መዝራት',
+        steps: [
+          'የዝገት በሽታን የሚቋቋሙ እንደ ዳንዳአ፣ ካካባ እና ኦጎልቾ የተባሉ የኢትዮጵያ ስንዴ ዝርያዎችን መዝራት።',
+          'የመኸር ዝናብ እንደጀመረ ቀድሞ በመዝራት የፈንገስ ስፖር እንዳይጠናከር ማድረግ።',
+        ],
+      },
+      om: {
+        title: 'Sanyii Danda\'aa Fayyadamuu',
+        steps: [
+          'Sanyiiwwan waagii danda\'an kanneen akka Danda\'aa, Kakaabaa fi Ogolchoo dhaabuu.',
+          'Roobni akkuma eegaleen dafanii facaasuu.',
+        ],
+      },
+      wot: {
+        title: 'Waggey Ekkenna Zariyaa Baqqiyoogaa',
+        steps: [
+          'Danda\'aa, Kakaabaa giyo qamadiyaa zariyaa goshshiyoogaa.',
+          'Iray yiigiyo wode eesuwan zeriyoogaa.',
+        ],
+      },
+      ti: {
+        title: 'ተጻዋርቲ ዘርኢ ምጥቃምን ብእዋኑ ምዝራእን',
+        steps: [
+          'ንዝገት ዝጻወሩ ዝተመስከረሎም ዘርኢ ስርናይ (ዳንዳኣ/ካካባ) ምዝራእ።',
+          'ዝናብ ምስ ጀመረ ቀዲምካ ምዝራእ።',
+        ],
+      },
     },
     chemicalTreatment: {
-      title: 'Systemic Triazole / Strobilurin Fungicide',
-      formulation: 'Propiconazole 250 EC (Tilt) or Tebuconazole 250 EW (Nativo)',
-      dosage: '0.5 liters / hectare in 300 liters of water',
-      timing: 'Apply immediately at first sign of 1-2 rust pustules per 10 plants.',
+      en: {
+        title: 'Systemic Triazole Fungicide',
+        formulation: 'Propiconazole 250 EC (Tilt) or Tebuconazole 250 EW (Nativo)',
+        dosage: '0.5 liters / hectare in 300 liters of water',
+        timing: 'Apply immediately at first sign of 1-2 rust pustules per 10 plants.',
+      },
+      am: {
+        title: 'ስርአተ-ሰብል ፈንገስ ኬሚካል ርጭት',
+        formulation: 'ፕሮፒኮናዞል 250 EC (Tilt) ወይም ቴቡኮናዞል 250 EW (Nativo)',
+        dosage: 'በሄክታር 0.5 ሊትር በ 300 ሊትር ውሃ ተበጥብጦ',
+        timing: 'በ 10 እጽዋት ላይ የመጀመሪያው 1-2 የዝገት ነጠብጣብ እንደታየ ወዲያውኑ መርጨት።',
+      },
+      om: {
+        title: 'Qoricha Fangaasii Biifamu',
+        formulation: 'Propiconazole 250 EC (Tilt) yookiin Tebuconazole 250 EW',
+        dosage: 'Hektaara tokkoof liitira 0.5 bishaan liitira 300 wajjin',
+        timing: 'Mallattoon waagii akkuma mul\'ateen battalatti biifuu.',
+      },
+      wot: {
+        title: 'Fangaasiya Qora',
+        formulation: 'Propiconazole 250 EC (Tilt)',
+        dosage: 'Hektaareyyas 0.5 Liitiree haatta 300 Liitireera',
+        timing: 'Waggey beettido eesuwan biiccidi caaccatta.',
+      },
+      ti: {
+        title: 'ፈውሲ ፈንገስ ስርናይ',
+        formulation: 'Propiconazole 250 EC (Tilt)',
+        dosage: 'ንሓደ ሄክታር 0.5 ሊትሮ ኣብ 300 ሊትሮ ማይ',
+        timing: 'ምልክት ዝገት ምስ ተራእየ ብቕጽበት ምርጫሕ።',
+      },
     },
     researchCenter: 'Kulumsa Agricultural Research Center (National Wheat Research Hub) - Tel: +251 22 331 1877',
-  },
-  {
-    id: 'teff_head_smut',
-    crop: 'Teff',
-    cropAm: 'ጤፍ',
-    aliases: ['teff', 'ጤፍ', 'taafi', 'smut', 'head smut', 'እሳት በሽታ', 'black heads'],
-    diseaseName: 'Teff Head Smut (Helminthosporium miyakei)',
-    diseaseAm: 'የጤፍ ራስ እሳት በሽታ (Head Smut)',
-    diseaseOr: 'Dhukkuba Mataa Xaafii',
-    diseaseWl: 'Xafiyaa Huuphe Eesattiya',
-    pathogen: 'Fungal (ፈንገስ)',
-    severity: 'moderate',
-    confidenceRange: [89.5, 95.5],
-    keyFeatures: ['black powdery masses replacing grain florets', 'stunted teff panicles', 'sooty grains'],
-    symptoms: {
-      en: 'Individual teff florets and panicles transform into black sooty fungal spore masses, destroying teff seed formation in humid highlands.',
-      am: 'የጤፉ ዘር ወደ ጥቁር አቧራማ ዱቄትነት መቀየር፤ የጤፍ ዘለላው ማጠርና የጤፍ እህል ሳይይዝ መቅረት።',
-    },
-    organicRemedy: {
-      title: 'Certified Clean Seed Sourcing & Crop Rotation',
-      steps: [
-        'Use certified disease-free Magna or Quncho teff seeds from the Ethiopian Seed Enterprise (ESE).',
-        'Rotate teff fields with chickpea or haricot beans every 2 seasons to break soil fungal inoculum cycles.',
-      ],
-    },
-    chemicalTreatment: {
-      title: 'Fungicidal Seed Dressing',
-      formulation: 'Thiram 75% WP or Mancozeb 80% WP seed coating',
-      dosage: '2.5 grams per 1 kg of teff seed',
-      timing: 'Dress seeds thoroughly 24 hours before broadcast sowing.',
-    },
-    researchCenter: 'Debre Zeit Agricultural Research Center (National Teff Research Hub)',
-  },
-  {
-    id: 'ginger_bacterial_wilt',
-    crop: 'Ginger',
-    cropAm: 'ዝንጅብል',
-    aliases: ['ginger', 'ዝንጅብል', 'zinjibil', 'rhizome rot', 'wilt', 'መበስበስ'],
-    diseaseName: 'Bacterial Wilt of Ginger (Ralstonia solanacearum)',
-    diseaseAm: 'የዝንጅብል ባክቴሪያል ዊልት (የዝንጅብል መበስበስ)',
-    diseaseOr: 'Dhukkuba Zinjibilaa',
-    diseaseWl: 'Zinjibilliya Gomara',
-    pathogen: 'Bacterial (ባክቴሪያ)',
-    severity: 'critical',
-    confidenceRange: [90.2, 96.8],
-    keyFeatures: ['yellowing leaf margins', 'water-soaked shoots', 'rotted rhizomes with foul odor', 'rhizome ooze', 'soft rot'],
-    symptoms: {
-      en: 'Lower leaves curl and turn bronze-yellow, progressing upwards. Pseudostems become water-soaked and easily pull away from rhizomes. Underground rhizomes rot with milky bacterial stream in water test.',
-      am: 'የዝንጅብል ቅጠሎች ወደ ቢጫነት መቀየር፤ ከስሩ መበስበስና መጥፎ ጠረን ማመንጨት፤ ግንዱ በቀላሉ ተነቅሎ መውጣት።',
-    },
-    organicRemedy: {
-      title: 'Raised Bed Drainage & Trichoderma Bio-Fungicide',
-      steps: [
-        'Plant on 25cm raised beds with deep drainage furrows to prevent waterlogging in Wolaita and Kembata soil.',
-        'Apply Trichoderma viride enriched compost into planting furrows to suppress pathogenic Ralstonia soil populations.',
-        'Solarize planting beds with clear plastic sheets for 30 days during dry season.',
-      ],
-    },
-    chemicalTreatment: {
-      title: 'Seed Rhizome Hot Water & Copper Dip',
-      formulation: 'Copper Oxychloride 50% WP seed dip + Streptocycline 100 ppm',
-      dosage: 'Dip seed rhizomes for 30 minutes before planting',
-      timing: 'Pre-planting seed treatment only; no in-field cure once infected.',
-    },
-    researchCenter: 'Areka & Tepi National Spices Research Center',
-  },
-  {
-    id: 'avocado_root_rot',
-    crop: 'Avocado',
-    cropAm: 'አቮካዶ',
-    aliases: ['avocado', 'አቮካዶ', 'abukato', 'hass', 'root rot', 'phytophthora', 'dieback'],
-    diseaseName: 'Phytophthora Root Rot (Phytophthora cinnamomi)',
-    diseaseAm: 'የአቮካዶ ስር መበስበስ (Phytophthora Root Rot)',
-    diseaseOr: 'Root Rot Avokaadoo',
-    diseaseWl: 'Avokaado Xaphuwaa Borqqiya',
-    pathogen: 'Oomycete / Fungal',
-    severity: 'critical',
-    confidenceRange: [91.0, 97.2],
-    keyFeatures: ['pale wilted foliage', 'small sunburned fruits', 'black brittle feeder roots', 'branch dieback'],
-    symptoms: {
-      en: 'Foliage becomes pale green, wilts, and drops. Feeder roots turn black, brittle, and rot, preventing water uptake. Trees suffer branch dieback in waterlogged volcanic soils.',
-      am: 'የአቮካዶ ቅጠል መገርጣትና መርገፍ፤ ስሮቹ ወደ ጥቁርነት ተቀይረው መበስበስ፤ የዛፉ ቅርንጫፎች ከጫፍ ወደ ስር መድረቅ።',
-    },
-    organicRemedy: {
-      title: 'Gypsum Mulching & Deep Drainage Furrows',
-      steps: [
-        'Apply coarse woodchip mulch (15cm thick) kept 20cm away from the trunk to encourage antagonistic beneficial microbes.',
-        'Apply 1 kg of agricultural gypsum (calcium sulfate) per tree to suppress zoospore motility.',
-      ],
-    },
-    chemicalTreatment: {
-      title: 'Phosphonate Trunk Injection & Drench',
-      formulation: 'Potassium Phosphite (Fosetyl-Al 80% WP) or Metalaxyl 25% WP',
-      dosage: 'Trunk injection @ 20ml per meter of canopy diameter or 2.0 kg/ha soil drench',
-      timing: 'Apply during active root flush in spring.',
-    },
-    researchCenter: 'Wondo Genet Agricultural Research Center & Wolaita Sodo Nursery',
   },
 ];
 
@@ -293,7 +440,6 @@ async function analyzeWithCloudGemini(imageBase64, customPrompt) {
   if (!apiKey) return null;
 
   const genAI = new GoogleGenerativeAI(apiKey);
-  // Clean base64 string and extract mime
   let mimeType = 'image/jpeg';
   let base64Data = imageBase64;
 
@@ -316,6 +462,9 @@ Return ONLY a valid JSON with:
   "isAgroProduct": false,
   "message": "This isn't an agro product.",
   "messageAm": "ይህ የግብርና ምርት ወይም የሰብል ቅጠል አይደለም።",
+  "messageOm": "Kun oomisha qonnaa yookiin baala midhaanii miti.",
+  "messageWot": "Hagee goshshaa aayfe gidenna.",
+  "messageTi": "እዚ ናይ ሕርሻ ፍርያት ወይ ቆጽሊ ኣይኮነን።",
   "detectedObject": "<short name of object>",
   "reason": "The uploaded photo depicts a <object>, which is not a plant or agricultural crop tissue.",
   "guidance": "Please upload a clear photo of crop leaves, stems, grains, or fruits (e.g., Coffee, Maize, Enset, Wheat, Teff, Ginger, Avocado)."
@@ -323,32 +472,49 @@ Return ONLY a valid JSON with:
 
 IF IT IS an agricultural crop:
 Identify the crop and any pest/fungal/bacterial disease, nutrient deficiency, or if healthy.
+Provide rich translations in English (en), Amharic (am), Oromo (om), Wolaytta (wot), and Tigrinya (ti).
 Return ONLY valid JSON matching this schema:
 {
   "isAgroProduct": true,
-  "crop": "<Crop name in English, e.g. Coffee, Enset, Maize, Wheat, Teff, Ginger, Avocado>",
-  "cropAm": "<Crop name in Amharic, e.g. ቡና, እንሰት, በቆሎ, ስንዴ, ጤፍ, ዝንጅብል, አቮካዶ>",
-  "diseaseName": "<Disease scientific & common name>",
-  "diseaseAm": "<Disease name in Amharic>",
-  "diseaseOr": "<Disease name in Afaan Oromoo>",
-  "diseaseWl": "<Disease name in Wolaytta>",
+  "crop": "<Crop name in English>",
+  "cropTranslations": {
+    "en": "<Crop English>",
+    "am": "<Crop Amharic, e.g. ቡና, እንሰት, በቆሎ, ስንዴ, ጤፍ, ዝንጅብል, አቮካዶ>",
+    "om": "<Crop Oromo>",
+    "wot": "<Crop Wolaytta>",
+    "ti": "<Crop Tigrinya>"
+  },
+  "diseaseName": {
+    "en": "<Disease in English>",
+    "am": "<Disease in Amharic>",
+    "om": "<Disease in Oromo>",
+    "wot": "<Disease in Wolaytta>",
+    "ti": "<Disease in Tigrinya>"
+  },
   "pathogenType": "<Fungal / Bacterial / Insect Pest / Viral / Healthy>",
   "severity": "<critical / high / moderate / low>",
   "confidenceScore": "<e.g. 96.5%>",
   "keyIndicatorsDetected": ["<symptom 1>", "<symptom 2>", "<symptom 3>"],
   "clinicalSymptoms": {
     "en": "<Description in English>",
-    "am": "<Description in Amharic>"
+    "am": "<Description in Amharic>",
+    "om": "<Description in Oromo>",
+    "wot": "<Description in Wolaytta>",
+    "ti": "<Description in Tigrinya>"
   },
   "organicProtocol": {
-    "title": "<Organic remedy title>",
-    "steps": ["<step 1>", "<step 2>", "<step 3>"]
+    "en": { "title": "<title>", "steps": ["<step 1>", "<step 2>"] },
+    "am": { "title": "<የተፈጥሮ ህክምና ርዕስ>", "steps": ["<ደረጃ 1>", "<ደረጃ 2>"] },
+    "om": { "title": "<title>", "steps": ["<step 1>", "<step 2>"] },
+    "wot": { "title": "<title>", "steps": ["<step 1>", "<step 2>"] },
+    "ti": { "title": "<title>", "steps": ["<step 1>", "<step 2>"] }
   },
   "chemicalProtocol": {
-    "title": "<MoA chemical formulation>",
-    "formulation": "<Fungicide / pesticide formulation>",
-    "dosage": "<Dosage per hectare>",
-    "timing": "<When to apply>"
+    "en": { "title": "<title>", "formulation": "<formulation>", "dosage": "<dosage>", "timing": "<timing>" },
+    "am": { "title": "<የኬሚካል ህክምና>", "formulation": "<መድኃኒት>", "dosage": "<መጠን>", "timing": "<የመርጫ ጊዜ>" },
+    "om": { "title": "<title>", "formulation": "<formulation>", "dosage": "<dosage>", "timing": "<timing>" },
+    "wot": { "title": "<title>", "formulation": "<formulation>", "dosage": "<dosage>", "timing": "<timing>" },
+    "ti": { "title": "<title>", "formulation": "<formulation>", "dosage": "<dosage>", "timing": "<timing>" }
   },
   "accreditedResearchCenter": "<Ethiopian Research Center, e.g. Jimma, Areka, Hawassa, or Kulumsa>"
 }
@@ -373,7 +539,6 @@ Do NOT include markdown formatting or backticks, just raw JSON.
       const parsed = JSON.parse(cleanJson);
       return parsed;
     } catch (err) {
-      // If 404 on this model name, try the next candidate model
       if (err.message && (err.message.includes('404') || err.message.includes('not found'))) {
         continue;
       }
@@ -443,7 +608,7 @@ exports.diagnoseCropDisease = async (req, res) => {
           isCloudAi: true,
           ...cloudResult,
           smsPrescriptionTemplate: cloudResult.isAgroProduct
-            ? `[AgroConnect AI] Diagnosis: ${cloudResult.diseaseAm} (${cloudResult.diseaseName}). Severity: ${(cloudResult.severity || 'HIGH').toUpperCase()}. Treatment: ${cloudResult.organicProtocol?.steps?.[0] || 'Prune infected foliage'}. Dosage: ${cloudResult.chemicalProtocol?.formulation || 'Standard formulation'}. Info: *8028#`
+            ? `[AgroConnect AI] Diagnosis: ${cloudResult.diseaseName?.am || cloudResult.diseaseName?.en || 'Crop Disease'}. Severity: ${(cloudResult.severity || 'HIGH').toUpperCase()}. Info: *8028#`
             : undefined,
         });
       }
@@ -466,6 +631,9 @@ exports.diagnoseCropDisease = async (req, res) => {
         timestamp: new Date().toISOString(),
         message: "This isn't an agro product.",
         messageAm: 'ይህ የግብርና ምርት ወይም የሰብል ቅጠል አይደለም።',
+        messageOm: 'Kun oomisha qonnaa yookiin baala midhaanii miti.',
+        messageWot: 'Hagee goshshaa aayfe gidenna.',
+        messageTi: 'እዚ ናይ ሕርሻ ፍርያት ወይ ቆጽሊ ኣይኮነን።',
         reason: 'The scanned image or symptom description does not contain recognized botanical foliage, agricultural crop tissue, or plant pathology markers.',
         guidance: 'Please scan or upload clear photos of crop leaves, grains, pseudostems, roots, or fruits (e.g., Coffee, Maize, Enset, Teff, Wheat, Ginger, or Avocado).',
         detectedCategory: 'Non-Agricultural Synthetic / Physical Object',
@@ -483,7 +651,7 @@ exports.diagnoseCropDisease = async (req, res) => {
     if (!matchedEntry && cropType && cropType !== 'All' && cropType !== 'Auto') {
       matchedEntry = ETHIOPIAN_DISEASE_KNOWLEDGE_BASE.find(
         (e) => e.crop.toLowerCase() === cropType.toLowerCase() ||
-               e.cropAm === cropType ||
+               e.cropTranslations?.am === cropType ||
                e.aliases.some((a) => a.toLowerCase() === cropType.toLowerCase())
       );
     }
@@ -526,6 +694,9 @@ exports.diagnoseCropDisease = async (req, res) => {
         timestamp: new Date().toISOString(),
         message: "This isn't an agro product.",
         messageAm: 'ይህ የግብርና ምርት ወይም የሰብል ቅጠል አይደለም።',
+        messageOm: 'Kun oomisha qonnaa yookiin baala midhaanii miti.',
+        messageWot: 'Hagee goshshaa aayfe gidenna.',
+        messageTi: 'እዚ ናይ ሕርሻ ፍርያት ወይ ቆጽሊ ኣይኮነን።',
         reason: `No recognizable agricultural crop or pathology markers detected for "${symptomsText}".`,
         guidance: 'Please choose your crop type or describe specific plant symptoms (such as Coffee, Maize, Enset, Wheat, Ginger, or Avocado).',
         detectedCategory: 'Unrecognized / Non-Agricultural Input',
@@ -535,7 +706,7 @@ exports.diagnoseCropDisease = async (req, res) => {
     // 8. If user selected a crop but no symptoms, default to the top primary disease of THAT specific crop
     if (!matchedEntry && cropType && cropType !== 'All') {
       matchedEntry = ETHIOPIAN_DISEASE_KNOWLEDGE_BASE.find(
-        (e) => e.crop.toLowerCase() === cropType.toLowerCase() || e.cropAm === cropType
+        (e) => e.crop.toLowerCase() === cropType.toLowerCase() || e.cropTranslations?.am === cropType
       );
     }
 
@@ -557,11 +728,8 @@ exports.diagnoseCropDisease = async (req, res) => {
       diagnosisId,
       timestamp: new Date().toISOString(),
       crop: matchedEntry.crop,
-      cropAm: matchedEntry.cropAm,
+      cropTranslations: matchedEntry.cropTranslations,
       diseaseName: matchedEntry.diseaseName,
-      diseaseAm: matchedEntry.diseaseAm,
-      diseaseOr: matchedEntry.diseaseOr,
-      diseaseWl: matchedEntry.diseaseWl,
       pathogenType: matchedEntry.pathogen,
       severity: matchedEntry.severity,
       confidenceScore: `${confidence}%`,
@@ -570,7 +738,7 @@ exports.diagnoseCropDisease = async (req, res) => {
       organicProtocol: matchedEntry.organicRemedy,
       chemicalProtocol: matchedEntry.chemicalTreatment,
       accreditedResearchCenter: matchedEntry.researchCenter,
-      smsPrescriptionTemplate: `[AgroConnect AI] Diagnosis: ${matchedEntry.diseaseAm} (${matchedEntry.diseaseName}). Severity: ${matchedEntry.severity.toUpperCase()}. Treatment: ${matchedEntry.organicRemedy.steps[0]} Dosage: ${matchedEntry.chemicalTreatment.formulation} @ ${matchedEntry.chemicalTreatment.dosage}. Info: *8028#`,
+      smsPrescriptionTemplate: `[AgroConnect AI] Diagnosis: ${matchedEntry.diseaseName?.am || matchedEntry.diseaseName?.en}. Severity: ${matchedEntry.severity.toUpperCase()}. Info: *8028#`,
     };
 
     return res.status(200).json(responseData);
