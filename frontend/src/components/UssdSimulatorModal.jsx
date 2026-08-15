@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const USSD_MENUS = {
   main: {
@@ -135,18 +135,24 @@ export default function UssdSimulatorModal({ isOpen, onClose }) {
   const [dialInput, setDialInput] = useState('*8028#');
   const [isSessionActive, setIsSessionActive] = useState(false);
 
+  // ESC key to close modal
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && isOpen) {
+        handleCloseModal();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const currentMenu = USSD_MENUS[currentMenuKey] || USSD_MENUS.main;
 
   const handleDial = () => {
-    if (dialInput.trim() === '*8028#' || dialInput.trim() === '*994#') {
-      setIsSessionActive(true);
-      setCurrentMenuKey('main');
-    } else {
-      setIsSessionActive(true);
-      setCurrentMenuKey('main');
-    }
+    setIsSessionActive(true);
+    setCurrentMenuKey('main');
   };
 
   const handleOptionSelect = (nextKey) => {
@@ -165,14 +171,21 @@ export default function UssdSimulatorModal({ isOpen, onClose }) {
     }
   };
 
-  const handleReset = () => {
+  const handleResetSession = () => {
     setIsSessionActive(false);
     setCurrentMenuKey('main');
     setDialInput('*8028#');
   };
 
+  const handleCloseModal = () => {
+    handleResetSession();
+    if (onClose) {
+      onClose();
+    }
+  };
+
   return (
-    <div className="modal-backdrop" onClick={onClose}>
+    <div className="modal-backdrop" onClick={handleCloseModal}>
       <div className="modal-card ussd-simulator-modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <div>
@@ -182,7 +195,7 @@ export default function UssdSimulatorModal({ isOpen, onClose }) {
               How rural Ethiopian smallholders trade, check farmgate prices, and book trucks without internet.
             </p>
           </div>
-          <button className="modal-close-btn" onClick={onClose}>✕</button>
+          <button className="modal-close-btn" onClick={handleCloseModal} title="Close Simulator">✕</button>
         </div>
 
         <div className="ussd-sim-container">
@@ -230,6 +243,24 @@ export default function UssdSimulatorModal({ isOpen, onClose }) {
               )}
             </div>
 
+            {/* Phone Call / End Quick Action Bar */}
+            <div className="phone-action-row">
+              <button
+                className="phone-green-call-btn"
+                onClick={handleDial}
+                title="Call / Dial"
+              >
+                📞 Call
+              </button>
+              <button
+                className="phone-red-end-btn"
+                onClick={handleCloseModal}
+                title="End Session & Close"
+              >
+                🔴 End / Close
+              </button>
+            </div>
+
             {/* Phone Keypad */}
             <div className="phone-keypad-grid">
               {['1', '2', '3', '4', '5', '6', '7', '8', '9', '*', '0', '#'].map((key) => (
@@ -245,8 +276,11 @@ export default function UssdSimulatorModal({ isOpen, onClose }) {
 
             {/* Bottom Controls */}
             <div className="phone-bottom-actions">
-              <button className="phone-reset-btn" onClick={handleReset}>
-                🔄 End Session / Reset
+              <button className="phone-reset-btn" onClick={handleResetSession}>
+                🔄 Restart USSD Session
+              </button>
+              <button className="phone-exit-btn" onClick={handleCloseModal}>
+                ✕ Close Simulator
               </button>
             </div>
           </div>
@@ -299,6 +333,10 @@ export default function UssdSimulatorModal({ isOpen, onClose }) {
                 3. Test Telebirr Escrow Release
               </button>
             </div>
+
+            <button className="btn btn-primary" style={{ marginTop: 'auto' }} onClick={handleCloseModal}>
+              ✕ Close USSD Simulator
+            </button>
           </div>
         </div>
       </div>
