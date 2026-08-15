@@ -3,10 +3,13 @@ import { AuthProvider } from './context/AuthContext';
 import { SocketProvider } from './context/SocketContext';
 import { LanguageProvider } from './context/LanguageContext';
 import { ThemeProvider } from './context/ThemeContext';
+import { CurrencyUnitProvider } from './context/CurrencyUnitContext';
 import PrivateRoute from './components/PrivateRoute';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import VantaDotsCanvas from './components/VantaDotsCanvas';
+import FloatingActionMenu from './components/FloatingActionMenu';
+
 
 
 import Home from './pages/Home';
@@ -28,96 +31,95 @@ import CropAdvisory from './pages/CropAdvisory';
 export default function App() {
   return (
     <ThemeProvider>
-      <LanguageProvider>
-        <AuthProvider>
-          <SocketProvider>
-            <VantaDotsCanvas />
-            <Navbar />
-            <main className="main-content">
+      <CurrencyUnitProvider>
+        <LanguageProvider>
+          <AuthProvider>
+            <SocketProvider>
+              <VantaDotsCanvas />
+              <Navbar />
+              <main className="main-content">
+                <Routes>
+                  {/* Public Routes */}
+                  <Route path="/" element={<Home />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/register" element={<Register />} />
+                  <Route path="/products" element={<Products />} />
+                  <Route path="/products/:id" element={<ProductDetails />} />
+                  <Route path="/market-prices" element={<MarketPrices />} />
+                  <Route path="/freight" element={<FreightSharing />} />
+                  <Route path="/advisory" element={<CropAdvisory />} />
 
+                  {/* Private: Any Authenticated User */}
+                  <Route
+                    path="/orders"
+                    element={
+                      <PrivateRoute>
+                        <MyOrders />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/messages"
+                    element={
+                      <PrivateRoute>
+                        <Messages />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/messages/:id"
+                    element={
+                      <PrivateRoute>
+                        <Messages />
+                      </PrivateRoute>
+                    }
+                  />
 
-            <Routes>
-              {/* Public Routes */}
-              <Route path="/" element={<Home />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/products" element={<Products />} />
-              <Route path="/products/:id" element={<ProductDetails />} />
-              <Route path="/market-prices" element={<MarketPrices />} />
-              <Route path="/freight" element={<FreightSharing />} />
-              <Route path="/advisory" element={<CropAdvisory />} />
+                  {/* Farmers & Cooperatives */}
+                  <Route
+                    path="/farmer/dashboard"
+                    element={
+                      <PrivateRoute roles={['farmer', 'cooperative']}>
+                        <FarmerDashboard />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/farmer/add-product"
+                    element={
+                      <PrivateRoute roles={['farmer', 'cooperative']}>
+                        <AddProduct />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/farmer/edit-product/:id"
+                    element={
+                      <PrivateRoute roles={['farmer', 'cooperative']}>
+                        <EditProduct />
+                      </PrivateRoute>
+                    }
+                  />
 
-              {/* Logged-in buyer or farmer */}
-              <Route
-                path="/orders"
-                element={
-                  <PrivateRoute roles={['buyer', 'farmer', 'cooperative', 'transporter']}>
-                    <MyOrders />
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/messages"
-                element={
-                  <PrivateRoute roles={['buyer', 'farmer', 'cooperative', 'transporter']}>
-                    <Messages />
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/messages/:conversationId"
-                element={
-                  <PrivateRoute roles={['buyer', 'farmer', 'cooperative', 'transporter']}>
-                    <Messages />
-                  </PrivateRoute>
-                }
-              />
+                  {/* Admin only */}
+                  <Route
+                    path="/admin/dashboard"
+                    element={
+                      <PrivateRoute roles={['admin']}>
+                        <AdminDashboard />
+                      </PrivateRoute>
+                    }
+                  />
 
-              {/* Farmer & Cooperative only */}
-              <Route
-                path="/farmer/dashboard"
-                element={
-                  <PrivateRoute roles={['farmer', 'cooperative']}>
-                    <FarmerDashboard />
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/farmer/products/add"
-                element={
-                  <PrivateRoute roles={['farmer', 'cooperative']}>
-                    <AddProduct />
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/farmer/products/:id/edit"
-                element={
-                  <PrivateRoute roles={['farmer', 'cooperative']}>
-                    <EditProduct />
-                  </PrivateRoute>
-                }
-              />
-
-              {/* Admin only */}
-              <Route
-                path="/admin/dashboard"
-                element={
-                  <PrivateRoute roles={['admin']}>
-                    <AdminDashboard />
-                  </PrivateRoute>
-                }
-              />
-
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </main>
-          <Footer />
-        </SocketProvider>
-      </AuthProvider>
-    </LanguageProvider>
-  </ThemeProvider>
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </main>
+              <Footer />
+              <FloatingActionMenu />
+            </SocketProvider>
+          </AuthProvider>
+        </LanguageProvider>
+      </CurrencyUnitProvider>
+    </ThemeProvider>
   );
 }
-
-
