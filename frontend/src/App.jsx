@@ -5,6 +5,7 @@ import { LanguageProvider } from './context/LanguageContext';
 import PrivateRoute from './components/PrivateRoute';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import VantaDotsCanvas from './components/VantaDotsCanvas';
 
 import Home from './pages/Home';
 import Login from './pages/Login';
@@ -27,8 +28,10 @@ export default function App() {
     <LanguageProvider>
       <AuthProvider>
         <SocketProvider>
+          <VantaDotsCanvas />
           <Navbar />
           <main className="main-content">
+
             <Routes>
               {/* Public Routes */}
               <Route path="/" element={<Home />} />

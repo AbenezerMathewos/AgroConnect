@@ -118,13 +118,22 @@ export default function Home() {
     <div className="home-page">
       {/* Floating Animated Particle Canopy in Hero */}
       <section className="hero-premium">
+        {/* Floating, Raining & Fading Agricultural Canopy */}
         <div className="hero-particles">
-          <span className="particle particle-1">🌱</span>
-          <span className="particle particle-2">✨</span>
-          <span className="particle particle-3">🌾</span>
-          <span className="particle particle-4">💫</span>
-          <span className="particle particle-5">☕</span>
+          <span className="particle particle-1" title="Fresh Sprout">🌱</span>
+          <span className="particle particle-2" title="Golden Teff">🌾</span>
+          <span className="particle particle-3" title="Arabica Coffee">☕</span>
+          <span className="particle particle-4" title="Hass Avocado">🥑</span>
+          <span className="particle particle-5" title="Sweet Maize">🌽</span>
+          <span className="particle particle-6" title="Organic Honey">🍯</span>
+          <span className="particle particle-7" title="Agronomic Leaf">🌿</span>
+          <span className="particle particle-8" title="Ginger / Root">🍠</span>
+          <span className="particle particle-9" title="Red Bean">🫘</span>
+          <span className="particle particle-10" title="Enset Leaf">🍃</span>
+          <span className="particle particle-11" title="Market Light">✨</span>
+          <span className="particle particle-12" title="Sun Ray">💫</span>
         </div>
+
 
         <div className="hero-grid">
           <div className="hero-content">
