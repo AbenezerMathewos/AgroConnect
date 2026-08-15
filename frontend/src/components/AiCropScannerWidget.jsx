@@ -3,14 +3,29 @@ import { advisoryService } from '../services/advisoryService';
 
 const SAMPLE_DISEASES = [
   { id: 'coffee_cbd', label: '☕ Coffee Berry Disease', crop: 'Coffee', icon: '☕', desc: 'Dark sunken spots on green coffee berries' },
-  { id: 'enset_bacterial_wilt', label: '🍌 Enset Bacterial Wilt', crop: 'Enset', icon: '🍌', desc: 'Yellowing wilting leaves & bacterial ooze' },
+  { id: 'coffee_rust', label: '🌿 Coffee Leaf Rust', crop: 'Coffee', icon: '🌿', desc: 'Yellow-orange powdery spots on leaves' },
+  { id: 'enset_bacterial_wilt', label: '🍌 Enset Bacterial Wilt', crop: 'Enset', icon: '🍌', desc: 'Yellowing leaves & bacterial ooze' },
   { id: 'maize_fall_armyworm', label: '🌽 Maize Fall Armyworm', crop: 'Maize', icon: '🌽', desc: 'Chewed leaf whorl with sawdust frass' },
   { id: 'wheat_stem_rust', label: '🌾 Wheat Stem Rust (Ug99)', crop: 'Wheat', icon: '🌾', desc: 'Red-brown spore pustules on stems' },
+  { id: 'teff_head_smut', label: '🌾 Teff Head Smut', crop: 'Teff', icon: '🌾', desc: 'Black sooty grain florets destroying panicle' },
   { id: 'ginger_bacterial_wilt', label: '🫚 Ginger Bacterial Wilt', crop: 'Ginger', icon: '🫚', desc: 'Yellowing foliage & rotting rhizome' },
+  { id: 'avocado_root_rot', label: '🥑 Avocado Root Rot', crop: 'Avocado', icon: '🥑', desc: 'Pale wilted leaves & black brittle roots' },
   { id: 'non_agro', label: '🚗 Test Non-Agro Item (Car / Shoe / Phone)', crop: 'Non-Agro', icon: '🚗', desc: 'Test system rejection for non-crop objects' },
 ];
 
+const CROP_OPTIONS = [
+  { value: 'Auto', label: '🔍 Auto-Detect Crop from Image / Text' },
+  { value: 'Coffee', label: '☕ Coffee (ቡና)' },
+  { value: 'Enset', label: '🍌 Enset / Kocho (እንሰት / ቆጮ)' },
+  { value: 'Maize', label: '🌽 Maize (በቆሎ)' },
+  { value: 'Wheat', label: '🌾 Wheat (ስንዴ)' },
+  { value: 'Teff', label: '🌾 Teff (ጤፍ)' },
+  { value: 'Ginger', label: '🫚 Ginger (ዝንጅብል)' },
+  { value: 'Avocado', label: '🥑 Avocado (አቮካዶ)' },
+];
+
 export default function AiCropScannerWidget() {
+  const [selectedCrop, setSelectedCrop] = useState('Auto');
   const [selectedSample, setSelectedSample] = useState('coffee_cbd');
   const [customSymptom, setCustomSymptom] = useState('');
   const [uploadedImagePreview, setUploadedImagePreview] = useState(null);
@@ -30,12 +45,12 @@ export default function AiCropScannerWidget() {
     reader.onload = (event) => {
       setUploadedImagePreview(event.target.result);
       // Auto-run diagnosis on uploaded file
-      runDiagnosis(null, customSymptom, file.name);
+      runDiagnosis(undefined, customSymptom, file.name, selectedCrop);
     };
     reader.readAsDataURL(file);
   };
 
-  const runDiagnosis = async (sampleId, customText, fileName) => {
+  const runDiagnosis = async (sampleId, customText, fileName, cropChoice) => {
     setScanning(true);
     setError('');
     setDiagnosis(null);
@@ -43,10 +58,12 @@ export default function AiCropScannerWidget() {
 
     try {
       // Simulate visual scan radar delay
-      await new Promise((resolve) => setTimeout(resolve, 1100));
+      await new Promise((resolve) => setTimeout(resolve, 900));
 
+      const activeCrop = cropChoice || selectedCrop;
       const payload = {
-        sampleId: sampleId !== undefined ? sampleId : selectedSample,
+        sampleId: sampleId !== undefined ? sampleId : (activeCrop === 'Auto' ? undefined : undefined),
+        cropType: activeCrop !== 'Auto' ? activeCrop : undefined,
         symptomsText: customText !== undefined ? customText : customSymptom,
         fileName: fileName || uploadedFileName,
       };
@@ -80,15 +97,37 @@ export default function AiCropScannerWidget() {
           <span className="live-session-dot"></span>
           <strong>AI PLANT PATHOLOGY & LEAF SCANNER</strong>
         </div>
-        <h3>Instant Crop Disease Diagnosis & Validation Engine</h3>
+        <h3>Multi-Crop Disease Diagnostics & Validation Engine</h3>
         <p>
-          Upload any plant leaf photo from your computer, choose a field sample preset, or describe visual symptoms to run the national pathology model.
+          Diagnoses real diseases across <strong>Coffee, Enset, Maize, Wheat, Teff, Ginger & Avocado</strong> with instant organic & MoA chemical solutions.
         </p>
       </div>
 
       <div className="scanner-body-grid">
         {/* Left: Input & Leaf Preset Picker */}
         <div className="scanner-input-panel">
+          {/* Crop Selector Dropdown */}
+          <div className="crop-selector-control">
+            <label className="scanner-panel-label">🌱 Select Target Crop Category:</label>
+            <select
+              className="scanner-crop-select"
+              value={selectedCrop}
+              onChange={(e) => {
+                const newCrop = e.target.value;
+                setSelectedCrop(newCrop);
+                if (newCrop !== 'Auto') {
+                  runDiagnosis(undefined, customSymptom, uploadedFileName, newCrop);
+                }
+              }}
+            >
+              {CROP_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
           {/* File Upload Dropzone */}
           <div className="scanner-upload-box" onClick={() => fileInputRef.current?.click()}>
             <input
@@ -101,18 +140,18 @@ export default function AiCropScannerWidget() {
             {uploadedImagePreview ? (
               <div className="uploaded-preview-container">
                 <img src={uploadedImagePreview} alt="Scanned plant preview" className="uploaded-preview-img" />
-                <div className="uploaded-file-tag">📁 {uploadedFileName} (Click to change)</div>
+                <div className="uploaded-file-tag">📁 {uploadedFileName} (Click to change photo)</div>
               </div>
             ) : (
               <div className="upload-placeholder-cta">
                 <span className="upload-camera-icon">📷</span>
                 <strong>Upload Photo from PC / Storage</strong>
-                <small>Supports JPG, PNG, WEBP &bull; Drag and drop</small>
+                <small>Supports JPG, PNG, WEBP &bull; Click to browse files</small>
               </div>
             )}
           </div>
 
-          <label className="scanner-panel-label" style={{ marginTop: '1rem' }}>1. Or Choose Quick Field Presets:</label>
+          <label className="scanner-panel-label" style={{ marginTop: '0.85rem' }}>1. Or Choose Quick Field Disease Presets:</label>
           <div className="sample-preset-grid">
             {SAMPLE_DISEASES.map((sample) => (
               <button
@@ -121,9 +160,10 @@ export default function AiCropScannerWidget() {
                 className={`sample-preset-card ${selectedSample === sample.id ? 'active' : ''} ${sample.id === 'non_agro' ? 'non-agro-card' : ''}`}
                 onClick={() => {
                   setSelectedSample(sample.id);
+                  setSelectedCrop(sample.crop === 'Non-Agro' ? 'Auto' : sample.crop);
                   setUploadedImagePreview(null);
                   setUploadedFileName('');
-                  runDiagnosis(sample.id, '', '');
+                  runDiagnosis(sample.id, '', '', sample.crop);
                 }}
               >
                 <span className="sample-icon">{sample.icon}</span>
@@ -136,23 +176,23 @@ export default function AiCropScannerWidget() {
           </div>
 
           <div className="custom-symptom-box">
-            <label className="scanner-panel-label">2. Or Describe Visual Symptoms in Words:</label>
+            <label className="scanner-panel-label">2. Or Describe Visual Observations:</label>
             <div className="symptom-input-row">
               <input
                 type="text"
-                placeholder="e.g. Yellow sticky liquid from enset, car, shoes, black spots..."
+                placeholder="e.g. Enset yellow liquid, Maize holes in whorl, Wheat red pustules, shoes..."
                 value={customSymptom}
                 onChange={(e) => setCustomSymptom(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
                     e.preventDefault();
-                    runDiagnosis(null, customSymptom, '');
+                    runDiagnosis(undefined, customSymptom, uploadedFileName, selectedCrop);
                   }
                 }}
               />
               <button
                 className="btn btn-primary"
-                onClick={() => runDiagnosis(null, customSymptom, '')}
+                onClick={() => runDiagnosis(undefined, customSymptom, uploadedFileName, selectedCrop)}
                 disabled={scanning}
               >
                 {scanning ? 'Scanning...' : 'Scan 🔍'}
@@ -181,7 +221,7 @@ export default function AiCropScannerWidget() {
             <div className="scanner-error-card">
               <span>⚠️</span>
               <p>{error}</p>
-              <button className="btn btn-secondary btn-sm" onClick={() => runDiagnosis('coffee_cbd', '', '')}>
+              <button className="btn btn-secondary btn-sm" onClick={() => runDiagnosis('coffee_cbd', '', '', 'Coffee')}>
                 Retry Diagnostic Scan
               </button>
             </div>
@@ -213,11 +253,12 @@ export default function AiCropScannerWidget() {
                     <button
                       className="btn btn-primary btn-sm"
                       onClick={() => {
-                        setSelectedSample('coffee_cbd');
-                        runDiagnosis('coffee_cbd', '', '');
+                        setSelectedSample('maize_fall_armyworm');
+                        setSelectedCrop('Maize');
+                        runDiagnosis('maize_fall_armyworm', '', '', 'Maize');
                       }}
                     >
-                      🌱 Scan Real Crop (e.g. Coffee / Maize)
+                      🌽 Scan Real Crop (e.g. Maize / Enset / Coffee)
                     </button>
                   </div>
                 </div>
@@ -285,10 +326,10 @@ export default function AiCropScannerWidget() {
               </div>
             )
           ) : (
-            <div className="scanner-idle-placeholder" onClick={() => runDiagnosis('coffee_cbd', '', '')}>
+            <div className="scanner-idle-placeholder" onClick={() => runDiagnosis('coffee_cbd', '', '', 'Coffee')}>
               <span className="placeholder-leaf-icon">🔬</span>
-              <strong>Click any crop preset or upload an image to run AI Diagnosis</strong>
-              <p>Detects Coffee Berry Disease, Enset Wilt, Maize Armyworm, Wheat Rust & Ginger Rot in seconds.</p>
+              <strong>Select a crop or click any preset to run AI Diagnosis</strong>
+              <p>Detects diseases across Coffee, Enset, Maize, Wheat, Teff, Ginger & Avocado.</p>
             </div>
           )}
         </div>
