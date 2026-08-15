@@ -21,7 +21,8 @@ const app = express();
 
 // Middleware
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // Serve uploaded product photos statically, e.g. GET /uploads/169999-abc.jpg
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
