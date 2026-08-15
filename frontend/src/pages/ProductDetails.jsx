@@ -7,6 +7,7 @@ import { useLanguage } from '../context/LanguageContext';
 import OrderPanel from '../components/OrderPanel';
 import ReviewList from '../components/ReviewList';
 import EscrowTrustTimeline from '../components/EscrowTrustTimeline';
+import ProformaInvoiceModal from '../components/ProformaInvoiceModal';
 import { resolveImageUrl } from '../utils/imageUrl';
 
 
@@ -20,6 +21,7 @@ export default function ProductDetails() {
   const [loading, setLoading] = useState(true);
   const [messaging, setMessaging] = useState(false);
   const [chatError, setChatError] = useState('');
+  const [invoiceOpen, setInvoiceOpen] = useState(false);
 
   const messageSeller = async () => {
     if (!user) return navigate('/login');
