@@ -9,6 +9,7 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import VantaDotsCanvas from './components/VantaDotsCanvas';
 import FloatingActionMenu from './components/FloatingActionMenu';
+import LiveTradeToast from './components/LiveTradeToast';
 
 
 
@@ -115,6 +116,7 @@ export default function App() {
                 </Routes>
               </main>
               <Footer />
+              <LiveTradeToast />
               <FloatingActionMenu />
             </SocketProvider>
           </AuthProvider>
