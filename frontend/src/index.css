@@ -6673,5 +6673,466 @@ p {
   }
 }
 
+/* ==========================================================================
+   AI Plant Pathology & Leaf Scanner Widget
+   ========================================================================== */
+
+.ai-scanner-widget {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1.5px solid rgba(52, 211, 153, 0.45);
+  border-radius: var(--radius-xl);
+  padding: 1.75rem 2rem;
+  margin-bottom: 2.5rem;
+  box-shadow: 0 16px 40px -8px rgba(6, 78, 59, 0.12), 0 0 25px rgba(16, 185, 129, 0.15);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+[data-theme="dark"] .ai-scanner-widget {
+  background: rgba(15, 23, 42, 0.92) !important;
+  border-color: rgba(52, 211, 153, 0.35) !important;
+}
+
+.ai-scanner-header {
+  margin-bottom: 1.5rem;
+}
+
+.scanner-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(52, 211, 153, 0.5);
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #059669;
+  margin-bottom: 0.5rem;
+}
+
+[data-theme="dark"] .scanner-badge-pill {
+  color: #34d399 !important;
+}
+
+.ai-scanner-header h3 {
+  font-size: 1.45rem;
+  font-weight: 800;
+  margin-bottom: 0.35rem;
+}
+
+.ai-scanner-header p {
+  color: var(--slate-600);
+  font-size: 0.88rem;
+  margin: 0;
+}
+
+[data-theme="dark"] .ai-scanner-header p {
+  color: #cbd5e1 !important;
+}
+
+.scanner-body-grid {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 1.75rem;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .scanner-body-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.scanner-panel-label {
+  display: block;
+  font-size: 0.76rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--slate-500);
+  margin-bottom: 0.6rem;
+}
+
+.sample-preset-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  margin-bottom: 1.25rem;
+}
+
+.sample-preset-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: var(--slate-50);
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-md);
+  padding: 0.65rem 0.85rem;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s var(--ease-spring);
+}
+
+[data-theme="dark"] .sample-preset-card {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+.sample-preset-card:hover {
+  border-color: var(--forest-400);
+  transform: translateX(4px);
+}
+
+.sample-preset-card.active {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(6, 78, 59, 0.2) 100%) !important;
+  border-color: #10b981 !important;
+  box-shadow: 0 0 14px rgba(16, 185, 129, 0.25);
+}
+
+.sample-icon {
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+
+.sample-preset-card strong {
+  display: block;
+  font-size: 0.84rem;
+  color: var(--slate-900);
+}
+
+[data-theme="dark"] .sample-preset-card strong {
+  color: #f8fafc !important;
+}
+
+.sample-preset-card small {
+  font-size: 0.72rem;
+  color: var(--slate-500);
+}
+
+[data-theme="dark"] .sample-preset-card small {
+  color: #94a3b8 !important;
+}
+
+.symptom-input-row {
+  display: flex;
+  gap: 0.45rem;
+}
+
+.symptom-input-row input {
+  flex: 1;
+  padding: 0.5rem 0.8rem;
+  border: 1px solid var(--slate-300);
+  border-radius: var(--radius-sm);
+  font-size: 0.82rem;
+}
+
+/* Scanner Output Visualizer */
+.scanner-output-panel {
+  background: var(--slate-50);
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  min-height: 380px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+[data-theme="dark"] .scanner-output-panel {
+  background: #111827 !important;
+  border-color: #334155 !important;
+}
+
+/* Active Scanner Radar Animation */
+.scanner-active-animation {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 1rem;
+  padding: 2rem 0;
+}
+
+.scanner-radar-frame {
+  position: relative;
+  width: 130px;
+  height: 130px;
+  border: 2px dashed #10b981;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.15), transparent 70%);
+  overflow: hidden;
+  animation: pulseDot 2s infinite;
+}
+
+.scanner-laser-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #10b981, #34d399, transparent);
+  box-shadow: 0 0 10px #10b981;
+  animation: scanSweep 1.8s ease-in-out infinite alternate;
+}
+
+@keyframes scanSweep {
+  0% { top: 5%; opacity: 0.4; }
+  100% { top: 95%; opacity: 1; }
+}
+
+.scanning-icon {
+  font-size: 3rem;
+}
+
+.scanning-text {
+  font-size: 0.95rem;
+  color: var(--forest-800);
+}
+
+[data-theme="dark"] .scanning-text {
+  color: #34d399 !important;
+}
+
+/* Idle State */
+.scanner-idle-placeholder {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 2.5rem 1rem;
+  gap: 0.5rem;
+}
+
+.placeholder-leaf-icon {
+  font-size: 3.2rem;
+  margin-bottom: 0.4rem;
+  transition: transform 0.3s ease;
+}
+
+.scanner-idle-placeholder:hover .placeholder-leaf-icon {
+  transform: scale(1.15) rotate(8deg);
+}
+
+.scanner-idle-placeholder strong {
+  font-size: 1.05rem;
+  color: var(--slate-800);
+}
+
+[data-theme="dark"] .scanner-idle-placeholder strong {
+  color: #f8fafc !important;
+}
+
+.scanner-idle-placeholder p {
+  font-size: 0.84rem;
+  color: var(--slate-500);
+  max-width: 420px;
+  margin: 0;
+}
+
+/* Diagnosis Result Card */
+.diagnosis-result-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+}
+
+.diagnosis-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.diagnosis-card-top h2 {
+  font-size: 1.25rem;
+  font-weight: 900;
+  margin: 0.2rem 0;
+  color: var(--slate-900);
+}
+
+[data-theme="dark"] .diagnosis-card-top h2 {
+  color: #ffffff !important;
+}
+
+.diagnosis-multilingual-names {
+  display: flex;
+  gap: 0.45rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--amber-600);
+  flex-wrap: wrap;
+}
+
+.diagnosis-confidence-box {
+  background: rgba(16, 185, 129, 0.12);
+  border: 1.5px solid #10b981;
+  border-radius: var(--radius-md);
+  padding: 0.5rem 0.85rem;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.confidence-num {
+  font-size: 1.2rem;
+  font-weight: 900;
+  color: #059669;
+  display: block;
+}
+
+[data-theme="dark"] .confidence-num {
+  color: #34d399 !important;
+}
+
+.diagnosis-confidence-box small {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--slate-500);
+}
+
+.diagnosis-symptom-callout {
+  background: rgba(254, 243, 199, 0.5);
+  border-left: 4px solid #f59e0b;
+  border-radius: 4px;
+  padding: 0.75rem 1rem;
+  font-size: 0.82rem;
+}
+
+[data-theme="dark"] .diagnosis-symptom-callout {
+  background: rgba(120, 53, 15, 0.25) !important;
+  border-left-color: #f59e0b !important;
+}
+
+.diagnosis-symptom-callout strong {
+  color: #78350f;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+[data-theme="dark"] .diagnosis-symptom-callout strong {
+  color: #fde68a !important;
+}
+
+.diagnosis-symptom-callout p {
+  margin: 0.2rem 0;
+  color: var(--slate-700);
+}
+
+[data-theme="dark"] .diagnosis-symptom-callout p {
+  color: #e2e8f0 !important;
+}
+
+.diagnosis-protocols-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+@media (max-width: 680px) {
+  .diagnosis-protocols-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.protocol-box {
+  border-radius: var(--radius-md);
+  padding: 0.95rem 1.15rem;
+  font-size: 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.organic-protocol {
+  background: linear-gradient(135deg, rgba(236, 253, 245, 0.9) 0%, rgba(240, 253, 244, 0.95) 100%);
+  border: 1px solid rgba(52, 211, 153, 0.4);
+}
+
+[data-theme="dark"] .organic-protocol {
+  background: rgba(6, 78, 59, 0.3) !important;
+  border-color: rgba(52, 211, 153, 0.3) !important;
+}
+
+.organic-protocol h4 {
+  color: #064e3b;
+  font-size: 0.84rem;
+  margin: 0;
+}
+
+[data-theme="dark"] .organic-protocol h4 {
+  color: #34d399 !important;
+}
+
+.organic-protocol ul {
+  padding-left: 1.1rem;
+  margin: 0.2rem 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  line-height: 1.35;
+}
+
+.chemical-protocol {
+  background: linear-gradient(135deg, rgba(240, 249, 255, 0.9) 0%, rgba(224, 242, 254, 0.95) 100%);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+}
+
+[data-theme="dark"] .chemical-protocol {
+  background: rgba(14, 116, 144, 0.25) !important;
+  border-color: rgba(56, 189, 248, 0.3) !important;
+}
+
+.chemical-protocol h4 {
+  color: #0369a1;
+  font-size: 0.84rem;
+  margin: 0;
+}
+
+[data-theme="dark"] .chemical-protocol h4 {
+  color: #38bdf8 !important;
+}
+
+.chem-row {
+  display: flex;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+}
+
+.diagnosis-card-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--slate-200);
+  flex-wrap: wrap;
+}
+
+[data-theme="dark"] .diagnosis-card-bottom {
+  border-top-color: #334155 !important;
+}
+
+.research-contact {
+  font-size: 0.78rem;
+  color: var(--slate-600);
+}
+
+[data-theme="dark"] .research-contact {
+  color: #94a3b8 !important;
+}
+
+.copy-sms-btn {
+  font-size: 0.78rem !important;
+  font-weight: 800 !important;
+}
+
+
 
 
