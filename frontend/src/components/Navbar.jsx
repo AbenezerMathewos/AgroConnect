@@ -6,6 +6,7 @@ import { useTheme } from '../context/ThemeContext';
 import { useCurrencyUnit } from '../context/CurrencyUnitContext';
 import NotificationBell from './NotificationBell';
 import UssdSimulatorModal from './UssdSimulatorModal';
+import AgroConnectLogo from './AgroConnectLogo';
 
 
 
@@ -58,13 +59,7 @@ export default function Navbar() {
       <nav className="navbar-container">
         {/* Brand Logo */}
         <Link to="/" className="nav-brand" onClick={() => setOpen(false)}>
-          <div className="brand-icon">
-            <span>🌱</span>
-          </div>
-          <div className="brand-text">
-            <span className="brand-title">{t('brandName')}</span>
-            <span className="brand-badge">ET</span>
-          </div>
+          <AgroConnectLogo size={32} />
         </Link>
 
         {/* Mobile Toggle */}
