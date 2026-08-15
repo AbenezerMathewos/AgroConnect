@@ -3,7 +3,9 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
+import { useCurrencyUnit } from '../context/CurrencyUnitContext';
 import NotificationBell from './NotificationBell';
+
 
 
 const ROLE_INFO = {
@@ -18,11 +20,13 @@ export default function Navbar() {
   const { user, logout } = useAuth();
   const { lang, setLang, t, languages } = useLanguage();
   const { theme, toggleTheme, isDark } = useTheme();
+  const { currency, toggleCurrency } = useCurrencyUnit();
   const navigate = useNavigate();
   const location = useLocation();
   const [open, setOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userMenuRef = useRef(null);
+
 
 
   const handleLogout = () => {
@@ -106,6 +110,15 @@ export default function Navbar() {
 
 
           <div className="nav-actions">
+            {/* Currency Switcher */}
+            <button
+              onClick={toggleCurrency}
+              className="nav-currency-btn"
+              title={`Active Currency: ${currency}. Click to switch to ${currency === 'ETB' ? 'USD ($)' : 'ETB (ብር)'}`}
+            >
+              <span>{currency === 'ETB' ? '🇪🇹 ETB' : '🇺🇸 USD'}</span>
+            </button>
+
             {/* Theme Toggler Button */}
             <button
               onClick={toggleTheme}
@@ -116,6 +129,7 @@ export default function Navbar() {
               <span className="theme-toggle-icon">{isDark ? '☀️' : '🌙'}</span>
               <span className="theme-toggle-label">{isDark ? 'Light' : 'Dark'}</span>
             </button>
+
 
             {/* Language Switcher */}
             <div className="nav-lang-picker">
