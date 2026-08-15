@@ -2109,42 +2109,71 @@ p {
   transition: transform 0.4s var(--ease-spring), box-shadow 0.4s ease;
 }
 
-/* 3D Perspective Mode */
-.container-3d-active {
-  perspective: 1200px;
-  overflow: visible;
+/* Google Earth 3D Embed */
+.google-earth-3d-wrapper {
+  position: relative;
+  width: 100%;
+  height: 420px;
+  min-height: 420px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid rgba(52, 211, 153, 0.35);
+  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.3);
+  background: #090d16;
 }
 
-.leaflet-map-canvas.mode-3d {
-  transform: rotateX(24deg) scale(1.02);
-  transform-origin: center 85%;
-  box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.55), 0 0 0 2px rgba(139, 92, 246, 0.6);
+.google-earth-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
 }
 
-.horizon-3d-glow {
+.earth-3d-floating-overlay {
   position: absolute;
-  top: 12px;
-  left: 12px;
+  bottom: 14px;
+  left: 14px;
+  right: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  background: rgba(15, 23, 42, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 0.65rem 1rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(255, 255, 255, 0.18);
   z-index: 10;
-  pointer-events: none;
-  animation: fadeInDown 0.35s ease;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  flex-wrap: wrap;
 }
 
-.altitude-chip {
-  background: rgba(139, 92, 246, 0.9);
-  backdrop-filter: blur(8px);
+.earth-3d-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.earth-3d-badge {
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #38bdf8;
+}
+
+.earth-3d-info strong {
   color: #ffffff;
-  font-size: 0.72rem;
-  font-weight: 700;
-  padding: 0.28rem 0.75rem;
-  border-radius: var(--radius-pill);
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  box-shadow: 0 4px 14px rgba(139, 92, 246, 0.45);
+  font-size: 0.85rem;
 }
 
-.legend-dot.purple {
-  background: #8b5cf6;
+.earth-launch-btn {
+  white-space: nowrap;
+  font-weight: 700;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
 }
+
 
 
 .map-style-toggles {
