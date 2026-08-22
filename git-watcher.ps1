@@ -63,13 +63,13 @@ while ($true) {
                 elseif ($file -match "\.(css|scss|less)$") { $type = "style" }
                 elseif ($file -match "README|docs") { $type = "docs" }
                 
-                $action = "update"
+                $action = "upd"
                 if ($statusCode -match 'A|\?\?') { $action = "add" }
-                elseif ($statusCode -match 'D') { $action = "remove" }
-                elseif ($statusCode -match 'R') { $action = "rename" }
+                elseif ($statusCode -match 'D') { $action = "del" }
+                elseif ($statusCode -match 'R') { $action = "ren" }
                 
                 $basename = Split-Path $file -Leaf
-                $msg = "${type}: $action $basename"
+                $msg = "$type: $action $basename"
                 
                 # Commit autonomously
                 git commit -m "$msg"
