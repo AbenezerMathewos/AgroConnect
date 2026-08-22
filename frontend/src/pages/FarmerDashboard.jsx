@@ -60,6 +60,8 @@ export default function FarmerDashboard() {
         <p>Manage your harvest inventory, monitor active listings, and connect with national buyers.</p>
       </div>
 
+      <WeatherWidget />
+
       {/* Metrics Summary Grid */}
       <div className="stats-grid">
         <div className="stat-card">
