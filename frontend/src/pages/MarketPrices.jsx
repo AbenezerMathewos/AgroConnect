@@ -341,7 +341,7 @@ export default function MarketPrices() {
 
       {/* ECX Commodity Grade & Logistics Intelligence Modal */}
       {selectedPriceDetail && (
-        <div className="modal-backdrop" onClick={() => setSelectedPriceDetail(null)}>
+        <div className="modal-backdrop" onClick={closeModal}>
           <div className="modal-card price-intelligence-modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <div>
@@ -349,7 +349,7 @@ export default function MarketPrices() {
                 <h2>{selectedPriceDetail.crop}</h2>
                 <span className="price-market-type">{selectedPriceDetail.market} &middot; {selectedPriceDetail.region}</span>
               </div>
-              <button className="modal-close-btn" onClick={() => setSelectedPriceDetail(null)}>
+              <button className="modal-close-btn" onClick={closeModal}>
                 ✕
               </button>
             </div>
