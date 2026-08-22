@@ -84,6 +84,25 @@ export default function MarketPrices() {
     });
   }, [prices, selectedCategory, selectedRegion, filters.crop, filters.market]);
 
+  const handlePredict = async (crop) => {
+    setPredicting(true);
+    try {
+      const res = await marketPriceService.predictPrice(crop);
+      if (res.success) {
+        setPredictionData(res.prediction);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setPredicting(false);
+    }
+  };
+
+  const closeModal = () => {
+    setSelectedPriceDetail(null);
+    setPredictionData(null);
+  };
+
   return (
     <div className="market-page">
       {/* Live ECX Trading Floor Ticker Bar */}
