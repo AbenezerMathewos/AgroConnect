@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { productService } from '../services/productService';
 import ProductThumb from '../components/ProductThumb';
+import WeatherWidget from '../components/WeatherWidget';
 
 export default function FarmerDashboard() {
   const { user } = useAuth();
