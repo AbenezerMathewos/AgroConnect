@@ -34,6 +34,8 @@ export default function MarketPrices() {
   const [selectedRegion, setSelectedRegion] = useState('all');
   const [selectedPriceDetail, setSelectedPriceDetail] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [predictionData, setPredictionData] = useState(null);
+  const [predicting, setPredicting] = useState(false);
 
   const loadData = () => {
     setLoading(true);
