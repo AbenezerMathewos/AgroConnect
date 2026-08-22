@@ -96,3 +96,54 @@ exports.deleteMarketPrice = async (req, res) => {
   }
 };
 
+// @route   GET /api/market-prices/predict/:crop
+// @desc    Get AI-powered future price prediction for a crop
+// @access  Public
+exports.predictMarketPrice = async (req, res) => {
+  try {
+    const { crop } = req.params;
+    
+    // In a real scenario, we'd query historical MarketPrice records for this crop
+    // and pass them to the AI for analysis. For MVP, we'll simulate the data fetching
+    // and ask the AI (if available) or return simulated AI response.
+    
+    const { GoogleGenerativeAI } = require('@google/generative-ai');
+    
+    if (process.env.GEMINI_API_KEY) {
+      const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+      
+      const prompt = `You are an AI agricultural market analyst for Ethiopia. 
+      Analyze the future 30-day market price trend for the crop: ${crop}. 
+      Return the result strictly as a JSON object with this format:
+      {
+        "predictedLow": <number>,
+        "predictedHigh": <number>,
+        "trend": "<rising/falling/stable>",
+        "confidence": "<percentage>",
+        "analysis": "<short explanation of the market forces driving this price prediction for Ethiopia>"
+      }`;
+
+      const result = await model.generateContent(prompt);
+      const responseText = result.response.text();
+      const cleanJson = responseText.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim();
+      const aiPrediction = JSON.parse(cleanJson);
+      
+      return res.json({ success: true, crop, prediction: aiPrediction });
+    } else {
+      // Mock AI response if no API key is present
+      const mockPrediction = {
+        predictedLow: 4500,
+        predictedHigh: 5200,
+        trend: 'rising',
+        confidence: '85%',
+        analysis: `Based on historical patterns, ${crop} prices are expected to rise due to upcoming holiday demand and current regional supply chain conditions.`
+      };
+      
+      return res.json({ success: true, crop, prediction: mockPrediction, isMock: true });
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Could not generate price prediction', error: error.message });
+  }
+};
+
