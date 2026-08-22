@@ -69,7 +69,7 @@ while ($true) {
                 elseif ($statusCode -match 'R') { $action = "ren" }
                 
                 $basename = Split-Path $file -Leaf
-                $msg = "$type: $action $basename"
+                $msg = "${type}: $action $basename"
                 
                 # Commit autonomously
                 git commit -m "$msg"

@@ -390,18 +390,57 @@ export default function MarketPrices() {
                 </div>
               </div>
 
+              {/* AI Price Prediction Section */}
+              <div className="ai-prediction-section" style={{ background: '#f5f7fa', padding: '1rem', borderRadius: '8px', marginTop: '1rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                  <h4 style={{ margin: 0, color: '#2c3e50' }}>🤖 AI 30-Day Price Forecast</h4>
+                  {!predictionData && (
+                    <button 
+                      className="btn btn-sm btn-primary" 
+                      onClick={() => handlePredict(selectedPriceDetail.crop)}
+                      disabled={predicting}
+                    >
+                      {predicting ? 'Analyzing...' : 'Generate Forecast'}
+                    </button>
+                  )}
+                </div>
+                {predictionData && (
+                  <div style={{ background: '#fff', padding: '1rem', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+                    <div style={{ display: 'flex', gap: '1rem', marginBottom: '0.5rem' }}>
+                      <div>
+                        <span style={{ fontSize: '0.8rem', color: '#64748b', display: 'block' }}>Predicted Range</span>
+                        <strong style={{ fontSize: '1.1rem' }}>{formatPrice(predictionData.predictedLow)} - {formatPrice(predictionData.predictedHigh)}</strong>
+                      </div>
+                      <div>
+                        <span style={{ fontSize: '0.8rem', color: '#64748b', display: 'block' }}>Trend</span>
+                        <strong className={`text-${predictionData.trend === 'rising' ? 'gain' : 'danger'}`}>
+                          {predictionData.trend.toUpperCase()}
+                        </strong>
+                      </div>
+                      <div>
+                        <span style={{ fontSize: '0.8rem', color: '#64748b', display: 'block' }}>Confidence</span>
+                        <strong>{predictionData.confidence}</strong>
+                      </div>
+                    </div>
+                    <p style={{ fontSize: '0.9rem', color: '#475569', margin: 0 }}>
+                      {predictionData.analysis}
+                    </p>
+                  </div>
+                )}
+              </div>
+
               <div className="intelligence-actions-row">
                 <Link
                   to={`/products?search=${encodeURIComponent(selectedPriceDetail.crop.split(' ')[0])}`}
                   className="btn btn-primary"
-                  onClick={() => setSelectedPriceDetail(null)}
+                  onClick={closeModal}
                 >
                   🌾 Browse Verified Harvest Lots for {selectedPriceDetail.crop.split(' ')[0]} &rarr;
                 </Link>
                 <Link
                   to="/freight"
                   className="btn btn-secondary"
-                  onClick={() => setSelectedPriceDetail(null)}
+                  onClick={closeModal}
                 >
                   🚚 Check Return Trucks in {selectedPriceDetail.region}
                 </Link>
