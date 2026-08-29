@@ -5,6 +5,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { orderService } from '../services/orderService';
 import ProductThumb from '../components/ProductThumb';
 import ReviewForm from '../components/ReviewForm';
+import EscrowPaymentModal from '../components/EscrowPaymentModal';
 
 const STATUS_LABEL = {
   pending: 'Pending Acceptance',
@@ -22,6 +23,9 @@ function StatusBadge({ status, paymentStatus }) {
   if (paymentStatus === 'released_to_farmer') {
     return <span className="badge badge-accepted">💰 Funds Released to Farmer</span>;
   }
+  if (paymentStatus === 'pending_payment') {
+    return <span className="badge badge-pending">⏳ Escrow Payment Pending</span>;
+  }
   return <span className={`badge badge-${status}`}>{STATUS_LABEL[status] || status}</span>;
 }
 
@@ -34,6 +38,7 @@ export default function MyOrders() {
   const [error, setError] = useState('');
   const [busyId, setBusyId] = useState(null);
   const [filter, setFilter] = useState('all');
+  const [activePaymentOrder, setActivePaymentOrder] = useState(null);
 
   const loadOrders = () => {
     setLoading(true);
@@ -48,7 +53,7 @@ export default function MyOrders() {
     loadOrders();
   }, []);
 
-  const handleStatusChange = async (id, status, paymentStatus) => {
+  const handleStatusChange = async (id, status) => {
     setBusyId(id);
     try {
       const { order } = await orderService.updateStatus(id, status);
@@ -111,8 +116,8 @@ export default function MyOrders() {
                     <span className="step-num">1</span>
                     <span className="step-lbl">Requested</span>
                   </div>
-                  <div className={`step-line ${['accepted', 'in_transit', 'completed'].includes(order.status) ? 'active' : ''}`} />
-                  <div className={`step-node ${['accepted', 'in_transit', 'completed'].includes(order.status) ? 'active' : ''}`}>
+                  <div className={`step-line ${['accepted', 'in_transit', 'completed'].includes(order.status) || order.paymentStatus === 'escrow_held' ? 'active' : ''}`} />
+                  <div className={`step-node ${['accepted', 'in_transit', 'completed'].includes(order.status) || order.paymentStatus === 'escrow_held' ? 'active' : ''}`}>
                     <span className="step-num">2</span>
                     <span className="step-lbl">Escrow Held</span>
                   </div>
@@ -143,6 +148,17 @@ export default function MyOrders() {
                     <p>📍 Delivery Destination: {order.deliveryAddress.city} {order.deliveryAddress.specificAddress ? `(${order.deliveryAddress.specificAddress})` : ''}</p>
                   )}
                   {order.note && <p className="order-card-note">"{order.note}"</p>}
+                </div>
+
+                {/* Quick Voucher Button */}
+                <div className="order-receipt-quick-row">
+                  <button
+                    type="button"
+                    className="btn btn-ghost btn-sm"
+                    onClick={() => setActivePaymentOrder(order)}
+                  >
+                    📜 {order.paymentStatus === 'escrow_held' || order.paymentStatus === 'released_to_farmer' ? 'View Escrow Voucher' : '⚡ Complete Escrow Payment'}
+                  </button>
                 </div>
               </div>
 
@@ -214,6 +230,19 @@ export default function MyOrders() {
             </div>
           ))}
         </div>
+      )}
+
+      {/* Interactive Payment / Voucher Modal */}
+      {activePaymentOrder && (
+        <EscrowPaymentModal
+          isOpen={!!activePaymentOrder}
+          onClose={() => setActivePaymentOrder(null)}
+          order={activePaymentOrder}
+          product={activePaymentOrder.product}
+          onPaymentSuccess={(updatedOrder) => {
+            setOrders((prev) => prev.map((o) => (o._id === updatedOrder._id ? updatedOrder : o)));
+          }}
+        />
       )}
     </div>
   );
