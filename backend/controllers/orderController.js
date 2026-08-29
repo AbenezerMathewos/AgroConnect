@@ -140,3 +140,49 @@ exports.updateOrderStatus = async (req, res) => {
   }
 };
 
+// @route   POST /api/orders/:id/pay
+// @desc    Process / verify simulated escrow payment (Telebirr, CBE Birr, Chapa)
+// @access  Private (buyer)
+exports.payOrder = async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id)
+      .populate('product', 'title price location')
+      .populate('buyer', 'name phone email')
+      .populate('farmer', 'name phone email');
+
+    if (!order) return res.status(404).json({ message: 'Order not found' });
+
+    const isBuyer = order.buyer._id.toString() === req.user._id.toString();
+    if (!isBuyer && req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Only the order creator can complete payment' });
+    }
+
+    const { paymentMethod, transactionRef } = req.body;
+    const chosenMethod = paymentMethod || order.paymentMethod || 'telebirr';
+    const txId = transactionRef || `ET-ESCROW-${Date.now().toString().slice(-8)}`;
+
+    order.paymentMethod = chosenMethod;
+    order.paymentStatus = 'escrow_held';
+    order.escrowTransactionId = txId;
+    if (order.status === 'pending') {
+      // Keep pending for farmer confirmation, or mark accepted if automatic
+    }
+
+    await order.save();
+
+    await notifyUser(order.farmer._id, {
+      type: 'order_payment',
+      message: `🔒 100% Escrow Secured: ${order.buyer.name} deposited ${order.totalPrice.toLocaleString()} ETB via ${chosenMethod.toUpperCase()} (${txId}). You can now prepare dispatch!`,
+      link: '/orders',
+    });
+
+    res.json({
+      success: true,
+      message: `Escrow payment of ${order.totalPrice.toLocaleString()} ETB locked securely in AgroConnect Treasury vault.`,
+      order,
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Payment processing failed', error: error.message });
+  }
+};
+
