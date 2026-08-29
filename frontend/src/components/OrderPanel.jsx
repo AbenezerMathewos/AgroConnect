@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { orderService } from '../services/orderService';
+import EscrowPaymentModal from './EscrowPaymentModal';
 
 const emptyOrderForm = {
   quantity: '',
@@ -25,6 +26,8 @@ export default function OrderPanel({ product }) {
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState('success');
   const [busy, setBusy] = useState(false);
+  const [createdOrder, setCreatedOrder] = useState(null);
+  const [escrowModalOpen, setEscrowModalOpen] = useState(false);
 
   if (!product.isAvailable) {
     return (
@@ -79,14 +82,19 @@ export default function OrderPanel({ product }) {
     setBusy(true);
     setMessage('');
     try {
-      await orderService.create({
+      const { order } = await orderService.create({
         ...form,
         productId: product._id,
         quantity: quantityNum,
       });
-      setMessage('✅ Order request submitted successfully! The seller has been notified and Telebirr escrow is ready.');
+      setCreatedOrder(order);
+      setMessage('✅ Order request submitted! Opening Telebirr / CBE Escrow authorization...');
       setMessageType('success');
-      setForm(emptyOrderForm);
+      
+      // If it's an escrow method, open the interactive escrow vault checkout modal
+      if (['telebirr', 'cbe_birr', 'chapa'].includes(form.paymentMethod)) {
+        setEscrowModalOpen(true);
+      }
     } catch (err) {
       setMessage(err.response?.data?.message || 'Could not send request.');
       setMessageType('error');
@@ -96,131 +104,149 @@ export default function OrderPanel({ product }) {
   };
 
   return (
-    <form className="order-panel" onSubmit={submit}>
-      <span className="eyebrow">Direct Marketplace &middot; Escrow Protection</span>
-      <h2>{t('requestProduce')}</h2>
+    <>
+      <form className="order-panel" onSubmit={submit}>
+        <span className="eyebrow">Direct Marketplace &middot; Escrow Protection</span>
+        <h2>{t('requestProduce')}</h2>
 
-      <div className="compact-fields">
+        <div className="compact-fields">
+          <div className="field-group">
+            <label>Quantity ({product.unit || 'Kg'})</label>
+            <input
+              required
+              type="number"
+              min={product.minOrderQuantity || 1}
+              max={product.quantity}
+              placeholder={`Qty (${product.minOrderQuantity || 1}+)`}
+              value={form.quantity}
+              onChange={(e) => setForm({ ...form, quantity: e.target.value })}
+            />
+          </div>
+
+          <div className="field-group">
+            <label>Fulfillment</label>
+            <select
+              value={form.fulfillment}
+              onChange={(e) => setForm({ ...form, fulfillment: e.target.value })}
+            >
+              <option value="pickup">Self Pickup at Farmgate / Depot</option>
+              <option value="delivery">Direct Seller Delivery</option>
+              <option value="freight_pool">Freight-Sharing Pool (Isuzu)</option>
+            </select>
+          </div>
+        </div>
+
         <div className="field-group">
-          <label>Quantity ({product.unit || 'Kg'})</label>
+          <label>{t('paymentMethod')}</label>
+          <select
+            value={form.paymentMethod}
+            onChange={(e) => setForm({ ...form, paymentMethod: e.target.value })}
+          >
+            <option value="telebirr">📱 Telebirr Escrow (SuperApp / *127#)</option>
+            <option value="cbe_birr">🏦 CBE Birr (Commercial Bank Escrow)</option>
+            <option value="chapa">⚡ Chapa Direct Multi-Bank Pay</option>
+            <option value="cash_on_delivery">💵 {t('cashOnDelivery')}</option>
+          </select>
+        </div>
+
+        {form.fulfillment !== 'pickup' && (
+          <div className="compact-fields">
+            <div className="field-group">
+              <label>Destination City / Woreda</label>
+              <input
+                required
+                placeholder="e.g. Addis Ababa, Hawassa"
+                value={form.deliveryAddress.city}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    deliveryAddress: { ...form.deliveryAddress, city: e.target.value },
+                  })
+                }
+              />
+            </div>
+            <div className="field-group">
+              <label>Specific Address</label>
+              <input
+                placeholder="e.g. Ehil Berenda Gate 2"
+                value={form.deliveryAddress.specificAddress}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    deliveryAddress: { ...form.deliveryAddress, specificAddress: e.target.value },
+                  })
+                }
+              />
+            </div>
+          </div>
+        )}
+
+        <div className="field-group">
+          <label>Your Phone Number</label>
           <input
             required
-            type="number"
-            min={product.minOrderQuantity || 1}
-            max={product.quantity}
-            placeholder={`Qty (${product.minOrderQuantity || 1}+)`}
-            value={form.quantity}
-            onChange={(e) => setForm({ ...form, quantity: e.target.value })}
+            placeholder="+2519..."
+            value={form.contactPhone}
+            onChange={(e) => setForm({ ...form, contactPhone: e.target.value })}
           />
         </div>
 
         <div className="field-group">
-          <label>Fulfillment</label>
-          <select
-            value={form.fulfillment}
-            onChange={(e) => setForm({ ...form, fulfillment: e.target.value })}
-          >
-            <option value="pickup">Self Pickup at Farmgate / Depot</option>
-            <option value="delivery">Direct Seller Delivery</option>
-            <option value="freight_pool">Freight-Sharing Pool (Isuzu)</option>
-          </select>
+          <label>Optional Note</label>
+          <textarea
+            placeholder="Special packaging, delivery dates, or inspection requirements..."
+            rows={2}
+            value={form.note}
+            onChange={(e) => setForm({ ...form, note: e.target.value })}
+          />
         </div>
-      </div>
 
-      <div className="field-group">
-        <label>{t('paymentMethod')}</label>
-        <select
-          value={form.paymentMethod}
-          onChange={(e) => setForm({ ...form, paymentMethod: e.target.value })}
-        >
-          <option value="telebirr">📱 {t('telebirr')}</option>
-          <option value="cbe_birr">🏦 {t('cbeBirr')}</option>
-          <option value="cash_on_delivery">💵 {t('cashOnDelivery')}</option>
-        </select>
-      </div>
-
-      {form.fulfillment !== 'pickup' && (
-        <div className="compact-fields">
-          <div className="field-group">
-            <label>Destination City / Woreda</label>
-            <input
-              required
-              placeholder="e.g. Addis Ababa, Hawassa"
-              value={form.deliveryAddress.city}
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  deliveryAddress: { ...form.deliveryAddress, city: e.target.value },
-                })
-              }
-            />
+        {/* Order Total & Escrow calculation */}
+        {totalPrice > 0 && (
+          <div className="order-summary-box">
+            <div className="summary-row">
+              <span>Subtotal ({quantityNum} {product.unit}):</span>
+              <strong>{totalPrice.toLocaleString()} ETB</strong>
+            </div>
+            <div className="summary-row">
+              <span>Escrow Protection:</span>
+              <span className="text-free">FREE (0 ETB)</span>
+            </div>
+            <div className="summary-row total-row">
+              <span>Estimated Total:</span>
+              <strong className="text-total">{totalPrice.toLocaleString()} ETB</strong>
+            </div>
           </div>
-          <div className="field-group">
-            <label>Specific Address</label>
-            <input
-              placeholder="e.g. Ehil Berenda Gate 2"
-              value={form.deliveryAddress.specificAddress}
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  deliveryAddress: { ...form.deliveryAddress, specificAddress: e.target.value },
-                })
-              }
-            />
-          </div>
-        </div>
-      )}
+        )}
 
-      <div className="field-group">
-        <label>Your Phone Number</label>
-        <input
-          required
-          placeholder="+2519..."
-          value={form.contactPhone}
-          onChange={(e) => setForm({ ...form, contactPhone: e.target.value })}
+        <button className="btn btn-primary btn-block" disabled={busy || quantityNum <= 0}>
+          {busy ? 'Processing...' : `Confirm & Request (${totalPrice > 0 ? totalPrice.toLocaleString() + ' ETB' : ''})`}
+        </button>
+
+        <p className="escrow-note">{t('escrowGuarantee')}</p>
+
+        {message && (
+          <p className={messageType === 'error' ? 'inline-message error' : 'inline-message success'}>
+            {message}
+          </p>
+        )}
+      </form>
+
+      {/* Interactive Ethiopian Escrow Payment Modal */}
+      {escrowModalOpen && createdOrder && (
+        <EscrowPaymentModal
+          isOpen={escrowModalOpen}
+          onClose={() => setEscrowModalOpen(false)}
+          order={createdOrder}
+          product={product}
+          onPaymentSuccess={(updatedOrder) => {
+            setCreatedOrder(updatedOrder);
+            setMessage('🔒 Escrow Payment Secured! You can track transit and release funds upon arrival in My Orders.');
+          }}
         />
-      </div>
-
-      <div className="field-group">
-        <label>Optional Note</label>
-        <textarea
-          placeholder="Special packaging, delivery dates, or inspection requirements..."
-          rows={2}
-          value={form.note}
-          onChange={(e) => setForm({ ...form, note: e.target.value })}
-        />
-      </div>
-
-      {/* Order Total & Escrow calculation */}
-      {totalPrice > 0 && (
-        <div className="order-summary-box">
-          <div className="summary-row">
-            <span>Subtotal ({quantityNum} {product.unit}):</span>
-            <strong>{totalPrice.toLocaleString()} ETB</strong>
-          </div>
-          <div className="summary-row">
-            <span>Escrow Protection:</span>
-            <span className="text-free">FREE (0 ETB)</span>
-          </div>
-          <div className="summary-row total-row">
-            <span>Estimated Total:</span>
-            <strong className="text-total">{totalPrice.toLocaleString()} ETB</strong>
-          </div>
-        </div>
       )}
-
-      <button className="btn btn-primary btn-block" disabled={busy || quantityNum <= 0}>
-        {busy ? 'Processing...' : `Confirm & Request (${totalPrice > 0 ? totalPrice.toLocaleString() + ' ETB' : ''})`}
-      </button>
-
-      <p className="escrow-note">{t('escrowGuarantee')}</p>
-
-      {message && (
-        <p className={messageType === 'error' ? 'inline-message error' : 'inline-message success'}>
-          {message}
-        </p>
-      )}
-    </form>
+    </>
   );
 }
+
 
