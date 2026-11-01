@@ -45,7 +45,7 @@ export default function EscrowTrustTimeline({ currentStep = 1 }) {
       </div>
 
       <p className="escrow-trust-sub">
-        Every transaction on AgroConnect Ethiopia is guarded by multi-signature escrow. Your money is never released until you inspect and approve the harvest.
+        Every transaction on AgroGebeya Ethiopia is guarded by multi-signature escrow. Your money is never released until you inspect and approve the harvest.
       </p>
 
       {/* Stepper Grid */}

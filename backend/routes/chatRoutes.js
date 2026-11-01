@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { protect, authorize } = require('../middleware/authMiddleware');
+const { protect } = require('../middleware/authMiddleware');
 const {
   startOrGetConversation,
   getMyConversations,
@@ -8,10 +8,10 @@ const {
   sendMessage,
 } = require('../controllers/chatController');
 
+// All chat routes require authentication
 router.use(protect);
-router.use(authorize('buyer', 'farmer'));
 
-router.post('/conversations', authorize('buyer'), startOrGetConversation);
+router.post('/conversations', startOrGetConversation);
 router.get('/conversations', getMyConversations);
 router.get('/conversations/:id/messages', getMessages);
 router.post('/conversations/:id/messages', sendMessage);

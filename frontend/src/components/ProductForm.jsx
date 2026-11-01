@@ -34,8 +34,8 @@ const emptyForm = {
   unit: 'Quintal',
   minOrderQuantity: 1,
   grade: 'Grade 2 (Standard Market)',
-  region: 'South Ethiopia',
-  zone: 'Wolaita',
+  region: 'Oromia',
+  zone: '',
   woreda: '',
   location: '',
   description: '',
@@ -53,8 +53,8 @@ export default function ProductForm({ initialValues, onSubmit, submitLabel }) {
     isAvailable: initialValues?.isAvailable ?? true,
     minOrderQuantity: initialValues?.minOrderQuantity || 1,
     grade: initialValues?.grade || 'Grade 2 (Standard Market)',
-    region: initialValues?.region || 'South Ethiopia',
-    zone: initialValues?.zone || 'Wolaita',
+    region: initialValues?.region || 'Oromia',
+    zone: initialValues?.zone || '',
   });
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);

@@ -1,7 +1,7 @@
 {
-  "name": "wolaita-agroconnect-backend",
+  "name": "agrogebeya-ethiopia-backend",
   "version": "1.0.0",
-  "description": "Backend API for Wolaita AgroConnect - connecting farmers and buyers",
+  "description": "Backend API for AgroGebeya Ethiopia - connecting farmers, cooperatives, and buyers nationwide",
   "main": "server.js",
   "type": "commonjs",
   "scripts": {

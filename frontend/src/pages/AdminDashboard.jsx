@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { adminService } from '../services/adminService';
 import { marketPriceService } from '../services/marketPriceService';
+import { poolService } from '../services/poolService';
 import { useLanguage } from '../context/LanguageContext';
 import ProductThumb from '../components/ProductThumb';
 
@@ -12,6 +13,7 @@ export default function AdminDashboard() {
   const [users, setUsers] = useState([]);
   const [products, setProducts] = useState([]);
   const [prices, setPrices] = useState([]);
+  const [pools, setPools] = useState([]);
   const [tab, setTab] = useState('users');
   const [error, setError] = useState('');
   const [busyId, setBusyId] = useState(null);
@@ -26,12 +28,14 @@ export default function AdminDashboard() {
       adminService.getUsers(),
       adminService.getProducts(),
       marketPriceService.getAll(),
+      poolService.getAllPools().catch(() => ({ pools: [] })),
     ])
-      .then(([statsData, usersData, productsData, pricesData]) => {
+      .then(([statsData, usersData, productsData, pricesData, poolsData]) => {
         setStats(statsData);
         setUsers(usersData.users || []);
         setProducts(productsData.products || []);
         setPrices(pricesData.prices || []);
+        setPools(poolsData.pools || []);
       })
       .catch(() => setError('Could not load administrative data.'));
   };
@@ -123,15 +127,23 @@ export default function AdminDashboard() {
           </div>
           <div className="stat-card">
             <strong className="text-gain">{stats.totalFarmers || 0}</strong>
-            <span>Smallholders & Unions</span>
+            <span>Smallholders</span>
           </div>
           <div className="stat-card">
-            <strong>{stats.totalBuyers || 0}</strong>
-            <span>Active Wholesale Buyers</span>
+            <strong style={{ color: '#0ea5e9' }}>{stats.totalCooperatives || 0}</strong>
+            <span>Union Cooperatives</span>
           </div>
           <div className="stat-card">
-            <strong>{stats.totalProducts || 0}</strong>
-            <span>Total Harvest Listings</span>
+            <strong style={{ color: '#f59e0b' }}>{stats.totalBuyers || 0}</strong>
+            <span>Wholesale Buyers</span>
+          </div>
+          <div className="stat-card">
+            <strong style={{ color: '#8b5cf6' }}>{stats.totalTransporters || 0}</strong>
+            <span>Freight Transporters</span>
+          </div>
+          <div className="stat-card">
+            <strong style={{ color: '#10b981' }}>{pools.length}</strong>
+            <span>Bulk Pooling Contracts</span>
           </div>
         </div>
       )}
@@ -143,6 +155,9 @@ export default function AdminDashboard() {
         </button>
         <button onClick={() => setTab('products')} className={`admin-tab-btn ${tab === 'products' ? 'active' : ''}`}>
           🌾 Manage Harvests ({products.length})
+        </button>
+        <button onClick={() => setTab('pools')} className={`admin-tab-btn ${tab === 'pools' ? 'active' : ''}`}>
+          🤝 Cooperative Pools ({pools.length})
         </button>
         <button onClick={() => setTab('prices')} className={`admin-tab-btn ${tab === 'prices' ? 'active' : ''}`}>
           📊 Market Price Radar ({prices.length})
@@ -227,6 +242,78 @@ export default function AdminDashboard() {
                   </td>
                 </tr>
               ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Cooperative Pools Tab */}
+      {tab === 'pools' && (
+        <div className="table-responsive-wrapper">
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>Crop & Variety</th>
+                <th>Procuring Buyer</th>
+                <th>Target Quantity</th>
+                <th>Progress (Pooled)</th>
+                <th>Unit Price</th>
+                <th>Total Value</th>
+                <th>Platform Fee (5%)</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {pools.map((pool) => {
+                const pct = Math.min(100, Math.round(((pool.currentQuantity || 0) / pool.targetQuantity) * 100)) || 0;
+                return (
+                  <tr key={pool._id}>
+                    <td>
+                      <strong>🌾 {pool.cropName}</strong>
+                      {pool.variety && <small style={{ display: 'block', color: 'var(--slate-400)' }}>{pool.variety}</small>}
+                    </td>
+                    <td>
+                      <strong>{pool.buyer?.name || 'Institutional Buyer'}</strong>
+                      {pool.buyer?.cooperativeName && (
+                        <small style={{ display: 'block', color: 'var(--slate-400)' }}>🏢 {pool.buyer.cooperativeName}</small>
+                      )}
+                    </td>
+                    <td>
+                      <strong>{pool.targetQuantity} {pool.unit || 'Quintals'}</strong>
+                      <small style={{ display: 'block', color: 'var(--slate-400)' }}>📍 {pool.deliveryRegion || 'Addis Ababa'}</small>
+                    </td>
+                    <td>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', marginBottom: '0.2rem' }}>
+                        <span>{pool.currentQuantity || 0} / {pool.targetQuantity}</span>
+                        <span style={{ fontWeight: 600 }}>{pct}%</span>
+                      </div>
+                      <div style={{ width: '120px', height: '6px', background: 'rgba(255,255,255,0.1)', borderRadius: '3px', overflow: 'hidden' }}>
+                        <div style={{ width: `${pct}%`, height: '100%', background: pct >= 100 ? '#10b981' : '#38bdf8', borderRadius: '3px' }} />
+                      </div>
+                      <small style={{ color: 'var(--slate-400)', fontSize: '0.75rem' }}>{pool.contributors?.length || 0} contributor(s)</small>
+                    </td>
+                    <td>{pool.unitPrice?.toLocaleString()} ETB</td>
+                    <td>
+                      <strong>{(pool.totalContractValue || (pool.targetQuantity * pool.unitPrice))?.toLocaleString()} ETB</strong>
+                    </td>
+                    <td>
+                      <strong style={{ color: '#10b981' }}>{(pool.totalCommission || ((pool.targetQuantity * pool.unitPrice) * 0.05))?.toLocaleString()} ETB</strong>
+                    </td>
+                    <td>
+                      <span className={`badge ${pool.status === 'pool_filled' ? 'badge-accepted' : pool.status === 'open' ? 'badge-grade' : 'badge-muted'}`}>
+                        {pool.status?.replace('_', ' ')}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
+              {pools.length === 0 && (
+                <tr>
+                  <td colSpan={8} style={{ textAlign: 'center', padding: '2rem' }}>
+                    No bulk pooling contracts registered yet.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

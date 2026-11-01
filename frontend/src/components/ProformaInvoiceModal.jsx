@@ -84,7 +84,7 @@ export default function ProformaInvoiceModal({ isOpen, onClose, product }) {
           <div className="proforma-parties-grid">
             <div className="party-box">
               <div className="party-role-tag">PRODUCER / SELLER (አምራች ህብረት ስራ ማህበር)</div>
-              <strong className="party-name">{product.farmer?.name || product.cooperativeName || 'Wolaita Smallholders Farmers Union'}</strong>
+              <strong className="party-name">{product.farmer?.name || product.cooperativeName || 'Primary Farmers Cooperative Union'}</strong>
               <div className="party-detail">📍 Origin Hub: {product.location || 'Boditi Cooperative Depot'}, {product.region || 'South Ethiopia'}</div>
               <div className="party-detail">📞 Phone: {product.owner?.phone || '+251 912 345 678'}</div>
               <div className="party-detail">🛡️ MoA Farmer Reg ID: <code>#ET-SODO-F8831</code></div>
@@ -93,7 +93,7 @@ export default function ProformaInvoiceModal({ isOpen, onClose, product }) {
             <div className="party-box">
               <div className="party-role-tag">CLEARING, LOGISTICS & TELEBIRR ESCROW</div>
               <strong className="party-name">Telebirr Multi-Signature Escrow Protocol</strong>
-              <div className="party-detail">🏦 Escrow Trust Account: <code>*994# / AgroConnect-Treasury</code></div>
+              <div className="party-detail">🏦 Escrow Trust Account: <code>*994# / AgroGebeya-Treasury</code></div>
               <div className="party-detail">🏢 Destination Terminal: Addis Ababa Central Wholesale (Ehil Berenda)</div>
               <div className="party-detail">🚚 Logistics Dispatch: Isuzu Return Freight Sharing Corridor</div>
             </div>
@@ -178,7 +178,7 @@ export default function ProformaInvoiceModal({ isOpen, onClose, product }) {
             <div className="sig-block">
               <div className="sig-line">____________________________________</div>
               <strong>Producer Union Authorized Officer</strong>
-              <small>Wolaita Smallholders Farmers Cooperative Union</small>
+              <small>Authorized Farmers Cooperative Union</small>
             </div>
             <div className="sig-block">
               <div className="sig-line">____________________________________</div>

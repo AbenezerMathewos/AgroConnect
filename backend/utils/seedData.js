@@ -10,13 +10,14 @@ const Review = require('../models/Review');
 const Notification = require('../models/Notification');
 const FreightTrip = require('../models/FreightTrip');
 const CropAdvisory = require('../models/CropAdvisory');
+const PoolOrder = require('../models/PoolOrder');
 
 async function seed() {
-  const uri = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/agroconnect_ethiopia';
+  const uri = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/agrogebeya_ethiopia';
   try {
     await mongoose.connect(uri, { serverSelectionTimeoutMS: 4000 });
   } catch {
-    await mongoose.connect('mongodb://127.0.0.1:27017/agroconnect_ethiopia', { serverSelectionTimeoutMS: 4000 });
+    await mongoose.connect('mongodb://127.0.0.1:27017/agrogebeya_ethiopia', { serverSelectionTimeoutMS: 4000 });
   }
   console.log('Connected to database for seeding...');
 
@@ -30,6 +31,7 @@ async function seed() {
     Notification.deleteMany({}),
     FreightTrip.deleteMany({}),
     CropAdvisory.deleteMany({}),
+    PoolOrder.deleteMany({}),
   ]);
 
   const salt = await bcrypt.genSalt(10);
@@ -43,8 +45,8 @@ async function seed() {
   ]);
 
   const admin = await User.create({
-    name: 'AgroConnect Administrator',
-    email: 'admin@agroconnect.et',
+    name: 'AgroGebeya Administrator',
+    email: 'admin@agrogebeya.et',
     password: adminPw,
     role: 'admin',
     phone: '+251911000000',
@@ -55,7 +57,7 @@ async function seed() {
 
   const farmerWolaita = await User.create({
     name: 'Alemu Wolde',
-    email: 'alemu@agroconnect.et',
+    email: 'alemu@agrogebeya.et',
     password: farmerPw,
     role: 'farmer',
     phone: '+251912345678',
@@ -68,7 +70,7 @@ async function seed() {
 
   const farmerOromia = await User.create({
     name: 'Gemechu Abdisa',
-    email: 'gemechu@agroconnect.et',
+    email: 'gemechu@agrogebeya.et',
     password: farmerPw,
     role: 'farmer',
     phone: '+251922334455',
@@ -81,7 +83,7 @@ async function seed() {
 
   const coopAmhara = await User.create({
     name: 'Tadesse Mengesha (Coop Manager)',
-    email: 'tadesse@agroconnect.et',
+    email: 'tadesse@agrogebeya.et',
     password: farmerPw,
     role: 'cooperative',
     phone: '+251933445566',
@@ -94,7 +96,7 @@ async function seed() {
 
   const transporterGirma = await User.create({
     name: 'Girma Desta (Transporter)',
-    email: 'girma@agroconnect.et',
+    email: 'girma@agrogebeya.et',
     password: farmerPw,
     role: 'transporter',
     phone: '+251944556677',
@@ -105,7 +107,7 @@ async function seed() {
 
   const buyerMarta = await User.create({
     name: 'Marta Bekele (Wholesale Grain Merchant)',
-    email: 'marta@agroconnect.et',
+    email: 'marta@agrogebeya.et',
     password: buyerPw,
     role: 'buyer',
     phone: '+251911223344',
@@ -116,7 +118,7 @@ async function seed() {
 
   const buyerDawit = await User.create({
     name: 'Dawit Kebede (Food Processing Enterprise)',
-    email: 'dawit@agroconnect.et',
+    email: 'dawit@agrogebeya.et',
     password: buyerPw,
     role: 'buyer',
     phone: '+251955667788',
@@ -759,13 +761,75 @@ async function seed() {
     status: 'in_transit',
   });
 
+  // Seed Virtual Yield Pooling Contracts (Multi-farmer bulk procurement)
+  await PoolOrder.create([
+    {
+      cropName: 'White Hybrid Maize (Bako)',
+      variety: 'BH-540 Hybrid',
+      buyer: buyerMarta._id,
+      targetQuantity: 50,
+      currentQuantity: 35,
+      unit: 'Quintal',
+      unitPrice: 3200,
+      totalContractValue: 160000,
+      totalCommission: 8000,
+      platformCommissionRate: 0.05,
+      deliveryRegion: 'South Ethiopia (Soddo University Cafeteria)',
+      deadline: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
+      status: 'open',
+      description: 'Bulk procurement contract for Soddo University student dining services. Multi-smallholder pooling accepted.',
+      contributors: [
+        {
+          farmer: farmerWolaita._id,
+          quantity: 15,
+          qualityGrade: 'Grade A',
+          payoutDue: 45600, // 15 * 3200 * 0.95
+          joinedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+        },
+        {
+          farmer: farmerOromia._id,
+          quantity: 20,
+          qualityGrade: 'Grade A',
+          payoutDue: 60800, // 20 * 3200 * 0.95
+          joinedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
+        },
+      ],
+    },
+    {
+      cropName: 'Fermented Enset / Bulla',
+      variety: 'Mazia Premium',
+      buyer: buyerDawit._id,
+      targetQuantity: 40,
+      currentQuantity: 10,
+      unit: 'Quintal',
+      unitPrice: 4800,
+      totalContractValue: 192000,
+      totalCommission: 9600,
+      platformCommissionRate: 0.05,
+      deliveryRegion: 'Addis Ababa (Merkato Terminal Depot)',
+      deadline: new Date(Date.now() + 21 * 24 * 60 * 60 * 1000),
+      status: 'open',
+      description: 'Industrial food processing requirement for export-grade Bulla powder.',
+      contributors: [
+        {
+          farmer: farmerWolaita._id,
+          quantity: 10,
+          qualityGrade: 'Grade A',
+          payoutDue: 45600, // 10 * 4800 * 0.95
+          joinedAt: new Date(),
+        },
+      ],
+    },
+  ]);
+
+  console.log('Seeded Virtual Yield Pooling Contracts & Smallholder Pledges.');
   console.log('Seeded Demo Orders & Reviews with Escrow.');
   console.log('\n--- SEED COMPLETE ---');
-  console.log('Admin Account:   admin@agroconnect.et / Admin123456');
-  console.log('Farmer Account:  alemu@agroconnect.et / Farmer123456');
-  console.log('Coop Account:    tadesse@agroconnect.et / Farmer123456');
-  console.log('Buyer Account:   marta@agroconnect.et / Buyer123456');
-  console.log('Transporter:     girma@agroconnect.et / Farmer123456');
+  console.log('Admin Account:   admin@agrogebeya.et / Admin123456');
+  console.log('Farmer Account:  alemu@agrogebeya.et / Farmer123456');
+  console.log('Coop Account:    tadesse@agrogebeya.et / Farmer123456');
+  console.log('Buyer Account:   marta@agrogebeya.et / Buyer123456');
+  console.log('Transporter:     girma@agrogebeya.et / Farmer123456');
   console.log('---------------------\n');
 
   await mongoose.disconnect();

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 
 const USSD_MENUS = {
   main: {
-    title: '🇪🇹 AgroConnect ET (*8028#)',
+    title: '🇪🇹 AgroGebeya ET (*8028#)',
     prompt: 'Select an option:',
     options: [
       { key: '1', label: '1. Check ECX Market Prices (የገበያ ዋጋ)', next: 'prices' },

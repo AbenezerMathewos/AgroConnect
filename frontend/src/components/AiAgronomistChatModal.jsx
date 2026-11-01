@@ -20,14 +20,14 @@ export default function AiAgronomistChatModal() {
       id: 'welcome',
       role: 'assistant',
       text: lang === 'am'
-        ? 'ሰላም! ጤና ይስጥልኝ! 🌾 እኔ የ AgroConnect Ethiopia 24/7 የሰብል ጤና እና የግብርና AI አማካሪ ነኝ። ስለ ቡና፣ እንሰት፣ በቆሎ፣ ስንዴ፣ ጤፍ፣ ዝንጅብል፣ ተባይና በሽታ መከላከያ ወይም ማዳበሪያ ማንኛውንም ጥያቄ ይጠይቁኝ!'
+        ? 'ሰላም! ጤና ይስጥልኝ! 🌾 እኔ የ AgroGebeya Ethiopia 24/7 የሰብል ጤና እና የግብርና AI አማካሪ ነኝ። ስለ ቡና፣ እንሰት፣ በቆሎ፣ ስንዴ፣ ጤፍ፣ ዝንጅብል፣ ተባይና በሽታ መከላከያ ወይም ማዳበሪያ ማንኛውንም ጥያቄ ይጠይቁኝ!'
         : lang === 'om'
-        ? 'Akkam jirtu! 🌾 Ani gorsaa fi ogeessa qonnaa fi eegumsa midhaanii AgroConnect Ethiopia ti. Waa\'ee Buna, Qoccoo, Boqqolloo fi qorichoota ilbiisaa na gaafadhaa!'
+        ? 'Akkam jirtu! 🌾 Ani gorsaa fi ogeessa qonnaa fi eegumsa midhaanii AgroGebeya Ethiopia ti. Waa\'ee Buna, Qoccoo, Boqqolloo fi qorichoota ilbiisaa na gaafadhaa!'
         : lang === 'wot'
-        ? 'Saro giddite! 🌾 Taani AgroConnect Ethiopia goshshaa xalettiya qoran zoriya AI giyaagaa. Buuna, Utta, Badallaanenne qorata ubbakka oychite!'
+        ? 'Saro giddite! 🌾 Taani AgroGebeya Ethiopia goshshaa xalettiya qoran zoriya AI giyaagaa. Buuna, Utta, Badallaanenne qorata ubbakka oychite!'
         : lang === 'ti'
-        ? 'ሰላም! 🌾 ኣነ ናይ AgroConnect Ethiopia 24/7 ናይ ሕርሻን ምክልኻል ሕማም ሰብልን AI ኣማኻሪ እየ። ብዛዕባ ቡን፣ እንሰት፣ ስርናይን ካልኦትን ሕተቱኒ!'
-        : 'Hello & Welcome! 🌾 I am your 24/7 AgroConnect AI Agronomist & Plant Doctor. Ask me anything about crop diseases, organic remedies, MoA certified fungicides, or fertilizer schedules across Ethiopia!',
+        ? 'ሰላም! 🌾 ኣነ ናይ AgroGebeya Ethiopia 24/7 ናይ ሕርሻን ምክልኻል ሕማም ሰብልን AI ኣማኻሪ እየ። ብዛዕባ ቡን፣ እንሰት፣ ስርናይን ካልኦትን ሕተቱኒ!'
+        : 'Hello & Welcome! 🌾 I am your 24/7 AgroGebeya AI Agronomist & Plant Doctor. Ask me anything about crop diseases, organic remedies, MoA certified fungicides, or fertilizer schedules across Ethiopia!',
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     },
   ]);
@@ -163,7 +163,7 @@ export default function AiAgronomistChatModal() {
                   <span className="online-indicator"></span>
                 </div>
                 <div>
-                  <h4>AgroConnect AI Agronomist</h4>
+                  <h4>AgroGebeya AI Agronomist</h4>
                   <div className="chat-status-sub">
                     <span className="status-live-chip">🟢 LIVE CLOUD AI</span>
                     <small>&bull; Ethiopian Plant Pathology Specialist</small>

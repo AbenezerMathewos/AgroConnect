@@ -29,8 +29,8 @@ export default function Register() {
     phone: '',
     password: '',
     role: 'buyer',
-    region: 'South Ethiopia',
-    zone: 'Wolaita',
+    region: 'Addis Ababa',
+    zone: '',
     cooperativeName: '',
   });
   const [error, setError] = useState('');
@@ -57,7 +57,7 @@ export default function Register() {
   return (
     <div className="auth-page">
       <div className="page-intro">
-        <span className="eyebrow">🌱 AgroConnect Ethiopia</span>
+        <span className="eyebrow">🌱 AgroGebeya Ethiopia</span>
         <h1>{t('register')}</h1>
         <p>Join the national digital agriculture network & escrow marketplace.</p>
       </div>
@@ -82,7 +82,7 @@ export default function Register() {
               id="email"
               name="email"
               type="email"
-              placeholder="user@agroconnect.et"
+              placeholder="user@agrogebeya.et"
               value={formData.email}
               onChange={handleChange}
               required

@@ -34,12 +34,12 @@ const userSchema = new mongoose.Schema(
     region: {
       type: String,
       trim: true,
-      default: 'South Ethiopia',
+      default: 'Addis Ababa',
     },
     zone: {
       type: String,
       trim: true,
-      default: 'Wolaita',
+      default: 'Central',
     },
     woreda: {
       type: String,

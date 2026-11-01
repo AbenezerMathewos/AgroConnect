@@ -4,11 +4,11 @@ const ThemeContext = createContext(null);
 
 export function ThemeProvider({ children }) {
   const [theme, setTheme] = useState(() => {
-    return localStorage.getItem('agroconnect_theme') || 'light';
+    return localStorage.getItem('agrogebeya_theme') || 'light';
   });
 
   useEffect(() => {
-    localStorage.setItem('agroconnect_theme', theme);
+    localStorage.setItem('agrogebeya_theme', theme);
     document.documentElement.setAttribute('data-theme', theme);
     if (theme === 'dark') {
       document.documentElement.classList.add('dark-theme');

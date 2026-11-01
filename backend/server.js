@@ -17,6 +17,7 @@ const chatRoutes = require('./routes/chatRoutes');
 const freightRoutes = require('./routes/freightRoutes');
 const advisoryRoutes = require('./routes/advisoryRoutes');
 const weatherRoutes = require('./routes/weatherRoutes');
+const poolOrderRoutes = require('./routes/poolOrderRoutes');
 
 const app = express();
 
@@ -41,10 +42,11 @@ app.use('/api/chat', chatRoutes);
 app.use('/api/freight', freightRoutes);
 app.use('/api/advisory', advisoryRoutes);
 app.use('/api/weather', weatherRoutes);
+app.use('/api/pools', poolOrderRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', message: 'AgroConnect Ethiopia API is running' });
+  res.json({ status: 'ok', message: 'AgroGebeya Ethiopia API is running' });
 });
 
 

@@ -77,22 +77,29 @@ exports.deleteProductAsAdmin = async (req, res) => {
 };
 
 // @route   GET /api/admin/stats
-// @desc    Dashboard statistics: total users, farmers, buyers, products
+// @desc    Dashboard statistics: total users, farmers, buyers, products, cooperatives, transporters, pools
 // @access  Private (admin)
 exports.getDashboardStats = async (req, res) => {
   try {
-    const [totalUsers, totalFarmers, totalBuyers, totalProducts] = await Promise.all([
+    const PoolOrder = require('../models/PoolOrder');
+    const [totalUsers, totalFarmers, totalBuyers, totalCooperatives, totalTransporters, totalProducts, totalPools] = await Promise.all([
       User.countDocuments(),
       User.countDocuments({ role: 'farmer' }),
       User.countDocuments({ role: 'buyer' }),
+      User.countDocuments({ role: 'cooperative' }),
+      User.countDocuments({ role: 'transporter' }),
       Product.countDocuments(),
+      PoolOrder.countDocuments().catch(() => 0),
     ]);
 
     res.status(200).json({
       totalUsers,
       totalFarmers,
       totalBuyers,
+      totalCooperatives,
+      totalTransporters,
       totalProducts,
+      totalPools,
     });
   } catch (error) {
     res.status(500).json({ message: 'Server error fetching dashboard stats', error: error.message });

@@ -6,7 +6,7 @@ const LIVE_EVENTS = [
     id: 1,
     icon: '🌾',
     title: 'New Harvest Lot Listed',
-    desc: 'Girmachew in Wolaita Sodo listed 45 Qtl Magna White Teff (Grade 1)',
+    desc: 'Girmachew in East Gojjam listed 45 Qtl Magna White Teff (Grade 1)',
     time: 'Just now',
     link: '/products',
     badge: 'Farmgate',

@@ -11,8 +11,8 @@ export default function WeatherWidget() {
     const fetchWeather = async () => {
       try {
         setLoading(true);
-        // Use user's region if available, otherwise default to Wolaita Sodo
-        const region = user?.location || 'Wolaita Sodo';
+        // Use user's region/location if available, otherwise default to Addis Ababa (Central)
+        const region = user?.region || user?.location || 'Addis Ababa';
         const data = await weatherService.getForecast(region);
         setWeatherData(data);
       } catch (error) {

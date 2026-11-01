@@ -7,19 +7,19 @@ const USD_RATE = 130;
 
 export function CurrencyUnitProvider({ children }) {
   const [currency, setCurrency] = useState(() => {
-    return localStorage.getItem('agroconnect_currency') || 'ETB';
+    return localStorage.getItem('agrogebeya_currency') || 'ETB';
   });
 
   const [unitMode, setUnitMode] = useState(() => {
-    return localStorage.getItem('agroconnect_unit') || 'Quintal';
+    return localStorage.getItem('agrogebeya_unit') || 'Quintal';
   });
 
   useEffect(() => {
-    localStorage.setItem('agroconnect_currency', currency);
+    localStorage.setItem('agrogebeya_currency', currency);
   }, [currency]);
 
   useEffect(() => {
-    localStorage.setItem('agroconnect_unit', unitMode);
+    localStorage.setItem('agrogebeya_unit', unitMode);
   }, [unitMode]);
 
   // Convert ETB to active currency

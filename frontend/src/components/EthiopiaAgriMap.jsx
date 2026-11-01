@@ -137,7 +137,7 @@ export default function EthiopiaAgriMap() {
   const { isDark } = useTheme();
   const navigate = useNavigate();
 
-  const [selectedHub, setSelectedHub] = useState(AGRI_HUBS[1]); // Default Wolaita Sodo
+  const [selectedHub, setSelectedHub] = useState(AGRI_HUBS[0]); // Default Addis Ababa Central Terminal
   const [mapStyle, setMapStyle] = useState('streets'); // 'streets' | 'satellite' | 'earth3d' | 'dark'
 
   // Initialize Leaflet Map
@@ -187,22 +187,35 @@ export default function EthiopiaAgriMap() {
       map.removeLayer(tileLayerRef.current);
     }
 
-    // Google Maps & OpenStreetMap Tile Providers
-    let tileUrl = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
-    if (mapStyle === 'dark' || (mapStyle === 'streets' && isDark)) {
-      tileUrl = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
-    } else if (mapStyle === 'satellite') {
-      // Real Google Satellite Hybrid with labels & high-res vegetation
-      tileUrl = 'https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}';
-    } else if (mapStyle === 'streets') {
-      // Real Google Maps Road Vector
-      tileUrl = 'https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}';
+    // 100% Free, open tile providers — zero API keys required, zero watermarks
+    let tileUrl;
+    let tileOptions = { maxZoom: 16 };
+
+    if (mapStyle === 'satellite') {
+      // ESRI World Imagery — high-resolution global satellite photography
+      tileUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+      tileOptions = {
+        maxZoom: 19,
+        maxNativeZoom: 18,
+      };
+    } else if (mapStyle === 'dark') {
+      // ESRI World Dark Gray Canvas — dedicated dark-mode radar / logistics basemap
+      tileUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}';
+      tileOptions = {
+        maxZoom: 16,
+        maxNativeZoom: 16,
+        className: 'night-radar-tiles',
+      };
+    } else {
+      // OpenStreetMap — standard global vector road map with full Ethiopia regional coverage
+      tileUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+      tileOptions = {
+        maxZoom: 19,
+        subdomains: 'abc',
+      };
     }
 
-    tileLayerRef.current = L.tileLayer(tileUrl, {
-      maxZoom: 19,
-      subdomains: 'abcd',
-    }).addTo(map);
+    tileLayerRef.current = L.tileLayer(tileUrl, tileOptions).addTo(map);
 
     map.invalidateSize();
   }, [mapStyle, isDark]);

@@ -30,8 +30,8 @@ export default function ProductDetails() {
     try {
       const { conversation } = await chatService.startConversation(product._id);
       navigate(`/messages/${conversation._id}`);
-    } catch {
-      setChatError('Could not start a conversation right now.');
+    } catch (err) {
+      setChatError(err.response?.data?.message || 'Could not start a conversation right now.');
     } finally {
       setMessaging(false);
     }

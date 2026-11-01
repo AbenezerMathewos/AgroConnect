@@ -8,7 +8,8 @@ import ChatWindow from '../components/ChatWindow';
 
 export default function Messages() {
   const { user } = useAuth();
-  const { conversationId } = useParams();
+  const params = useParams();
+  const conversationId = params.conversationId || params.id;
   const navigate = useNavigate();
   const [conversations, setConversations] = useState([]);
   const [active, setActive] = useState(null);
@@ -18,9 +19,9 @@ export default function Messages() {
     chatService
       .getConversations()
       .then((data) => {
-        setConversations(data.conversations);
+        setConversations(data.conversations || []);
         if (conversationId) {
-          const match = data.conversations.find((c) => c._id === conversationId);
+          const match = (data.conversations || []).find((c) => c._id === conversationId);
           if (match) setActive(match);
         }
       })
@@ -51,7 +52,7 @@ export default function Messages() {
     <div className="messages-page">
       <div className="page-intro">
         <span className="eyebrow">Messages</span>
-        <h1>Chat with {user.role === 'farmer' ? 'buyers' : 'farmers'}</h1>
+        <h1>Chat with {user?.role === 'farmer' ? 'buyers & partners' : 'farmers & cooperatives'}</h1>
         <p>Ask questions, arrange pickup or delivery, and settle details directly.</p>
       </div>
 
@@ -61,13 +62,12 @@ export default function Messages() {
             <p>Loading...</p>
           ) : conversations.length === 0 ? (
             <div className="empty-card">
-              {user.role === 'buyer'
-                ? 'No conversations yet. Open a product and tap "Message seller" to start one.'
-                : 'No conversations yet. Buyers can message you from your product listings.'}
+              No conversations yet. Open any harvest listing and tap "Message seller" to start one.
             </div>
           ) : (
             conversations.map((c) => {
-              const otherParty = user.role === 'farmer' ? c.buyer : c.farmer;
+              const currentUid = (user?._id || user?.id)?.toString();
+              const otherParty = (c.buyer?._id || c.buyer)?.toString() === currentUid ? c.farmer : c.buyer;
               return (
                 <button
                   key={c._id}

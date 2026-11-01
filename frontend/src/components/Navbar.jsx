@@ -6,7 +6,7 @@ import { useTheme } from '../context/ThemeContext';
 import { useCurrencyUnit } from '../context/CurrencyUnitContext';
 import NotificationBell from './NotificationBell';
 import UssdSimulatorModal from './UssdSimulatorModal';
-import AgroConnectLogo from './AgroConnectLogo';
+import AgroGebeyaLogo from './AgroGebeyaLogo';
 
 
 
@@ -59,7 +59,7 @@ export default function Navbar() {
       <nav className="navbar-container">
         {/* Brand Logo */}
         <Link to="/" className="nav-brand" onClick={() => setOpen(false)}>
-          <AgroConnectLogo size={32} />
+          <AgroGebeyaLogo size={32} />
         </Link>
 
         {/* Mobile Toggle */}
@@ -167,14 +167,41 @@ export default function Navbar() {
               </div>
             ) : (
               <div className="nav-user-cluster" ref={userMenuRef}>
-                {/* Fast Action: Dashboard Button */}
-                {(user.role === 'farmer' || user.role === 'cooperative') && (
+                {/* Fast Action: Dynamic Role-Specific Dashboard Button */}
+                {user.role === 'farmer' && (
                   <Link
                     to="/farmer/dashboard"
                     className={`nav-btn-action ${isActive('/farmer/dashboard') ? 'active' : ''}`}
                     onClick={() => setOpen(false)}
                   >
-                    👨‍🌾 Dashboard
+                    👨‍🌾 Farm Dashboard
+                  </Link>
+                )}
+                {user.role === 'cooperative' && (
+                  <Link
+                    to="/cooperative/dashboard"
+                    className={`nav-btn-action ${isActive('/cooperative/dashboard') ? 'active' : ''}`}
+                    onClick={() => setOpen(false)}
+                  >
+                    🏢 Union Dashboard
+                  </Link>
+                )}
+                {user.role === 'buyer' && (
+                  <Link
+                    to="/buyer/dashboard"
+                    className={`nav-btn-action ${isActive('/buyer/dashboard') ? 'active' : ''}`}
+                    onClick={() => setOpen(false)}
+                  >
+                    🛒 Buyer Center
+                  </Link>
+                )}
+                {user.role === 'transporter' && (
+                  <Link
+                    to="/transporter/dashboard"
+                    className={`nav-btn-action ${isActive('/transporter/dashboard') ? 'active' : ''}`}
+                    onClick={() => setOpen(false)}
+                  >
+                    🚚 Fleet Hub
                   </Link>
                 )}
                 {user.role === 'admin' && (
@@ -213,13 +240,49 @@ export default function Navbar() {
                         <small>{user.email}</small>
                       </div>
                       <hr className="dropdown-divider" />
-                      {(user.role === 'farmer' || user.role === 'cooperative') && (
+                      {user.role === 'farmer' && (
                         <Link
                           to="/farmer/dashboard"
                           className="dropdown-item"
                           onClick={() => { setUserMenuOpen(false); setOpen(false); }}
                         >
-                          🌾 {t('myDashboard')}
+                          🌾 Farm Dashboard
+                        </Link>
+                      )}
+                      {user.role === 'cooperative' && (
+                        <>
+                          <Link
+                            to="/cooperative/dashboard"
+                            className="dropdown-item"
+                            onClick={() => { setUserMenuOpen(false); setOpen(false); }}
+                          >
+                            🏢 Cooperative Union Dashboard
+                          </Link>
+                          <Link
+                            to="/farmer/dashboard"
+                            className="dropdown-item"
+                            onClick={() => { setUserMenuOpen(false); setOpen(false); }}
+                          >
+                            🌾 Direct Farmgate Produce
+                          </Link>
+                        </>
+                      )}
+                      {user.role === 'buyer' && (
+                        <Link
+                          to="/buyer/dashboard"
+                          className="dropdown-item"
+                          onClick={() => { setUserMenuOpen(false); setOpen(false); }}
+                        >
+                          🛒 Buyer Command Center
+                        </Link>
+                      )}
+                      {user.role === 'transporter' && (
+                        <Link
+                          to="/transporter/dashboard"
+                          className="dropdown-item"
+                          onClick={() => { setUserMenuOpen(false); setOpen(false); }}
+                        >
+                          🚚 Transporter Fleet Hub
                         </Link>
                       )}
                       {user.role === 'admin' && (

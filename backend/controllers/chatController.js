@@ -44,7 +44,7 @@ exports.startOrGetConversation = async (req, res) => {
 // each with the other participant's name and how many unread messages are waiting.
 exports.getMyConversations = async (req, res) => {
   try {
-    const filter = req.user.role === 'farmer' ? { farmer: req.user._id } : { buyer: req.user._id };
+    const filter = { $or: [{ buyer: req.user._id }, { farmer: req.user._id }] };
     const conversations = await Conversation.find(filter)
       .populate('product', 'title images')
       .populate('buyer', 'name')

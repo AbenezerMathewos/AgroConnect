@@ -9,6 +9,12 @@ build/
 .env.local
 .env.*.local
 
+# Sub-directory specific env files
+backend/.env
+backend/.env.local
+frontend/.env
+frontend/.env.local
+
 # Uploaded product photos — keep the folder, not the files
 backend/uploads/*
 !backend/uploads/.gitkeep

@@ -451,7 +451,7 @@ async function analyzeWithCloudGemini(imageBase64, customPrompt) {
   }
 
   const systemPrompt = `
-You are the AgroConnect Ethiopia AI Plant Pathology & Agricultural Classifier.
+You are the AgroGebeya Ethiopia AI Plant Pathology & Agricultural Classifier.
 Analyze this image carefully.
 
 FIRST, determine if this image shows an agricultural crop, leaf, plant tissue, grain, vegetable, root, or farm produce.
@@ -677,7 +677,7 @@ exports.diagnoseCropDisease = async (req, res) => {
           isCloudAi: true,
           ...cloudResult,
           smsPrescriptionTemplate: cloudResult.isAgroProduct
-            ? `[AgroConnect AI] Diagnosis: ${cloudResult.diseaseName?.am || cloudResult.diseaseName?.en || 'Crop Disease'}. Severity: ${(cloudResult.severity || 'HIGH').toUpperCase()}. Info: *8028#`
+            ? `[AgroGebeya AI] Diagnosis: ${cloudResult.diseaseName?.am || cloudResult.diseaseName?.en || 'Crop Disease'}. Severity: ${(cloudResult.severity || 'HIGH').toUpperCase()}. Info: *8028#`
             : undefined,
         });
       }
@@ -807,7 +807,7 @@ exports.diagnoseCropDisease = async (req, res) => {
       organicProtocol: matchedEntry.organicRemedy,
       chemicalProtocol: matchedEntry.chemicalTreatment,
       accreditedResearchCenter: matchedEntry.researchCenter,
-      smsPrescriptionTemplate: `[AgroConnect AI] Diagnosis: ${matchedEntry.diseaseName?.am || matchedEntry.diseaseName?.en}. Severity: ${matchedEntry.severity.toUpperCase()}. Info: *8028#`,
+      smsPrescriptionTemplate: `[AgroGebeya AI] Diagnosis: ${matchedEntry.diseaseName?.am || matchedEntry.diseaseName?.en}. Severity: ${matchedEntry.severity.toUpperCase()}. Info: *8028#`,
     };
 
     return res.status(200).json(responseData);
@@ -834,7 +834,7 @@ exports.chatWithAiAgronomist = async (req, res) => {
     const langInstructions = {
       am: 'Respond in fluent, clear Amharic (አማርኛ). Use respectful and easy-to-understand Ethiopian farming terminology.',
       om: 'Respond in fluent Afaan Oromoo. Use practical and clear agricultural terminology.',
-      wot: 'Respond in Wolaytta (or Wolayttatto / Amharic blend if technical). Help the farmer with practical guidance.',
+      wot: 'Respond ENTIRELY in fluent Wolayttatto Doonaa (Wolaytta language). Use everyday Wolayta farming words the local farmer understands.',
       ti: 'Respond in fluent Tigrinya (ትግርኛ). Provide actionable, clear agricultural instructions.',
       en: 'Respond in fluent, friendly English with Ethiopian agronomic context and metrics.',
     };
@@ -846,21 +846,64 @@ exports.chatWithAiAgronomist = async (req, res) => {
       const genAI = new GoogleGenerativeAI(apiKey);
 
       const systemPrompt = `
-You are the AgroConnect Ethiopia 24/7 AI Master Agronomist & Plant Pathology Doctor.
-Your role: Provide expert, caring, and scientifically verified agronomic advice for Ethiopian farmers, unions, and agronomists across Ethiopia (Wolaita, Sidama, Oromia, Amhara, Tigray, SNNPR, etc.).
+You are the AgroGebeya Ethiopia 24/7 AI Master Agronomist providing nationwide agricultural expertise across all Ethiopian regions (Oromia, Amhara, Sidama, South Ethiopia, Tigray, Somali, Benishangul-Gumuz, Gambella, Afar, Harari, Dire Dawa, and Addis Ababa).
 
-Guidelines:
-1. Language: ${targetLangPrompt}
-2. Tone: Respectful, practical, encouraging, and clear.
-3. Expertise:
-   - Ethiopian major crops: Coffee (Buna), Enset (Qocho/Utta), Maize (Boqollo), Wheat (Qamadi/Srnay), Teff (Xaffi), Ginger (Zinjibil), Avocado, Tomato, Potato, Pulses.
-   - Soil, water conservation, weather seasons (Belg, Meher, Bega).
-   - Organic / cultural methods (compost, wood ash, push-pull, neem, crop rotation, shade trees).
-   - Ministry of Agriculture (MoA) registered chemical fungicides, pesticides, and fertilizers (NPS, Urea) with exact safe dosages per hectare/liter.
-   - Refer farmers to Ethiopian Research Centers (EIAR, JARC Jimma, Areka, Hawassa, Debre Zeit, Kulumsa, Bako) and Ethio Telecom free 8028 hotline when appropriate.
-4. Formatting: Use concise bullet points and bold headers for readability.
+═══════════════════════════════════════════════════════
+LANGUAGE DETECTION & RESPONSE RULES (HIGHEST PRIORITY)
+═══════════════════════════════════════════════════════
+- If the farmer's question contains Wolayttatto Doonaa words (e.g. utta, badalla, qocho, goshshuwaa, malaadan, aayfe, gindiyaa, zariyaa, harggi, mittaa) OR the message is primarily in Wolayttatto Doonaa script: Respond ENTIRELY in fluent Wolayttatto Doonaa. Do NOT mix in English or Amharic except for scientific crop/disease names.
+- If the question is in Amharic (አማርኛ): Respond ENTIRELY in fluent, respectful Amharic.
+- If the question is in English: Respond in clear English with actionable advice, then append a brief "**Wolayttatto Maariyaa (Summary):**" section in Wolayttatto Doonaa at the end.
+- For Afaan Oromoo, Tigrinya, or other Ethiopian languages detected: Respond in that language.
+- If the user's selected UI language is: ${targetLangPrompt}
 
-${cropContext ? `Current Crop In Question: ${cropContext}` : ''}
+═══════════════════════════════════════════════════════
+REGIONAL EXPERTISE — NATIONWIDE ETHIOPIAN AGRICULTURAL CORRIDORS
+═══════════════════════════════════════════════════════
+Priority crops & production zones:
+  • Teff (ጤፍ / Xaffi) — Gojjam, Ada'a (Bishoftu), Shewa, Southern highlands
+  • Coffee (ቡና / Buuna) — Jimma, Sidama, Yirgacheffe, Keffa, Wolaita, Harar
+  • Wheat & Barley (ስንዴ እና ገብስ) — Arsi, Bale, Central highlands
+  • Maize (በቆሎ / Badalla / Boqqolloo) — Bako, Jimma, Hawassa, Wolaita, Western Oromia
+  • Enset (እንሰት / Utta / Qocho / Bulla) — Gurage, Wolaita, Sidama, Keffa, Gedeo
+  • Oilseeds & Pulses (ሰሊጥ እና ጥራጥሬ) — Humera Sesame, Gondar, Faba Beans, Chickpeas
+  • Vegetables, Fruits & Spices — Mojo, Meki, Ziway, Red Ginger, Avocado, Chili
+
+Key diseases & pests in Ethiopia:
+  • Wheat Stem & Yellow Rust (ስንዴ ዝገት)
+  • Maize Fall Armyworm (የበቆሎ ሰራዊት ትል / Goshshuwaa Halaqetaa)
+  • Enset Bacterial Wilt (የእንሰት ባክቴሪያ አወዛ / Gomere / Woshsho)
+  • Coffee Berry Disease — CBD (የቡና ፍሬ በሽታ)
+  • Teff Head Smut and blast
+  • Sweet Potato Weevil
+
+Organic & low-cost remedies from Ethiopian farming practice:
+  • Wood ash (Mittaa Binddaa) + chili powder into maize whorl
+  • Neem leaf extract (Nim Aayfe Haattaa)
+  • Cordia africana (Waanza tree — ዋንዛ) shade intercropping for coffee
+  • Desmodium push-pull intercropping for Fall Armyworm
+  • Compost from organic crop residue (Utta Biitta Bollenttiyaa)
+  • Flame / bleach sterilization for cutting tools
+
+Key national research centers:
+  • Ethiopian Institute of Agricultural Research (EIAR) — Addis Ababa
+  • Bako National Maize Research Center (Oromia)
+  • Debre Zeit Agricultural Research Center (Teff & Pulses)
+  • Jimma Agricultural Research Center (Coffee & Spices)
+  • Hawassa & Areka Agricultural Research Centers (South Ethiopia & Sidama)
+  • Ethio Telecom Free Advisory Hotline: *8028# (dial from any phone)
+
+═══════════════════════════════════════════════════════
+GENERAL GUIDELINES
+═══════════════════════════════════════════════════════
+1. Tone: Respectful, caring, practical, and encouraging — speak as a trusted neighbour agronomist.
+2. Expertise: soil fertility (NPS/Urea), water conservation, Ethiopian seasons (Belg, Meher, Bega), postharvest handling.
+3. Formatting: Use concise bullet points and **bold headers** for readability. Keep answers actionable.
+4. Safety: NEVER recommend unregistered pesticides. Always state MoA-approved dosages per hectare.
+5. If you cannot answer with certainty, direct the farmer to Areka Research Center or *8028#.
+6. Error resilience: If this context window is too long, prioritize the farmer's question and language rule.
+
+${cropContext ? `**Current Crop Context:** ${cropContext}` : ''}
 `;
 
       const candidateModels = ['gemini-flash-lite-latest', 'gemini-flash-latest', 'gemini-1.5-flash-latest', 'gemini-1.5-flash'];
@@ -892,37 +935,140 @@ ${cropContext ? `Current Crop In Question: ${cropContext}` : ''}
             timestamp: new Date().toISOString(),
           });
         } catch (err) {
-          console.warn(`Chat model ${modelName} attempt failed:`, err.message);
+          const errMsg = err.message || '';
+          // Quota exhausted or model unavailable — try next candidate
+          if (errMsg.includes('429') || errMsg.includes('Quota') || errMsg.includes('quota') || errMsg.includes('RESOURCE_EXHAUSTED')) {
+            console.warn(`Chat model ${modelName} quota exceeded, trying next model.`);
+            continue;
+          }
+          // Model not found — try next
+          if (errMsg.includes('404') || errMsg.includes('not found')) {
+            console.warn(`Chat model ${modelName} not found, trying next model.`);
+            continue;
+          }
+          // 503 service spike — try next
+          if (errMsg.includes('503') || errMsg.includes('overloaded')) {
+            console.warn(`Chat model ${modelName} overloaded, trying next model.`);
+            continue;
+          }
+          // API key missing or invalid — bail out immediately (all models will fail)
+          if (errMsg.includes('API key') || errMsg.includes('INVALID_ARGUMENT') || errMsg.includes('401')) {
+            console.error('Gemini API key invalid or missing. Falling back to local engine.');
+            break;
+          }
+          console.warn(`Chat model ${modelName} attempt failed:`, errMsg);
         }
       }
+    } else {
+      console.warn('GEMINI_API_KEY not configured — using local agronomic engine.');
     }
 
-    // Smart Local Agronomy Engine Fallback if offline
+    // ── Smart Local Agronomy Engine Fallback (offline / API key missing / quota exhausted) ──
     let localReply = '';
     const qLower = message.toLowerCase();
 
-    if (qLower.includes('ቡና') || qLower.includes('coffee') || qLower.includes('buna') || qLower.includes('cbd')) {
-      localReply = language === 'am'
-        ? `🌱 **የቡና ፍሬ በሽታ (ሲ.ቢ.ዲ / CBD) እና እንክብካቤ መመሪያ:**\n\n1. **የተፈጥሮ መፍትሄ:** አየርና ፀሐይ በደንብ እንዲገባ የደረቁ ቅርንጫፎችን መግረዝ፤ የረገፉ ጥቁር ፍሬዎችን ሰብስቦ ማቃጠል ወይም መቅበር።\n2. **የኬሚካል መድኃኒት:** ኮሳይድ 2000 (Copper Hydroxide 77% WP) በሄክታር 2.5 ኪ.ግ በ 500 ሊትር ውሃ ተበጥብጦ የበልግ ዝናብ ከመግባቱ በፊት መርጨት።\n3. **ምርምር ማዕከል:** ጅማ የግብርና ምርምር ማዕከል (JARC)። ተጨማሪ መረጃ በነጻ ወደ *8028# ይደውሉ።`
-        : `🌱 **Coffee Berry Disease (CBD) Advisory:**\n\n1. **Organic:** Prune dense branches for sunlight and bury all dropped mummified berries.\n2. **Chemical:** Spray Copper Hydroxide 77% WP (Kocide 2000) @ 2.5 kg/ha before heavy rains.\n3. **Contact:** Jimma Agricultural Research Center (JARC) or call *8028#.`;
-    } else if (qLower.includes('እንሰት') || qLower.includes('enset') || qLower.includes('gomere') || qLower.includes('ጎመሬ') || qLower.includes('ዎሾ') || qLower.includes('ቆጮ')) {
-      localReply = language === 'am'
-        ? `🍌 **የእንሰት ባክቴሪያል ዊልት (ጎመሬ / ዎሾ) መከላከያ መመሪያ:**\n\n1. **ጥብቅ ንጽህና:** ማንኛውንም እንሰት መቁረጫ ቢላዋ፣ ጩቤ እና ገጀራ በእሳት ነበልባል ወይም በበረኪና ማምከን።\n2. **የታመመውን ማጥፋት:** የታመመውን እንሰት ወዲያውኑ ነቅሎ በመቆራረጥ ከውሃ መውረጃ ርቆ በጥልቅ ጉድጓድ ውስጥ መቅበር።\n3. **አጥር ማጠር:** ከብቶችና ፍየሎች የታመመውን እንሰት በልተው እንዳያስተላልፉ ማሳውን መከለል።\n4. **ማስታወሻ:** ለእንሰት ጎመሬ ምንም አይነት የኬሚካል መድኃኒት የለም፤ ንጽህና ብቻ ያድነዋል።\n5. **ምርምር ማዕከል:** አረካ የግብርና ምርምር ማዕከል (ደቡብ ግብርና ምርምር)።`
-        : `🍌 **Enset Bacterial Wilt (Gomere) Prevention:**\n\n1. **Sterilization:** Flame-sterilize or bleach all machetes and harvesting knives between plants.\n2. **Uproot:** Completely uproot and bury infected enset in deep pits.\n3. **Quarantine:** Fence the area to prevent livestock transmission.\n4. **Note:** There is NO chemical cure; strict phytosanitation is essential.\n5. **Contact:** Areka Agricultural Research Center.`;
-    } else if (qLower.includes('በቆሎ') || qLower.includes('maize') || qLower.includes('armyworm') || qLower.includes('አባጨጓሬ') || qLower.includes('corn')) {
-      localReply = language === 'am'
-        ? `🌽 **የመኸር ሰራዊት አባጨጓሬ (Fall Armyworm) መቆጣጠሪያ:**\n\n1. **ባህላዊ ዘዴ:** ደረቅ የእንጨት አመድ ከሚጥሚጣ ዱቄት ጋር በመደባለቅ በበቆሎው ልብ (ፈነል) ውስጥ መነስነስ።\n2. **የኬሚካል መድኃኒት:** ኢማሜክቲን ቤንዞኤት 5% SG በሄክታር 250 ግራም ከሰአት በኋላ ጸሐይ ሲቀዘቅዝ በበቆሎው አናት ላይ መርጨት።\n3. **ምርምር ማዕከል:** ሀዋሳ እና ባኮ የግብርና ምርምር ማዕከላት።`
-        : `🌽 **Fall Armyworm Management in Maize:**\n\n1. **Cultural:** Apply dry fine wood ash with chili powder directly into the central whorl funnel.\n2. **Chemical:** Spray Emamectin Benzoate 5% SG @ 250g/ha late in the afternoon.\n3. **Contact:** Hawassa / Bako Agricultural Research Center.`;
+    // ─── Coffee / CBD ───────────────────────────────────────────────────────────
+    if (qLower.includes('ቡና') || qLower.includes('coffee') || qLower.includes('buna') ||
+        qLower.includes('buuna') || qLower.includes('cbd') || qLower.includes('tukke buuna')) {
+
+      if (language === 'wot') {
+        localReply = `☕ **Buuna Harggiyaa (CBD) Naagiyaanne Maariyaa:**\n\n` +
+          `1. **Aanaara Naagiyoogaa:** Aanuwan loytti ayfana bessiya koxxiyooneta qanxxiyoogaa; meellida zo\\'aqettida ciloo buunata shiishshidi tamman xuggiyoogaa woy golle mittiyoogaa.\n` +
+          `2. **Kemikaale Caaccuwaa:** Copper Hydroxide 77% WP (Kocide 2000) hektaareyyas 2.5 kg haatta 500 Liitiree giddon walissidi iraay yiiganaappe kase caaccattiyoogaa.\n` +
+          `3. **Qorisa Kettaa:** Jimma Qorisa Kettaa (JARC). Darobaa odeettanau *8028# waadettite (biittaa).`;
+      } else if (language === 'am') {
+        localReply = `☕ **የቡና ፍሬ በሽታ (ሲ.ቢ.ዲ / CBD) እና እንክብካቤ መመሪያ:**\n\n` +
+          `1. **የተፈጥሮ መፍትሄ:** አየርና ፀሐይ በደንብ እንዲገባ የደረቁ ቅርንጫፎችን መግረዝ፤ የረገፉ ጥቁር ፍሬዎችን ሰብስቦ ማቃጠል ወይም መቅበር።\n` +
+          `2. **የኬሚካል መድኃኒት:** ኮሳይድ 2000 (Copper Hydroxide 77% WP) በሄክታር 2.5 ኪ.ግ በ 500 ሊትር ውሃ ተበጥብጦ የበልግ ዝናብ ከመግባቱ በፊት መርጨት።\n` +
+          `3. **ምርምር ማዕከል:** ጅማ (JARC) — ተጨማሪ መረጃ: *8028#`;
+      } else {
+        localReply = `☕ **Coffee Berry Disease (CBD) Advisory:**\n\n` +
+          `1. **Organic:** Prune dense branches for sunlight; collect and burn/bury all mummified berries.\n` +
+          `2. **Chemical:** Spray Copper Hydroxide 77% WP (Kocide 2000) @ 2.5 kg/ha in 500 L water before heavy rains.\n` +
+          `3. **Contact:** Jimma Agricultural Research Center (JARC) or call *8028#.\n\n` +
+          `**Wolayttatto Maariyaa:** Buuna hargguwaa (CBD) naagana mela: aanaara ciloo buunata xamqqidi caaccatta; kocide 2000 hektaareyyas 2.5 kg caaccatta.`;
+      }
+
+    // ─── Enset / Gomere / Wilt ───────────────────────────────────────────────
+    } else if (qLower.includes('እንሰት') || qLower.includes('enset') || qLower.includes('gomere') ||
+               qLower.includes('ጎመሬ') || qLower.includes('ዎሾ') || qLower.includes('ቆጮ') ||
+               qLower.includes('utta') || qLower.includes('woshsho') || qLower.includes('hosa') ||
+               qLower.includes('qocho') || qLower.includes('kocho')) {
+
+      if (language === 'wot') {
+        localReply = `🍌 **Utta Gomari (Woshsho / Hosa) Naagiyaanne Maariyaa:**\n\n` +
+          `1. **Geeshshatetta:** Utta qanxxiya baashshata ubbaakka tamman xoqissidi go\\'ettiyoogaa — kemikaale woy bliichiya uppedan.\n` +
+          `2. **Harggida Uttaa Shoddiyoogaa:** Harggida uttaa eesuwan shoddidi ollan xiishshidi goole moyzze miissennaadan kessiyoogaa.\n` +
+          `3. **Meheyaa Giddiyoogaa:** Mehee harggida haytsaa miidi harggettennaadan giddiyaa gaxiyoogaa.\n` +
+          `4. **Akeekissuwaa:** Utta gomariyau kemikaale qori aawankka baawa — geeshshatetta xalaala naagees.\n` +
+          `5. **Qorisa Kettaa:** Areka Qorisa Kettaa (WoraWora, Wolaita): +251 46 552 0110. Woy *8028# waadettite.`;
+      } else if (language === 'am') {
+        localReply = `🍌 **የእንሰት ባክቴሪያል ዊልት (ጎመሬ / ዎሾ) መከላከያ መመሪያ:**\n\n` +
+          `1. **ጥብቅ ንጽህና:** ማንኛውንም እንሰት መቁረጫ ቢላዋ፣ ጩቤ እና ገጀራ በእሳት ነበልባል ወይም በበረኪና ማምከን።\n` +
+          `2. **የታመመውን ማጥፋት:** የታመመውን እንሰት ወዲያውኑ ነቅሎ ከውሃ መውረጃ ርቆ በጥልቅ ጉድጓድ ውስጥ መቅበር።\n` +
+          `3. **አጥር ማጠር:** ከብቶችና ፍየሎች እንዳያሰራጩ ማሳውን መከለል።\n` +
+          `4. **ማስታወሻ:** ምንም አይነት የኬሚካል መፍትሄ የለም — ንጽህና ብቻ ያድነዋል።\n` +
+          `5. **ምርምር ማዕከል:** አረካ (SARI) — *8028#`;
+      } else {
+        localReply = `🍌 **Enset Bacterial Wilt (Gomere / Woshsho) Prevention:**\n\n` +
+          `1. **Sterilize:** Flame-sterilize or bleach all machetes and harvesting knives between every plant.\n` +
+          `2. **Uproot:** Immediately uproot infected enset and bury in deep pits away from waterways.\n` +
+          `3. **Quarantine:** Fence the farm to prevent livestock from spreading the bacteria.\n` +
+          `4. **Note:** There is NO chemical cure — strict phytosanitation is the ONLY solution.\n` +
+          `5. **Contact:** Areka Agricultural Research Center (WoraWora, Wolaita): +251 46 552 0110. Dial *8028#.\n\n` +
+          `**Wolayttatto Maariyaa:** Utta gomari (woshsho) naagana: qanxxiya tamman xoqissidite; harggida uttaa shoddidi kessidite. Kemikaale qori baawa.`;
+      }
+
+    // ─── Maize / Fall Armyworm ────────────────────────────────────────────────
+    } else if (qLower.includes('በቆሎ') || qLower.includes('maize') || qLower.includes('armyworm') ||
+               qLower.includes('አባጨጓሬ') || qLower.includes('corn') || qLower.includes('badalla') ||
+               qLower.includes('goshshuwaa') || qLower.includes('boqqolloo')) {
+
+      if (language === 'wot') {
+        localReply = `🌽 **Badalla / Goshshuwaa Halaqetaa (Fall Armyworm) Naagiyoogaa:**\n\n` +
+          `1. **Mittaa Binddaa:** Meldda mittaa binddaa qariyaara walissidi badallaa wozanaa giddon wottiyoogaa.\n` +
+          `2. **Kemikaale:** Emamectin Benzoate 5% SG hektaareyyas 250 giraame badallaa huuphe bolla — away gallasappe guyyiyan caaccatta.\n` +
+          `3. **Maataara Zariyaa:** Badallaa Desmodium giyo maataara walissidi zariyoogaa (push-pull).\n` +
+          `4. **Qorisa Kettaa:** Hawassa woy Bako Qorisa Kettaa. *8028# waadettite.`;
+      } else if (language === 'am') {
+        localReply = `🌽 **የመኸር ሰራዊት አባጨጓሬ (Fall Armyworm) መቆጣጠሪያ:**\n\n` +
+          `1. **ባህላዊ ዘዴ:** ደረቅ የእንጨት አመድ ከሚጥሚጣ ዱቄት ጋር ደባልቆ በበቆሎው ልብ (ፈነል) ውስጥ መነስነስ።\n` +
+          `2. **የኬሚካል መድኃኒት:** ኢማሜክቲን ቤንዞኤት 5% SG @250ግ/ሄ ከሰአት በኋላ ጸሐይ ሲቀዘቅዝ።\n` +
+          `3. **ምርምር ማዕከል:** ሀዋሳ እና ባኮ — *8028#`;
+      } else {
+        localReply = `🌽 **Fall Armyworm Management in Maize (Badalla/Goshshuwaa):**\n\n` +
+          `1. **Cultural:** Place dry fine wood ash + chili powder into the central whorl funnel of young maize.\n` +
+          `2. **Push-Pull:** Intercrop with Desmodium (Silverleaf), border with Napier grass.\n` +
+          `3. **Chemical:** Emamectin Benzoate 5% SG @ 250 g/ha directed into leaf funnel late afternoon.\n` +
+          `4. **Contact:** Hawassa / Bako Agricultural Research Center. Dial *8028#.\n\n` +
+          `**Wolayttatto Maariyaa:** Badallaa wozanaa mittaa binddaa wottite; Emamectin Benzoate 250g/ha gallasappe guyyiyan caaccatta.`;
+      }
+
+    // ─── General greeting / fallback ─────────────────────────────────────────
     } else {
-      localReply = language === 'am'
-        ? `🌾 **ሰላም! እኔ የአግሮኮኔክት ኢትዮጵያ የግብርና AI አማካሪ ነኝ።**\n\nስለ ቡና፣ እንሰት፣ በቆሎ፣ ስንዴ፣ ጤፍ፣ ዝንጅብል፣ አቮካዶ፣ የአፈር ማዳበሪያ (NPS/Urea)፣ ተባይና በሽታ መከላከያ ማንኛውንም ጥያቄ ይጠይቁኝ። እንዲሁም በስልክዎ ወደ *8028# ደውለው ፈጣን የግብርና መረጃ ማግኘት ይችላሉ።`
-        : `🌾 **Hello! I am your 24/7 AgroConnect AI Agronomist.**\n\nAsk me anything about crop diseases, organic treatments, chemical dosages, soil fertility (NPS/Urea), and Ethiopian farming seasons across Coffee, Enset, Maize, Wheat, Teff, and Ginger. You can also dial *8028# on your phone for free advisory.`;
+      if (language === 'wot') {
+        localReply = `🌾 **Saro! Taani AgroGebeya Itiyophiyaa AI Goshshaa Maaranchcha.**\n\n` +
+          `Utta (enset), Badalla (maize), Buuna (coffee), Xaffi (teff), Zinjibil (ginger), Avodadoo woy hara goshshaa harggiyan, zariyaan, goshshan woy shalqqiyan hananggidabaa taaninttoo oychana danddaetteta.\n\n` +
+          `- Areka Qorisa Kettaa (Wolaita): +251 46 552 0110\n` +
+          `- Biittaa Maariyaa: *8028# waadettite`;
+      } else if (language === 'am') {
+        localReply = `🌾 **ሰላም! እኔ የአግሮ ገበያ ኢትዮጵያ AI ግብርና አማካሪ ነኝ።**\n\n` +
+          `ስለ ቡና፣ እንሰት (ቆጮ)፣ በቆሎ፣ ስንዴ፣ ጤፍ፣ ዝንጅብል፣ አቮካዶ፣ ወይም ስለ አፈር ማዳበሪያ (NPS/Urea) ማንኛውንም ጥያቄ ይጠይቁኝ። ተጨማሪ መረጃ: *8028#.`;
+      } else {
+        localReply = `🌾 **Hello! I am your 24/7 AgroGebeya AI Agronomist for Ethiopian agriculture.**\n\n` +
+          `Ask me anything about:\n` +
+          `- **Crops:** Teff (ጤፍ), Coffee (ቡና), Wheat (ስንዴ), Maize (በቆሎ), Enset (ቆጮ/ቡላ), Ginger, Avocado\n` +
+          `- **Diseases:** Wheat Rust, Fall Armyworm, Coffee CBD, Enset Bacterial Wilt, Teff blast\n` +
+          `- **Inputs:** MoA-approved fertilizers (NPS, Urea), organic remedies (wood ash, neem, compost)\n` +
+          `- **Contacts:** EIAR & Regional Research Centers | Free agricultural hotline: *8028#\n\n` +
+          `**Wolayttatto Maariyaa:** Utta, badalla, buuna, xaffi woy hara goshshaa harggiyan oychana danddaetteta.`;
+      }
     }
 
     return res.status(200).json({
       success: true,
       reply: localReply,
-      source: 'AgroConnect Agronomic Expert Engine (Offline Ready)',
+      source: 'AgroGebeya Agronomic Expert Engine (Offline Ready)',
       timestamp: new Date().toISOString(),
     });
   } catch (error) {

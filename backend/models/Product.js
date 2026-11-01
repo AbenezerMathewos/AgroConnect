@@ -40,13 +40,13 @@ const productSchema = new mongoose.Schema(
     region: {
       type: String,
       required: true,
-      default: 'South Ethiopia',
+      default: 'Oromia',
       trim: true,
     },
     zone: {
       type: String,
       required: true,
-      default: 'Wolaita',
+      default: 'Central',
       trim: true,
     },
     woreda: {

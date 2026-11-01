@@ -1,5 +1,5 @@
 import { useLanguage } from '../context/LanguageContext';
-import AgroConnectLogo from './AgroConnectLogo';
+import AgroGebeyaLogo from './AgroGebeyaLogo';
 
 export default function Footer() {
   const { t } = useLanguage();
@@ -7,7 +7,7 @@ export default function Footer() {
     <footer className="site-footer">
       <div className="site-footer-inner">
         <div className="footer-brand-row">
-          <AgroConnectLogo size={28} />
+          <AgroGebeyaLogo size={28} />
         </div>
         <span>Empowering smallholders, cooperative unions & wholesale buyers across all regions of Ethiopia.</span>
         <span>&copy; {new Date().getFullYear()} {t('brandName')} &middot; Telebirr & CBE Escrow Protected</span>

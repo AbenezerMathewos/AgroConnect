@@ -1,7 +1,7 @@
 {
-  "name": "agroconnect-ethiopia",
+  "name": "agrogebeya-ethiopia",
   "version": "1.0.0",
-  "description": "AgroConnect Ethiopia - Connecting Farmers, Cooperatives & Buyers Nationwide",
+  "description": "AgroGebeya Ethiopia - Connecting Farmers, Cooperatives & Buyers Nationwide",
   "private": true,
   "scripts": {
     "dev:backend": "npm run dev --prefix backend",

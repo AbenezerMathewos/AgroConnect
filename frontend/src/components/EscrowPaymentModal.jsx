@@ -131,7 +131,7 @@ export default function EscrowPaymentModal({ isOpen, onClose, order, product, on
           <div className="escrow-brand-title">
             <span className="escrow-lock-icon">🔒</span>
             <div>
-              <h3>AgroConnect Escrow Payment Vault</h3>
+              <h3>AgroGebeya Escrow Payment Vault</h3>
               <p className="escrow-subtitle">Multi-Signature Protected &bull; National Agri-Trade Treasury</p>
             </div>
           </div>
@@ -157,7 +157,7 @@ export default function EscrowPaymentModal({ isOpen, onClose, order, product, on
             <div className="escrow-success-badge">
               <div className="success-icon-bounce">✓</div>
               <h2>Payment Locked in Escrow!</h2>
-              <p>Funds are safely held in the AgroConnect National Treasury until you inspect and accept the produce arrival.</p>
+              <p>Funds are safely held in the AgroGebeya National Treasury until you inspect and accept the produce arrival.</p>
             </div>
 
             <div className="escrow-voucher-card" id="printable-escrow-receipt">
@@ -358,7 +358,7 @@ export default function EscrowPaymentModal({ isOpen, onClose, order, product, on
                         </div>
                         <div className="phone-screen-content">
                           <p>
-                            <strong>Wolaita AgroConnect Treasury</strong> requests <strong>{formatPrice(totalAmount)}</strong> for Produce Escrow.
+                            <strong>AgroGebeya Ethiopia Treasury</strong> requests <strong>{formatPrice(totalAmount)}</strong> for Produce Escrow.
                           </p>
                           <label>
                             <span>Enter 4-Digit Telebirr PIN:</span>

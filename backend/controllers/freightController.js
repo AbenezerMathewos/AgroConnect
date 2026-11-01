@@ -103,3 +103,56 @@ exports.bookFreightSpace = async (req, res) => {
     res.status(500).json({ message: 'Could not book freight space', error: error.message });
   }
 };
+
+// @route   GET /api/freight/my
+// @desc    Get trips created by the logged in transporter/user
+// @access  Private
+exports.getMyTrips = async (req, res) => {
+  try {
+    const trips = await FreightTrip.find({ transporter: req.user._id })
+      .sort({ departureDate: -1, createdAt: -1 });
+    res.json({ trips });
+  } catch (error) {
+    res.status(500).json({ message: 'Could not load your freight trips', error: error.message });
+  }
+};
+
+// @route   PATCH /api/freight/:id/status
+// @desc    Update trip status (scheduled, in_transit, completed, cancelled)
+// @access  Private (transporter or admin)
+exports.updateTripStatus = async (req, res) => {
+  try {
+    const { status } = req.body;
+    const allowed = ['scheduled', 'full', 'in_transit', 'completed', 'cancelled'];
+    if (!allowed.includes(status)) {
+      return res.status(400).json({ message: 'Invalid trip status' });
+    }
+    const trip = await FreightTrip.findById(req.params.id);
+    if (!trip) return res.status(404).json({ message: 'Freight trip not found' });
+    if (trip.transporter.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Not authorized to modify this trip' });
+    }
+    trip.status = status;
+    await trip.save();
+    res.json({ message: `Trip status updated to ${status}`, trip });
+  } catch (error) {
+    res.status(500).json({ message: 'Could not update trip status', error: error.message });
+  }
+};
+
+// @route   DELETE /api/freight/:id
+// @desc    Delete or cancel a freight trip
+// @access  Private (transporter owner or admin)
+exports.deleteTrip = async (req, res) => {
+  try {
+    const trip = await FreightTrip.findById(req.params.id);
+    if (!trip) return res.status(404).json({ message: 'Freight trip not found' });
+    if (trip.transporter.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Not authorized to delete this trip' });
+    }
+    await trip.deleteOne();
+    res.json({ message: 'Trip deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Could not delete trip', error: error.message });
+  }
+};

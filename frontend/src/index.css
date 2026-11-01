@@ -1,5 +1,5 @@
 /* ==========================================================================
-   AgroConnect Ethiopia — High-Tier Design System & Master Stylesheet
+   AgroGebeya Ethiopia — High-Tier Design System & Master Stylesheet
    ========================================================================== */
 
 :root {
@@ -82,7 +82,7 @@
   --radius-pill: 9999px;
 
   /* ---- Layout Widths ---- */
-  --container-max: 1200px;
+  --container-max: 100%;
   --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
@@ -523,8 +523,8 @@ p {
 .navbar-container {
   max-width: 100%;
   width: 100%;
-  margin: 0 auto;
-  padding: 0 0.85rem;
+  margin: 0;
+  padding: 0 clamp(1rem, 2vw, 2.25rem);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -534,7 +534,7 @@ p {
 }
 
 /* ==========================================================================
-   AgroConnect Custom Brand Insignia & Logo
+   AgroGebeya Custom Brand Insignia & Logo
    ========================================================================== */
 
 .agro-brand-logo {
@@ -609,7 +609,8 @@ p {
   letter-spacing: -0.03em;
 }
 
-.logo-name-connect {
+.logo-name-connect,
+.logo-name-gebeya {
   color: #34d399 !important;
   font-weight: 800;
 }
@@ -1156,12 +1157,28 @@ p {
 
 .main-content {
   flex: 1;
-  max-width: var(--container-max);
+  max-width: 100%;
   width: 100%;
-  margin: 0 auto;
-  padding: 1.75rem 1.5rem 3.5rem;
+  margin: 0;
+  padding: 1.5rem clamp(1rem, 2vw, 2.25rem) 3.5rem;
   position: relative;
   z-index: 1;
+  box-sizing: border-box;
+}
+
+/* Full-width screen layout for primary pages & dashboards */
+.home-page,
+.products-page,
+.market-page,
+.freight-page,
+.advisory-page,
+.admin-dashboard,
+.farmer-dashboard,
+.orders-page,
+.product-details-page {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .page-intro {
@@ -2511,10 +2528,219 @@ p {
   color: #34d399 !important;
 }
 
+/* Night Radar Dark Map Tiles */
+.night-radar-tiles {
+  filter: contrast(1.15) brightness(0.92);
+}
+
 /* Custom Real Leaflet Markers */
 .leaflet-custom-agri-marker {
   background: none !important;
   border: none !important;
+}
+
+/* AI 30-Day Market Price Prediction System */
+.ai-prediction-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: var(--radius-lg);
+  padding: 1.15rem;
+  margin-top: 1.15rem;
+  transition: all 0.3s ease;
+}
+
+[data-theme="dark"] .ai-prediction-card {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+}
+
+.ai-prediction-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.85rem;
+  flex-wrap: wrap;
+}
+
+.ai-prediction-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ai-prediction-title h4 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--slate-900);
+}
+
+[data-theme="dark"] .ai-prediction-title h4 {
+  color: #f8fafc !important;
+}
+
+.ai-source-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-pill);
+  background: rgba(16, 185, 129, 0.12);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+[data-theme="dark"] .ai-source-badge {
+  background: rgba(52, 211, 153, 0.15) !important;
+  color: #34d399 !important;
+  border-color: rgba(52, 211, 153, 0.3) !important;
+}
+
+.ai-prediction-loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 2rem 1rem;
+  background: #ffffff;
+  border-radius: var(--radius-md);
+  border: 1px dashed #cbd5e1;
+  text-align: center;
+}
+
+[data-theme="dark"] .ai-prediction-loader {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #94a3b8 !important;
+}
+
+.ai-predict-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid rgba(16, 185, 129, 0.2);
+  border-top-color: #10b981;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.ai-prediction-content {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: var(--radius-md);
+  padding: 1rem 1.15rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="dark"] .ai-prediction-content {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+.ai-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 0.9rem;
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+[data-theme="dark"] .ai-metrics-grid {
+  border-bottom-color: #334155 !important;
+}
+
+.ai-metric-box {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.ai-metric-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #64748b;
+}
+
+[data-theme="dark"] .ai-metric-label {
+  color: #94a3b8 !important;
+}
+
+.ai-metric-value {
+  font-size: 1.12rem;
+  font-weight: 800;
+  color: var(--slate-900);
+}
+
+[data-theme="dark"] .ai-metric-value {
+  color: #f8fafc !important;
+}
+
+.ai-trend-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.8rem;
+  font-weight: 800;
+  padding: 0.15rem 0.5rem;
+  border-radius: var(--radius-pill);
+}
+
+.ai-trend-pill.rising {
+  background: rgba(16, 185, 129, 0.12);
+  color: #059669;
+}
+
+.ai-trend-pill.falling {
+  background: rgba(239, 68, 68, 0.12);
+  color: #dc2626;
+}
+
+.ai-trend-pill.stable {
+  background: rgba(245, 158, 11, 0.12);
+  color: #d97706;
+}
+
+.ai-action-box {
+  background: rgba(16, 185, 129, 0.08);
+  border-left: 3px solid #10b981;
+  padding: 0.65rem 0.85rem;
+  border-radius: 4px;
+  margin: 0.75rem 0;
+  font-size: 0.85rem;
+  color: #065f46;
+}
+
+[data-theme="dark"] .ai-action-box {
+  background: rgba(16, 185, 129, 0.12) !important;
+  color: #6ee7b7 !important;
+}
+
+.ai-drivers-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.6rem;
+}
+
+.ai-driver-tag {
+  background: #f1f5f9;
+  border-radius: var(--radius-pill);
+  padding: 0.25rem 0.65rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+[data-theme="dark"] .ai-driver-tag {
+  background: #334155 !important;
+  color: #cbd5e1 !important;
 }
 
 .real-map-pin {
@@ -5537,15 +5763,17 @@ p {
 }
 
 .site-footer-inner {
-  max-width: var(--container-max);
-  margin: 0 auto;
-  padding: 1.75rem 1.5rem;
+  max-width: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 1.75rem clamp(1rem, 2vw, 2.25rem);
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 0.85rem;
   font-size: 0.82rem;
+  box-sizing: border-box;
 }
 
 /* Alerts & Loading States */

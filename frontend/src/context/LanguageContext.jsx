@@ -12,7 +12,7 @@ export const LANGUAGES = [
 
 export const translations = {
   en: {
-    brandName: 'AgroConnect Ethiopia',
+    brandName: 'AgroGebeya Ethiopia',
     tagline: 'Connecting Farmers, Cooperatives & Buyers Nationwide',
     browseProducts: 'Browse Marketplace',
     marketPrices: 'Price Radar & Arbitrage',
@@ -28,7 +28,7 @@ export const translations = {
     getStarted: 'Get Started Free',
     heroTitle: 'Empowering Ethiopian Agriculture from Farmgate to National Markets',
     heroSubtitle: 'Direct crop trade, cooperative aggregation, Telebirr escrow protection, and return-trip freight sharing — ending broker exploitation and cutting post-harvest losses.',
-    threeStepsTitle: 'How AgroConnect Works Across Ethiopia',
+    threeStepsTitle: 'How AgroGebeya Works Across Ethiopia',
     step1Title: '1. Farmers & Unions List Produce',
     step1Text: 'Post single farm harvests or cooperative pooled lots with verified grades (Grade 1/2, Organic).',
     step2Title: '2. Direct Trade & Price Radar',
@@ -81,7 +81,7 @@ export const translations = {
     chemicalAdvice: 'Ministry of Agriculture Guidelines',
   },
   am: {
-    brandName: 'አግሮኮኔክት ኢትዮጵያ',
+    brandName: 'አግሮ ገበያ ኢትዮጵያ',
     tagline: 'አርሶ አደሮችን፣ ዩኒየኖችን እና ነጋዴዎችን በመላው ሀገሪቱ የሚያስተሳስር',
     browseProducts: 'ምርቶችን ይመልከቱ',
     marketPrices: 'የዋጋ ንጽጽርና መረጃ',
@@ -97,7 +97,7 @@ export const translations = {
     getStarted: 'አሁኑኑ ይጀምሩ',
     heroTitle: 'የኢትዮጵያን ግብርና ከአምራች እስከ ማዕከላዊ ገበያ የሚያገናኝ ዲጂታል መድረክ',
     heroSubtitle: 'ያለ ደላላ ቀጥታ ግብይት፣ የህብረት ስራ ማህበራት ምርት ስብስብ፣ በቴሌብር የዋስትና ክፍያ እና የመመለሻ የጭነት መኪና ቅንጅት።',
-    threeStepsTitle: 'አግሮኮኔክት እንዴት ይሰራል?',
+    threeStepsTitle: 'አግሮ ገበያ እንዴት ይሰራል?',
     step1Title: '1. ምርት መመዝገብ',
     step1Text: 'አርሶ አደሮችና ማህበራት ምርቶቻቸውን በጥራት ደረጃ (ደረጃ 1/2) እና በኩንታል ይመዘግባሉ።',
     step2Title: '2. የገበያ ዋጋ ንጽጽር',
@@ -150,7 +150,7 @@ export const translations = {
     chemicalAdvice: 'የግብርና ሚኒስቴር መመሪያ',
   },
   om: {
-    brandName: 'AgroConnect Itoophiyaa',
+    brandName: 'AgroGebeya Itoophiyaa',
     tagline: 'Qonnaan bultoota, Yuuniyeenotaa fi Daldaltoota Biyyaalessaa Walqunnamsiisu',
     browseProducts: 'Oomishaalee Daawwadhaa',
     marketPrices: 'Gatii Gabaa fi Qorannoo',
@@ -166,7 +166,7 @@ export const translations = {
     getStarted: 'Tola Jalqabaa',
     heroTitle: 'Qonna Itoophiyaa Qonnaan Bulaarraa Hanga Gabaa Giddugaleessaatti Ceesisuu',
     heroSubtitle: 'Daldala qajeeltoo giddu-galeessa malee, waldaalee qonnaan bultootaa, wabii kaffaltii Telebirr fi fe’iinsa konkolaataa.',
-    threeStepsTitle: 'AgroConnect Akkamitti Hojjeta?',
+    threeStepsTitle: 'AgroGebeya Akkamitti Hojjeta?',
     step1Title: '1. Oomisha Galmeessuu',
     step1Text: 'Qonnaan bultoonni fi yuuniyeenonni oomisha isaanii sadarkaa qulqullinaa wajjin galmeessu.',
     step2Title: '2. Gatii Gabaa Walbira Qabuu',
@@ -219,7 +219,7 @@ export const translations = {
     chemicalAdvice: 'Qajeelfama Ministeera Qonnaa',
   },
   wot: {
-    brandName: 'AgroConnect Itoophiyaa',
+    brandName: 'AgroGebeya Itoophiyaa',
     tagline: 'Goshshanchata, Heebretaa Maabaratanne Aycciyagata Issife Gathiyaa',
     browseProducts: 'Kathaa Beeyite',
     marketPrices: 'Gabaa Wagaa Qonccissiyo',
@@ -235,7 +235,7 @@ export const translations = {
     getStarted: 'Haani Doomite',
     heroTitle: 'Itoophiya Goshshatethaa Gadiyaappe Gabaa Giddo Gathiyo Dijiitaliya',
     heroSubtitle: 'Dalalayi bayina qoncce zalqqiya, Heebreta Maabareti kathiya issife shishiyo, Telebirre waasina kiffilatanne togisiya makiniyara.',
-    threeStepsTitle: 'AgroConnect Waani Ooshettii?',
+    threeStepsTitle: 'AgroGebeya Waani Ooshettii?',
     step1Title: '1. Kathaa Qonccissiyo',
     step1Text: 'Goshshanchati loe katha bantta qofa woyikko maabarappe shishidi qonccissoosona.',
     step2Title: '2. Gabaa Wagaa Qanxiyo',
@@ -288,7 +288,7 @@ export const translations = {
     chemicalAdvice: 'Goshsha Ministiriya Erishe',
   },
   ti: {
-    brandName: 'አግሮኮኔክት ኢትዮጵያ',
+    brandName: 'አግሮ ገበያ ኢትዮጵያ',
     tagline: 'ሓረስቶት፣ ሕብረት ማሕበራትን ነጋዶን ዘራኽብ መድረኽ',
     browseProducts: 'ፍርያት ርኣዩ',
     marketPrices: 'ዋጋ ዕዳጋን ንጽጽርን',
@@ -304,7 +304,7 @@ export const translations = {
     getStarted: 'ሕጂ ጀምሩ',
     heroTitle: 'ሕርሻ ኢትዮጵያ ካብ ሓረስታይ ናብ ማእከላይ ዕዳጋ ዘራኽብ ቴክኖሎጂ',
     heroSubtitle: 'ብዘይ ደላሊ ቀጥታዊ ንግዲ፣ ናይ ማሕበራት ሓባራዊ ምድላው፣ ናይ ቴሌብር ውሕስነት ክፍሊትን ምምላስ መኪና ምትሕብባርን።',
-    threeStepsTitle: 'አግሮኮኔክት ከመይ ይሰርሕ?',
+    threeStepsTitle: 'አግሮ ገበያ ከመይ ይሰርሕ?',
     step1Title: '1. ፍርያት ምምዝጋብ',
     step1Text: 'ሓረስቶትን ሕብረት ማሕበራትን ፍርያቶም ብደረጃ ጽሬት ይምዝግቡ።',
     step2Title: '2. ንጽጽር ዋጋ ዕዳጋ',
@@ -360,11 +360,11 @@ export const translations = {
 
 export function LanguageProvider({ children }) {
   const [lang, setLang] = useState(() => {
-    return localStorage.getItem('agroconnect_lang') || 'en';
+    return localStorage.getItem('agrogebeya_lang') || 'en';
   });
 
   useEffect(() => {
-    localStorage.setItem('agroconnect_lang', lang);
+    localStorage.setItem('agrogebeya_lang', lang);
     document.documentElement.lang = lang;
   }, [lang]);
 
